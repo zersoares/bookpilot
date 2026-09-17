@@ -13,8 +13,36 @@ import { Errors } from "./errors.js";
 import { dbAsService } from "./db.js";
 import { PROMPTS } from "./prompts.js";
 
-const API_URL = "https://api.anthropic.com/v1/messages";
 const API_VERSION = "2023-06-01";
+
+/**
+ * Where to send the request.
+ *
+ * Defaults to Anthropic directly, but honours ANTHROPIC_BASE_URL so a
+ * gateway in front of the API works. Netlify's AI Gateway sets that
+ * variable alongside its own short-lived ANTHROPIC_API_KEY, and the two
+ * only function as a pair: send the gateway's token to api.anthropic.com
+ * and it comes back "invalid x-api-key", which is exactly what this
+ * deployment saw for ten days.
+ *
+ * Tolerates a base that already carries the /v1 prefix.
+ */
+function messagesUrl() {
+  const base = (env.anthropicBaseUrl || "https://api.anthropic.com").replace(/\/+$/, "");
+  return /\/v1$/.test(base) ? `${base}/messages` : `${base}/v1/messages`;
+}
+
+/**
+ * The shape of the key in use — never the key itself. Enough to tell whose
+ * key a 401 is complaining about: `sk-ant-` is Anthropic's own prefix,
+ * while `eyJhbGc` is a JWT, meaning something upstream substituted it.
+ */
+function keyShape() {
+  const k = env.anthropicKey || "";
+  if (!k) return "key:absent";
+  const prefix = k.slice(0, 7).replace(/[^A-Za-z0-9_-]/g, "?");
+  return `key:${prefix}/${k.length}${/\s/.test(k) ? "/whitespace" : ""}`;
+}
 
 // Models the server will talk to. An admin can switch between these in
 // the settings table; anything else is ignored so a bad settings row
@@ -210,7 +238,7 @@ export async function generate(key, variables = {}) {
 
   let res;
   try {
-    res = await fetch(API_URL, {
+    res = await fetch(messagesUrl(), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -235,7 +263,11 @@ export async function generate(key, variables = {}) {
     // The upstream body can contain the request echo; keep it in the log
     // and give the user the plain-language version.
     console.error(`[bookpilot] AI ${key} -> ${res.status}: ${raw.slice(0, 500)}`);
-    throw withDiagnostic(Errors.aiUnavailable(), diagnose(raw, res.status));
+    // On an auth failure, say whose key was used. That distinction is the
+    // whole diagnosis when a platform can substitute the variable.
+    const detail = diagnose(raw, res.status);
+    throw withDiagnostic(Errors.aiUnavailable(),
+      res.status === 401 || res.status === 403 ? `${detail}:${keyShape()}` : detail);
   }
 
   let message;

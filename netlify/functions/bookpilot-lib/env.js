@@ -32,6 +32,11 @@ export const env = {
 
   // --- Anthropic ------------------------------------------------------
   anthropicKey: read("ANTHROPIC_API_KEY"),
+  // Netlify's AI Gateway injects ANTHROPIC_API_KEY and ANTHROPIC_BASE_URL
+  // into the function environment, and its values win over site ones.
+  // Honouring the base URL is what makes that pairing work; without it
+  // the gateway's token goes to api.anthropic.com, which rejects it.
+  anthropicBaseUrl: read("ANTHROPIC_BASE_URL"),
 
   // --- Stripe ---------------------------------------------------------
   stripeSecret: read("STRIPE_SECRET_KEY"),
