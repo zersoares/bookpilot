@@ -18,6 +18,9 @@ const read = (p) => readFileSync(join(ROOT, p), "utf8");
 
 const schema = read("sql/001_schema.sql");
 const rls = read("sql/002_rls.sql");
+const functions = read("sql/004_functions.sql");
+const hardening = read("sql/005_hardening.sql");
+const allSql = [schema, rls, functions, hardening].join("\n");
 
 test("every table created by the schema has RLS enabled", () => {
   const tables = [...schema.matchAll(/create table if not exists public\.(\w+)/g)].map((m) => m[1]);
@@ -47,7 +50,11 @@ test("every user-owned table has a policy scoped to auth.uid()", () => {
   }
 });
 
-test("the integrations table, which holds OAuth tokens, is not reachable by clients", () => {
+test("the integrations table never exposes its OAuth tokens to clients", () => {
+  // 002 removes every privilege as the baseline. 005 grants back exactly
+  // the columns the status view selects — tokens excluded — so the view
+  // can run as the caller and be subject to RLS. See the column-grant
+  // test below, which is what keeps the tokens out.
   assert.match(rls, /revoke all on public\.integrations from anon, authenticated/);
   // The UI reads connection state through a view that selects no token
   // columns and filters to the caller.
@@ -215,4 +222,88 @@ test("the tracking script collects nothing that identifies a visitor", () => {
     assert.ok(!script.includes(forbidden), `the tracking script must not touch ${forbidden}`);
   }
   assert.match(script, /window\.bookpilotConsent !== false/, "there must be a consent gate");
+});
+
+// --- Supabase Security Advisor findings, kept closed --------------------
+
+/** Every `create or replace function` in the SQL, with its preamble. */
+function declaredFunctions() {
+  return [...allSql.matchAll(
+    /create or replace function (public\.\w+)\s*\(([^)]*)\)([\s\S]*?)as \$\$/g
+  )].map(([, name, params, preamble]) => ({ name, params, preamble }));
+}
+
+/** The text of the revoke statement for a function, or null. */
+function revokeFor(name) {
+  const needle = `revoke execute on function public.${name}(`;
+  const at = allSql.indexOf(needle);
+  if (at === -1) return null;
+  const end = allSql.indexOf(";", at);
+  return allSql.slice(at, end === -1 ? undefined : end);
+}
+
+test("every SECURITY DEFINER function has a pinned search_path", () => {
+  // A resolvable search_path inside a definer function is a privilege
+  // escalation route: the caller gets to choose which schema the body
+  // resolves names against. Either the function declares it inline, or
+  // 005 pins it with ALTER.
+  const definers = declaredFunctions().filter((f) => /security definer/i.test(f.preamble));
+  assert.ok(definers.length >= 10, `expected the definer functions, found ${definers.length}`);
+
+  for (const { name, preamble } of definers) {
+    const inline = /set search_path\s*=/i.test(preamble);
+    const altered = hardening.includes(`alter function ${name}(`)
+      && /set search_path/i.test(hardening);
+    assert.ok(inline || altered, `${name} does not pin its search_path`);
+  }
+});
+
+test("the trigger function that stamps updated_at pins its search_path too", () => {
+  // SECURITY INVOKER, so the mildest case — but it fires on every table
+  // in the schema, which is why the Advisor flags it.
+  assert.ok(
+    hardening.includes("alter function public.bp_touch_updated_at() set search_path = public"),
+    "bp_touch_updated_at still has a mutable search_path"
+  );
+});
+
+test("the credit and account functions stay out of reach of client roles", () => {
+  // These move money, change plans and delete accounts. Only the service
+  // role may call them, and bp_admin_overview refuses non-admins inside
+  // as well.
+  for (const fn of ["bp_consume_credits", "bp_refund_credits", "bp_apply_plan",
+                    "bp_delete_account", "bp_admin_overview"]) {
+    const revoked = revokeFor(fn);
+    assert.ok(revoked, `${fn} is never revoked from the client roles`);
+    assert.match(revoked, /\banon\b/, `${fn} is still executable by anon`);
+    assert.match(revoked, /\bauthenticated\b/, `${fn} is still executable by authenticated`);
+  }
+});
+
+test("integration_status runs as the caller, so RLS applies to it", () => {
+  // On Postgres' default the view runs as its owner and bypasses RLS on a
+  // table holding OAuth tokens — the Advisor's one error.
+  assert.ok(
+    hardening.includes("alter view public.integration_status set (security_invoker = on)"),
+    "integration_status still runs with its owner's privileges"
+  );
+  // Which only helps if the caller can also satisfy RLS on the table.
+  assert.ok(
+    hardening.includes("create policy integrations_read_own on public.integrations"),
+    "no row policy backs the view once it runs as the caller"
+  );
+  assert.match(hardening, /using \(user_id = auth\.uid\(\)\)/i);
+});
+
+test("no client role is ever granted the OAuth tokens", () => {
+  // The reason integrations is readable column-by-column rather than
+  // wholesale: access_token and refresh_token must never leave the server.
+  const grants = [...allSql.matchAll(
+    /grant select \(([^)]*)\) on public\.integrations to ([^;]+);/gi
+  )];
+  assert.ok(grants.length >= 1, "expected a column-level grant on integrations");
+  for (const [, columns] of grants) {
+    assert.doesNotMatch(columns, /access_token/, "access_token is granted to a client role");
+    assert.doesNotMatch(columns, /refresh_token/, "refresh_token is granted to a client role");
+  }
 });

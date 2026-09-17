@@ -57,7 +57,7 @@ Run the tests:
 node --test "tests/*.test.mjs"
 ```
 
-52 unit tests and structural security checks, no dependencies. There is
+57 unit tests and structural security checks, no dependencies. There is
 also an end-to-end walk of the product through the demo workspace, which
 needs Playwright installed somewhere:
 
@@ -105,6 +105,7 @@ sql/001_schema.sql    -- tables, indexes, triggers
 sql/002_rls.sql       -- row level security (run this; it is not optional)
 sql/003_seed.sql      -- plans, credit costs, flags, settings
 sql/004_functions.sql -- credit accounting, plan changes, deletion, admin stats
+sql/005_hardening.sql -- search_path pinning, security_invoker view, column grants
 ```
 
 To make yourself an admin:
