@@ -51,6 +51,35 @@ const ALLOWED_MODELS = ["claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5"];
 const DEFAULT_MODEL = "claude-opus-5";
 const ALLOWED_EFFORT = ["low", "medium", "high", "xhigh", "max"];
 
+// Which of the allowed models accept `effort`. Haiku 4.5 does not, and
+// rejects the entire request rather than ignoring the field — verified
+// against the API, not assumed.
+const EFFORT_MODELS = new Set(["claude-opus-5", "claude-sonnet-5"]);
+
+/**
+ * Close every object in a JSON schema.
+ *
+ * Anthropic's structured output requires `additionalProperties: false` on
+ * each object, and refuses the request otherwise:
+ *
+ *   output_config.format.schema: For 'object' type,
+ *   'additionalProperties' must be explicitly set to false
+ *
+ * The prompts declare their schemas without it. Normalising here rather
+ * than editing each schema means a new prompt cannot reintroduce the
+ * problem. Returns a copy — PROMPTS is module-level and shared.
+ */
+export function strictSchema(node) {
+  if (Array.isArray(node)) return node.map(strictSchema);
+  if (!node || typeof node !== "object") return node;
+  const out = {};
+  for (const [key, value] of Object.entries(node)) out[key] = strictSchema(value);
+  if (out.type === "object" && out.additionalProperties === undefined) {
+    out.additionalProperties = false;
+  }
+  return out;
+}
+
 // Anthropic requests are bounded so a slow generation surfaces as a
 // friendly "try again" rather than a serverless timeout with no message.
 const REQUEST_TIMEOUT_MS = 55_000;
@@ -228,8 +257,10 @@ export async function generate(key, variables = {}) {
     system: systemPrompt,
     messages: [{ role: "user", content: render(userTemplate, variables) }],
     output_config: {
-      effort,
-      ...(schema ? { format: { type: "json_schema", schema } } : {}),
+      // Not every model accepts `effort`: Haiku 4.5 rejects the whole
+      // request with "This model does not support the effort parameter".
+      ...(EFFORT_MODELS.has(model) ? { effort } : {}),
+      ...(schema ? { format: { type: "json_schema", schema: strictSchema(schema) } } : {}),
     },
   };
 
