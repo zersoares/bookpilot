@@ -57,7 +57,7 @@ Run the tests:
 node --test "tests/*.test.mjs"
 ```
 
-45 unit tests and structural security checks, no dependencies. There is
+49 unit tests and structural security checks, no dependencies. There is
 also an end-to-end walk of the product through the demo workspace, which
 needs Playwright installed somewhere:
 

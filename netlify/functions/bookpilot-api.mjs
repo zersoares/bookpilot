@@ -9,7 +9,7 @@
 
 import { withGuards, json, readJson, pathSegments } from "./bookpilot-lib/http.js";
 import { authenticate } from "./bookpilot-lib/auth.js";
-import { dbAsService } from "./bookpilot-lib/db.js";
+import { dbAsService, databaseReachable } from "./bookpilot-lib/db.js";
 import { Errors } from "./bookpilot-lib/errors.js";
 import { capabilities, env } from "./bookpilot-lib/env.js";
 import { memoryLimit } from "./bookpilot-lib/ratelimit.js";
@@ -29,6 +29,11 @@ async function handleConfig() {
   let plans = [];
   let costs = {};
   let flags = {};
+  // null = undecided. Reading the reference data proves the project
+  // answers, so the healthy path costs no extra request; any other
+  // outcome has to be probed, because a failed query is not the same
+  // thing as a project that has gone away.
+  let reachable = null;
   if (caps.database && env.supabaseServiceKey) {
     const service = dbAsService();
     try {
@@ -38,10 +43,21 @@ async function handleConfig() {
       ]);
       const flagRows = await service.select("feature_flags", { select: "key,enabled" });
       flags = Object.fromEntries(flagRows.map((f) => [f.key, f.enabled]));
-    } catch {
-      // Reference data is not worth failing the whole page load over.
+      reachable = true;
+    } catch (err) {
+      // Reference data is not worth failing the whole page load over, but
+      // it is worth logging — and it leaves reachability undecided.
+      console.error("[bookpilot] config: reference data unavailable:", err?.message || err);
     }
   }
+  if (caps.database && reachable === null) reachable = await databaseReachable();
+
+  // `database` has to mean "the database answers", not "the environment
+  // variables are set". The client chooses between the real workspace and
+  // the demo one on the strength of this flag, so a paused project that
+  // still has its configuration would otherwise send people to a sign-in
+  // form that cannot possibly work.
+  caps.database = Boolean(caps.database && reachable);
   return json({
     capabilities: caps,
     plans,

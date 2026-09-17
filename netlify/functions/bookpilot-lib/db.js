@@ -139,3 +139,37 @@ export function dbAsUser(token) {
 export function dbAsService() {
   return makeClient({ token: env.supabaseServiceKey, isService: true });
 }
+
+/**
+ * Transport-level check: does the Supabase project answer at all?
+ *
+ * Any HTTP reply counts as reachable, including 401 and 404 — those prove
+ * the project is there and merely disagreed with the request. Only a
+ * connection failure or a timeout means it is gone. That distinction is
+ * the whole point: a missing table or an RLS refusal is a query problem,
+ * and must not be mistaken for a dead project.
+ *
+ * Used by the config endpoint so `capabilities.database` can mean "the
+ * database answers" rather than "someone set the environment variables".
+ */
+export async function databaseReachable({ timeoutMs = 3000 } = {}) {
+  if (!env.supabaseUrl || !env.supabaseAnonKey) return false;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    await fetch(`${env.supabaseUrl.replace(/\/$/, "")}/rest/v1/`, {
+      method: "GET",
+      headers: { apikey: env.supabaseAnonKey },
+      signal: controller.signal,
+    });
+    return true;
+  } catch (err) {
+    // A paused project stops resolving in DNS, so this is the branch a
+    // free-tier project that has idled out actually lands in.
+    console.error("[bookpilot] database unreachable:", err?.message || err);
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}

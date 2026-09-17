@@ -401,8 +401,9 @@ async function boot() {
     useDemoAdapter(demoAdapter);
     store.set({ demo: true, config: await API.config() });
     if (!wantsDemo && !hasBackend) {
-      // Honest about why: the deployment simply isn't connected yet.
-      console.info("[bookpilot] No database configured — running the demo workspace.");
+      // Honest about why. The flag covers both cases — never configured,
+      // and configured but not answering — so the wording has to as well.
+      console.info("[bookpilot] The database isn't available — running the demo workspace.");
     }
   } else {
     store.set({ demo: false, config });
