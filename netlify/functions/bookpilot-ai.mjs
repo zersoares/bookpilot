@@ -42,7 +42,12 @@ async function billed(ctx, operation, bookId, run) {
     });
     return { result, credits };
   } catch (err) {
-    await refund(ctx.user.id, credits, operation);
+    // bp_refund_credits writes `refund:<reason>` into ai_usage.operation,
+    // so carrying the diagnostic here is what makes a production AI failure
+    // readable from the database instead of only from Netlify's log UI.
+    // ai.js guarantees the string is short and free of the request echo.
+    const reason = err?.diagnostic ? `${operation}|${err.diagnostic}` : operation;
+    await refund(ctx.user.id, credits, reason);
     throw err;
   }
 }

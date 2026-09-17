@@ -119,6 +119,60 @@ function extractJson(message) {
  * @param {object} variables values for the template placeholders
  * @returns {{data: object, usage: object, model: string}}
  */
+/**
+ * A short code describing why an AI call failed, safe to persist.
+ *
+ * Netlify's function logs are readable only in its own UI, which makes a
+ * production failure effectively undiagnosable from anywhere else. So the
+ * reason now rides back with the error and is written to ai_usage by the
+ * refund path, where a query can read it.
+ *
+ * Deliberately narrow: the HTTP status, Anthropic's own error `type`, and
+ * a hard-capped message. The raw upstream body can echo the request —
+ * which here is the author's book text — so it never goes in. The log
+ * still keeps the full body for whoever has the UI open.
+ */
+// Messages worth storing, because each names an operational cause we would
+// otherwise have to guess at. Anything unrecognised is dropped rather than
+// truncated: Anthropic quotes the offending request back on a validation
+// error, and the first characters of that quote are the author's book text,
+// so a length cap alone is not a safeguard.
+const SAFE_MESSAGES = [
+  /credit balance/i,
+  /invalid x-api-key/i,
+  /authentication/i,
+  /rate limit/i,
+  /too many requests/i,
+  /overloaded/i,
+  /max_tokens/i,
+  /model.{0,60}(not found|does not exist|not supported)/i,
+  /timed? ?out/i,
+  /permission|not allowed|unauthorized/i,
+];
+
+export function diagnose(raw, status) {
+  const parts = [`http_${status}`];
+  try {
+    const err = JSON.parse(raw)?.error;
+    if (err?.type) parts.push(String(err.type));
+    if (err?.message) {
+      const flat = String(err.message).replace(/\s+/g, " ").trim();
+      if (SAFE_MESSAGES.some((pattern) => pattern.test(flat))) {
+        parts.push(flat.slice(0, 120));
+      }
+    }
+  } catch {
+    /* non-JSON upstream body: the status alone is the diagnosis */
+  }
+  return parts.join(":");
+}
+
+/** Attach a diagnostic to an error without changing what the user sees. */
+function withDiagnostic(error, diagnostic) {
+  error.diagnostic = diagnostic;
+  return error;
+}
+
 export async function generate(key, variables = {}) {
   if (!env.anthropicKey) throw Errors.notConfigured("AI generation");
 
@@ -169,7 +223,10 @@ export async function generate(key, variables = {}) {
   } catch (err) {
     clearTimeout(timer);
     console.error(`[bookpilot] AI request failed (${key}):`, err);
-    throw Errors.aiUnavailable();
+    // An abort is our own timeout firing — the signature of a request that
+    // outlived the platform's execution limit.
+    throw withDiagnostic(Errors.aiUnavailable(),
+      err?.name === "AbortError" ? "timeout" : `transport:${err?.name || "unknown"}`);
   }
   clearTimeout(timer);
 
@@ -178,14 +235,14 @@ export async function generate(key, variables = {}) {
     // The upstream body can contain the request echo; keep it in the log
     // and give the user the plain-language version.
     console.error(`[bookpilot] AI ${key} -> ${res.status}: ${raw.slice(0, 500)}`);
-    throw Errors.aiUnavailable();
+    throw withDiagnostic(Errors.aiUnavailable(), diagnose(raw, res.status));
   }
 
   let message;
   try {
     message = JSON.parse(raw);
   } catch {
-    throw Errors.aiUnavailable();
+    throw withDiagnostic(Errors.aiUnavailable(), "unparseable_response");
   }
 
   // A safety classifier can decline a request: HTTP 200 with
@@ -198,7 +255,7 @@ export async function generate(key, variables = {}) {
   const data = extractJson(message);
   if (!data) {
     console.error(`[bookpilot] AI ${key} returned unparseable content`);
-    throw Errors.aiUnavailable();
+    throw withDiagnostic(Errors.aiUnavailable(), "no_json_in_content");
   }
 
   return {
