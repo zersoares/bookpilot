@@ -141,13 +141,21 @@ export function dbAsService() {
 }
 
 /**
- * Transport-level check: does the Supabase project answer at all?
+ * Can the Supabase project actually serve a query?
  *
- * Any HTTP reply counts as reachable, including 401 and 404 — those prove
- * the project is there and merely disagreed with the request. Only a
- * connection failure or a timeout means it is gone. That distinction is
- * the whole point: a missing table or an RLS refusal is a query problem,
- * and must not be mistaken for a dead project.
+ * Three things count as "no", and they are not the same failure:
+ *
+ *   - No answer at all. A paused free-tier project stops resolving in
+ *     DNS, so an idled-out project lands here.
+ *   - A 5xx. The platform is there but cannot serve; a project that is
+ *     still waking from a restore answers this way for a minute or so.
+ *   - PGRST002. PostgREST is up with a cold schema cache, so it replies
+ *     politely while every query fails.
+ *
+ * Everything else counts as reachable, including 401 and 404 — those
+ * prove the project is there and merely disagreed with this request. That
+ * distinction is the point: a missing table or an RLS refusal is a query
+ * problem, and must not be mistaken for a dead project.
  *
  * Used by the config endpoint so `capabilities.database` can mean "the
  * database answers" rather than "someone set the environment variables".
@@ -158,15 +166,26 @@ export async function databaseReachable({ timeoutMs = 3000 } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    await fetch(`${env.supabaseUrl.replace(/\/$/, "")}/rest/v1/`, {
+    const res = await fetch(`${env.supabaseUrl.replace(/\/$/, "")}/rest/v1/`, {
       method: "GET",
       headers: { apikey: env.supabaseAnonKey },
       signal: controller.signal,
     });
+
+    if (res.status >= 500) {
+      console.error(`[bookpilot] database not serving: HTTP ${res.status}`);
+      return false;
+    }
+
+    // The root reply is a few bytes either way, so reading it is cheap.
+    const text = await res.text().catch(() => "");
+    if (text.includes("PGRST002")) {
+      console.error("[bookpilot] database schema cache is cold (PGRST002)");
+      return false;
+    }
+
     return true;
   } catch (err) {
-    // A paused project stops resolving in DNS, so this is the branch a
-    // free-tier project that has idled out actually lands in.
     console.error("[bookpilot] database unreachable:", err?.message || err);
     return false;
   } finally {

@@ -4,10 +4,12 @@
 // that idles out stops resolving in DNS while its configuration stays
 // exactly where it was.
 //
-// The distinction these tests pin down: any HTTP reply proves the project
-// is there, even an unauthorised one. Only a transport failure counts as
-// unreachable, because a missing table or an RLS refusal is a query
-// problem and must not push the whole app into demo mode.
+// The distinction these tests pin down: an unauthorised or not-found reply
+// proves the project is there and must NOT push the app into demo mode,
+// because a missing table or an RLS refusal is a query problem. But three
+// things do mean unusable — no answer at all, a 5xx from the platform, and
+// PGRST002, which is PostgREST answering politely with a cold schema cache
+// while every query fails. A restore passes through the latter two.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -75,4 +77,40 @@ test("the probe identifies itself with the anon key and hits the REST root", asy
   );
   assert.equal(seen.url, "https://example.supabase.co/rest/v1/");
   assert.equal(seen.headers.apikey, "test-anon-key");
+});
+
+test("a 5xx means the platform cannot serve, so not reachable", async () => {
+  for (const status of [500, 502, 503, 504]) {
+    const reachable = await withFetch(
+      async () => new Response("upstream error", { status }),
+      () => databaseReachable()
+    );
+    assert.equal(reachable, false, `status ${status} should not count as reachable`);
+  }
+});
+
+test("a cold PostgREST schema cache is not reachable, whatever the status", async () => {
+  // Observed verbatim while a paused project was coming back up.
+  const body = JSON.stringify({
+    code: "PGRST002",
+    details: null,
+    hint: null,
+    message: "Could not query the database for the schema cache. Retrying.",
+  });
+  for (const status of [200, 404, 503]) {
+    const reachable = await withFetch(
+      async () => new Response(body, { status }),
+      () => databaseReachable()
+    );
+    assert.equal(reachable, false, `PGRST002 at ${status} should not count as reachable`);
+  }
+});
+
+test("an ordinary 404 is still reachable — a missing table is not a dead project", async () => {
+  const body = JSON.stringify({ code: "42P01", message: 'relation "public.nope" does not exist' });
+  const reachable = await withFetch(
+    async () => new Response(body, { status: 404 }),
+    () => databaseReachable()
+  );
+  assert.equal(reachable, true);
 });
