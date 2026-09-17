@@ -23,14 +23,49 @@
 alter function public.bp_touch_updated_at() set search_path = public;
 
 -- ---------------------------------------------------------------------
--- 2. bp_admin_overview is server-only
+-- 2. The privileged functions were reachable by anyone. Close them.
 -- ---------------------------------------------------------------------
--- It already refuses non-admins from inside ("raise exception
--- 'forbidden'"), so this is belt and braces rather than a fix. The admin
--- panel reaches it through requireAdmin(), which returns the service
--- role, so no client role needs execute on it at all.
+-- This is the important part of this file.
+--
+-- CREATE FUNCTION grants EXECUTE to PUBLIC by default. 004_functions.sql
+-- revokes from `anon` and `authenticated`, which reads like it locks
+-- these down — but it leaves the PUBLIC grant untouched, and every role
+-- inherits PUBLIC. The ACL made it plain: {=X/postgres,...} where the
+-- empty grantee is PUBLIC.
+--
+-- So bp_consume_credits, bp_refund_credits, bp_apply_plan and
+-- bp_delete_account were callable by anyone with the anon key, over the
+-- public internet, at /rest/v1/rpc/<name>. They are SECURITY DEFINER, so
+-- they run as the owner and ignore RLS, and not one of them checks the
+-- caller — each takes `p_user uuid` and acts on whoever is named. That
+-- is a plan upgrade, unlimited AI credits, or deleting another author's
+-- entire account, for an unauthenticated request.
+--
+-- Revoking from PUBLIC is what actually closes it. service_role holds an
+-- explicit grant on each, so the server keeps working.
+--
+-- bp_admin_overview also had explicit anon/authenticated grants that a
+-- PUBLIC revoke does not remove, hence both statements for it. It does
+-- refuse non-admins from inside, so it was never the hole the other four
+-- were.
 
+revoke execute on function public.bp_consume_credits(uuid, text, integer, uuid, text) from public;
+revoke execute on function public.bp_refund_credits(uuid, integer, text) from public;
+revoke execute on function public.bp_apply_plan(uuid, text) from public;
+revoke execute on function public.bp_delete_account(uuid) from public;
+
+revoke execute on function public.bp_admin_overview() from public;
 revoke execute on function public.bp_admin_overview() from anon, authenticated;
+
+-- Not revoked, deliberately: bp_is_admin, bp_is_org_member and the
+-- bp_can_access_* predicates. Every policy in 002 is defined `to public`
+-- and calls them, so a client that cannot execute them gets an error
+-- instead of an empty result — it would break anon reads of `plans`.
+-- They are stable, read-only booleans scoped to auth.uid(), so leaving
+-- them callable is the correct trade. The trigger functions
+-- (bp_handle_new_user, bp_guard_profile_columns, bp_touch_updated_at)
+-- stay callable too: plpgsql refuses to run a trigger function outside a
+-- trigger, and revoking risks the DML that fires them.
 
 -- ---------------------------------------------------------------------
 -- 3. integration_status: two controls instead of one WHERE clause

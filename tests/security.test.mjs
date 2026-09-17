@@ -233,13 +233,17 @@ function declaredFunctions() {
   )].map(([, name, params, preamble]) => ({ name, params, preamble }));
 }
 
-/** The text of the revoke statement for a function, or null. */
-function revokeFor(name) {
+/** Every revoke statement for a function, joined. */
+function revokesFor(name) {
   const needle = `revoke execute on function public.${name}(`;
-  const at = allSql.indexOf(needle);
-  if (at === -1) return null;
-  const end = allSql.indexOf(";", at);
-  return allSql.slice(at, end === -1 ? undefined : end);
+  const found = [];
+  let at = allSql.indexOf(needle);
+  while (at !== -1) {
+    const end = allSql.indexOf(";", at);
+    found.push(allSql.slice(at, end === -1 ? undefined : end));
+    at = allSql.indexOf(needle, at + 1);
+  }
+  return found.length ? found.join(" | ") : null;
 }
 
 test("every SECURITY DEFINER function has a pinned search_path", () => {
@@ -267,16 +271,20 @@ test("the trigger function that stamps updated_at pins its search_path too", () 
   );
 });
 
-test("the credit and account functions stay out of reach of client roles", () => {
-  // These move money, change plans and delete accounts. Only the service
-  // role may call them, and bp_admin_overview refuses non-admins inside
-  // as well.
+test("the credit and account functions are revoked from PUBLIC, not just anon", () => {
+  // The assertion that matters, and the one whose absence let a live hole
+  // through. CREATE FUNCTION grants EXECUTE to PUBLIC; revoking from
+  // `anon` and `authenticated` looks like a lockdown but leaves PUBLIC
+  // alone, and every role inherits PUBLIC. These four run as the owner,
+  // ignore RLS, and act on whatever p_user they are handed — so anything
+  // short of revoking PUBLIC leaves plan upgrades, credit minting and
+  // account deletion open to an unauthenticated request.
   for (const fn of ["bp_consume_credits", "bp_refund_credits", "bp_apply_plan",
                     "bp_delete_account", "bp_admin_overview"]) {
-    const revoked = revokeFor(fn);
-    assert.ok(revoked, `${fn} is never revoked from the client roles`);
-    assert.match(revoked, /\banon\b/, `${fn} is still executable by anon`);
-    assert.match(revoked, /\bauthenticated\b/, `${fn} is still executable by authenticated`);
+    const revoked = revokesFor(fn);
+    assert.ok(revoked, `${fn} is never revoked`);
+    assert.match(revoked, /\bfrom [^;|]*\bpublic\b/,
+      `${fn} is not revoked from PUBLIC, so every role still inherits EXECUTE`);
   }
 });
 
