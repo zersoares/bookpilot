@@ -92,6 +92,13 @@ export function platformName(value) {
   return PLATFORM_NAMES[String(value || "").toLowerCase()] || titleCase(value);
 }
 
+const PLATFORM_TOOLS = { tiktok: "TikTok Ads Manager", google: "Google Ads", meta: "Meta Ads Manager" };
+
+/** Where an author manages a platform's campaigns. */
+export function platformTool(value) {
+  return PLATFORM_TOOLS[String(value || "").toLowerCase()] || `${platformName(value)} ads`;
+}
+
 export function titleCase(value) {
   if (!value) return "";
   return String(value)

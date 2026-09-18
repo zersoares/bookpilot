@@ -46,7 +46,7 @@ export async function render(container, params, query) {
     <div class="bp-stack-lg">
       <section>${raw(statGrid(analytics.totals, currency))}</section>
 
-      ${raw(analytics.platforms?.length > 1 || analytics.platforms?.some((p) => p.source === "tiktok") ? platformPanel(analytics.platforms, currency) : "")}
+      ${raw(analytics.platforms?.length > 1 || analytics.platforms?.some((p) => p.source !== "meta") ? platformPanel(analytics.platforms, currency) : "")}
 
       ${raw(analytics.amazon ? amazonPanel(analytics.amazon, currency) : "")}
 
@@ -196,7 +196,7 @@ function paintCreatives(rows, currency) {
   });
 }
 
-const PLATFORM_NAME = { meta: "Meta (Facebook & Instagram)", tiktok: "TikTok" };
+const PLATFORM_NAME = { meta: "Meta (Facebook & Instagram)", tiktok: "TikTok", google: "Google Ads" };
 
 function platformPanel(platforms, currency) {
   return html`

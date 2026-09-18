@@ -72,7 +72,9 @@ export function guessMapping(headers, fields) {
       if (field.metric && RATE_WORDS.test(h)) return;
       // "Cost (EUR)" is "Cost": a trailing currency code names the unit,
       // not a different column.
-      const rank = Math.min(...[h, h.replace(/ [a-z]{3}$/, "")].map((x) => {
+      const raw = headers[index];
+      const withoutCurrency = norm(String(raw).replace(/\s*[(\[]?\b[A-Z]{3}\b[)\]]?\s*$/, ""));
+      const rank = Math.min(...[h, withoutCurrency].map((x) => {
         const i = synonyms.indexOf(x);
         return i === -1 ? Infinity : i;
       }));

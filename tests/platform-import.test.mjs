@@ -1,17 +1,23 @@
-// TikTok Ads: reading an Ads Manager report, building tracked links, and
-// the rules the server applies to what the browser sends.
+// Ad-platform imports (TikTok Ads, Google Ads): reading a platform report,
+// building tracked links, and the rules the server applies to what the
+// browser sends.
 //
-// TikTok's exports vary and carry rate columns (CTR, CPC, ROAS, cost per
-// result) beside the counts. Reading a rate as a count, or a summary row as
-// a day, puts wrong numbers in front of an author deciding where to spend.
+// These exports vary and carry rate columns (CTR, CPC, ROAS, cost per
+// result) beside the counts, and end in totals rows. Reading a rate as a
+// count, or a summary row as a day, puts wrong numbers in front of an
+// author deciding where to spend.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readReport, buildRows, guessMapping, UNNAMED_CAMPAIGN } from "../js/core/tiktok-report.js";
+import { reportFor } from "../js/core/ad-report.js";
 import { buildTrackedLink } from "../js/core/tracked-link.js";
-import { normaliseRows, resolveTargets, toPerformanceRow, summarise, MAX_ROWS, UNNAMED } from "../netlify/functions/bookpilot-lib/tiktok.js";
+import { normaliseRows, resolveTargets, toPerformanceRow, summarise, platformOf, PLATFORMS, MAX_ROWS } from "../netlify/functions/bookpilot-lib/platform-report.js";
 import { demoAdapter, resetDemo } from "../js/data/demo-adapter.js";
 import { DEMO_BOOK } from "../js/data/demo.js";
+
+const tt = reportFor("tiktok");
+const { readReport, buildRows, guessMapping } = tt;
+const UNNAMED_CAMPAIGN = tt.unnamed;
 
 const SAMPLE = [
   "Date,Campaign name,Ad group name,Cost (EUR),Impressions,Clicks (destination),Clicks (all),CTR,CPC,Complete payment,Complete payment value,Cost per complete payment,Complete payment ROAS",
@@ -83,7 +89,7 @@ test("an unreadable figure skips the row and says why; a missing campaign column
 
   const nameless = readReport("Date,Cost\n2026-09-01,4");
   assert.deepEqual(buildRows(nameless.data, nameless.mapping).campaigns, [UNNAMED_CAMPAIGN]);
-  assert.equal(UNNAMED_CAMPAIGN, UNNAMED, "browser and server agree on the placeholder");
+  assert.equal(UNNAMED_CAMPAIGN, PLATFORMS.tiktok.unnamed, "browser and server agree on the placeholder");
 });
 
 test("a file with no recognisable headings is refused", () => {
@@ -129,7 +135,7 @@ const TODAY = "2026-09-18";
 const good = (over = {}) => ({ campaign: "A", date: "2026-09-01", impressions: 100, clicks: 5, conversions: 1, spend_cents: 500, revenue_cents: 899, ...over });
 
 test("server: valid rows pass, duplicates merge, order is by date", () => {
-  const out = normaliseRows([good({ date: "2026-09-02" }), good(), good({ clicks: 10 })], TODAY);
+  const out = normaliseRows([good({ date: "2026-09-02" }), good(), good({ clicks: 10 })], "tiktok", TODAY);
   assert.equal(out.rows.length, 2);
   assert.equal(out.rows[0].clicks, 15);
   assert.equal(out.from, "2026-09-01");
@@ -137,7 +143,7 @@ test("server: valid rows pass, duplicates merge, order is by date", () => {
 });
 
 test("server: refuses what a real import could never produce", () => {
-  const bad = (row, pattern) => assert.throws(() => normaliseRows([row], TODAY), pattern);
+  const bad = (row, pattern) => assert.throws(() => normaliseRows([row], "tiktok", TODAY), pattern);
   bad(good({ date: "2026-02-31" }), /not a date/);
   bad(good({ date: "01/09/2026" }), /not a date/);
   bad(good({ date: "2016-01-01" }), /outside the range/);
@@ -146,9 +152,9 @@ test("server: refuses what a real import could never produce", () => {
   bad(good({ impressions: 1.5 }), /count/);
   bad(good({ spend_cents: -5 }), /amount/);
   bad(good({ revenue_cents: "lots" }), /amount/);
-  assert.throws(() => normaliseRows([], TODAY), /no rows/);
-  assert.throws(() => normaliseRows([null], TODAY), /not a row/);
-  assert.throws(() => normaliseRows(Array.from({ length: MAX_ROWS + 1 }, (_, i) => good({ campaign: `c${i}` })), TODAY), /date ranges/);
+  assert.throws(() => normaliseRows([], "tiktok", TODAY), /no rows/);
+  assert.throws(() => normaliseRows([null], "tiktok", TODAY), /not a row/);
+  assert.throws(() => normaliseRows(Array.from({ length: MAX_ROWS + 1 }, (_, i) => good({ campaign: `c${i}` })), "tiktok", TODAY), /date ranges/);
 });
 
 test("server: every campaign in a report needs somewhere to go", () => {
@@ -160,7 +166,7 @@ test("server: every campaign in a report needs somewhere to go", () => {
 });
 
 test("server: a stored row is campaign-and-day level from TikTok, with no ad id and no reach", () => {
-  const row = toPerformanceRow(normaliseRows([good()], TODAY).rows[0], CAMPAIGN);
+  const row = toPerformanceRow(normaliseRows([good()], "tiktok", TODAY).rows[0], CAMPAIGN, "tiktok");
   assert.equal(row.source, "tiktok");
   assert.equal(row.ad_id, null);
   assert.equal(row.reach, 0);
@@ -186,14 +192,14 @@ test("demo: create a tracking campaign, import into new and existing campaigns, 
   const built = buildRows(report.data, report.mapping);
 
   // No TikTok campaigns yet, and Analytics has no TikTok platform row.
-  assert.equal((await demoAdapter.request("GET", "/api/bp/tiktok-import")).campaigns.length, 0);
+  assert.equal((await demoAdapter.request("GET", "/api/bp/platform-import/tiktok")).campaigns.length, 0);
   const before = await demoAdapter.request("GET", "/api/bp/analytics?days=30");
   assert.equal(before.platforms.some((p) => p.source === "tiktok"), false);
 
   // A row with no target is refused.
-  await assert.rejects(() => demoAdapter.request("POST", "/api/bp/tiktok-import", { rows: built.rows, currency: "EUR", targets: [] }), (e) => e.status === 400);
+  await assert.rejects(() => demoAdapter.request("POST", "/api/bp/platform-import/tiktok", { rows: built.rows, currency: "EUR", targets: [] }), (e) => e.status === 400);
 
-  const first = await demoAdapter.request("POST", "/api/bp/tiktok-import", {
+  const first = await demoAdapter.request("POST", "/api/bp/platform-import/tiktok", {
     rows: built.rows, currency: "EUR", targets: [{ campaign: "Spring TikTok", book_id: DEMO_BOOK.id }],
   });
   assert.equal(first.imported, 2);
@@ -206,35 +212,160 @@ test("demo: create a tracking campaign, import into new and existing campaigns, 
   assert.ok(after.platforms.some((p) => p.source === "meta"), "Meta stays visible beside it");
 
   // A TikTok campaign is created as run-elsewhere, never as launchable.
-  const { campaigns } = await demoAdapter.request("GET", "/api/bp/tiktok-import");
+  const { campaigns } = await demoAdapter.request("GET", "/api/bp/platform-import/tiktok");
   assert.equal(campaigns.length, 1);
   assert.equal(campaigns[0].external_only, true);
   assert.equal(campaigns[0].platform, "tiktok");
 
   // Importing again into the existing campaign replaces the days, never adds.
-  await demoAdapter.request("POST", "/api/bp/tiktok-import", {
+  await demoAdapter.request("POST", "/api/bp/platform-import/tiktok", {
     rows: built.rows, currency: "EUR", targets: [{ campaign: "Spring TikTok", campaign_id: campaigns[0].id }],
   });
   const again = await demoAdapter.request("GET", "/api/bp/analytics?days=30");
   assert.equal(again.platforms.find((p) => p.source === "tiktok").metrics.spendCents, 4000);
-  assert.equal((await demoAdapter.request("GET", "/api/bp/tiktok-import")).summary.rows, 2);
+  assert.equal((await demoAdapter.request("GET", "/api/bp/platform-import/tiktok")).summary.rows, 2);
 
   // A currency mismatch is refused rather than mixed.
-  await assert.rejects(() => demoAdapter.request("POST", "/api/bp/tiktok-import", {
+  await assert.rejects(() => demoAdapter.request("POST", "/api/bp/platform-import/tiktok", {
     rows: built.rows, currency: "USD", targets: [{ campaign: "Spring TikTok", campaign_id: campaigns[0].id }],
   }), (e) => /EUR/.test(e.message));
 
-  await demoAdapter.request("DELETE", "/api/bp/tiktok-import");
+  await demoAdapter.request("DELETE", "/api/bp/platform-import/tiktok");
   const removed = await demoAdapter.request("GET", "/api/bp/analytics?days=30");
   assert.equal(removed.platforms.some((p) => p.source === "tiktok"), false);
 });
 
 test("demo: a tracking campaign can be created for a link before any report exists", async () => {
   resetDemo();
-  const { campaign } = await demoAdapter.request("POST", "/api/bp/tiktok-campaigns", {
+  const { campaign } = await demoAdapter.request("POST", "/api/bp/platform-campaigns/tiktok", {
     name: "Launch — TikTok", book_id: DEMO_BOOK.id, currency: "EUR",
   });
   assert.equal(campaign.external_only, true);
-  assert.equal((await demoAdapter.request("GET", "/api/bp/tiktok-campaigns")).campaigns.length, 1);
-  await assert.rejects(() => demoAdapter.request("POST", "/api/bp/tiktok-campaigns", { name: "x", book_id: "nope" }), (e) => e.status === 400);
+  assert.equal((await demoAdapter.request("GET", "/api/bp/platform-campaigns/tiktok")).campaigns.length, 1);
+  await assert.rejects(() => demoAdapter.request("POST", "/api/bp/platform-campaigns/tiktok", { name: "x", book_id: "nope" }), (e) => e.status === 400);
+});
+
+// --- Google Ads -----------------------------------------------------------
+
+const google = reportFor("google");
+
+const GOOGLE = [
+  "Campaign report",
+  "1 September 2026 - 3 September 2026",
+  "Day,Campaign,Currency code,Clicks,Impr.,CTR,Avg. CPC,Cost,Conversions,Cost / conv.,Conv. rate,Conv. value",
+  "2026-09-01,Book launch — Search,EUR,40,900,4.44%,0.31,12.40,1.5,8.27,3.75%,13.49",
+  "2026-09-02,Book launch — Search,EUR,55,1200,4.58%,0.30,16.50,2,8.25,3.64%,17.98",
+  "2026-09-02,Backlist — Search,EUR,10,300,3.33%,0.40,4.00,0,--,0.00%,0.00",
+  "Total: Account,,,105,2400,4.38%,0.31,32.90,3.5,9.4,3.33%,31.47",
+].join("\n");
+
+test("google: figures, not rates; Cost is spend and Cost / conv. is not", () => {
+  const report = google.readReport(GOOGLE);
+  assert.equal(report.ok, true);
+  assert.equal(report.preamble, 2, "the title and date-range lines come first");
+  const h = report.headers, m = report.mapping;
+  assert.equal(h[m.date], "Day");
+  assert.equal(h[m.campaign], "Campaign");
+  assert.equal(h[m.impressions], "Impr.");
+  assert.equal(h[m.clicks], "Clicks");
+  assert.equal(h[m.spend], "Cost", "not Cost / conv. or Avg. CPC");
+  assert.equal(h[m.conversions], "Conversions", "not Conv. rate");
+  assert.equal(h[m.revenue], "Conv. value");
+  assert.equal(h[m.currency], "Currency code");
+});
+
+test("the report says which currency it is in, when it does", () => {
+  assert.equal(google.readReport(GOOGLE).currency, "EUR");
+  // A report that mixes currencies gives no answer rather than a wrong one.
+  const mixed = GOOGLE.replace("2026-09-02,Backlist — Search,EUR", "2026-09-02,Backlist — Search,USD");
+  assert.equal(google.readReport(mixed).currency, null);
+  // TikTok says it in the Cost heading.
+  assert.equal(readReport(SAMPLE).currency, "EUR");
+  assert.equal(readReport("Date,Campaign name,Cost\n2026-09-01,A,1").currency, null);
+});
+
+test("google: days merge, fractional conversions round, the Total row is left out", () => {
+  const report = google.readReport(GOOGLE);
+  const built = google.buildRows(report.data, report.mapping);
+  assert.equal(built.rows.length, 3);
+  const day1 = built.rows.find((r) => r.date === "2026-09-01");
+  assert.deepEqual(day1, {
+    campaign: "Book launch — Search", date: "2026-09-01", impressions: 900, clicks: 40,
+    spend_cents: 1240, conversions: 2, revenue_cents: 1349,
+  });
+  assert.equal(built.totals.spend_cents, 1240 + 1650 + 400, "the Total: Account row is not added on top");
+  assert.equal(built.skipped.length, 1);
+  assert.match(built.skipped[0].reason, /no valid date/);
+});
+
+test("google: a report without the Day segment is refused", () => {
+  const report = google.readReport("Campaign,Clicks,Impr.,Cost\nA,10,100,5.00");
+  assert.equal(google.buildRows(report.data, report.mapping).needsDate, true);
+});
+
+test("google: tab-separated exports read the same", () => {
+  const report = google.readReport(GOOGLE.replaceAll(",", "\t"));
+  assert.equal(report.ok, true);
+  assert.equal(google.buildRows(report.data, report.mapping).rows.length, 3);
+});
+
+test("the platforms are read differently but never confused", () => {
+  // Google's headings mean nothing to the TikTok reader, and vice versa.
+  assert.equal(readReport(GOOGLE).mapping.impressions, -1, "the TikTok reader does not guess Impr.");
+  assert.equal(google.readReport(SAMPLE).mapping.clicks, -1, "TikTok's Clicks (destination) / (all) are not Google's Clicks");
+  assert.equal(google.readReport(SAMPLE).mapping.impressions, 4, "but a plain Impressions column is Impressions in both");
+  assert.throws(() => reportFor("myspace"), /No report format/);
+});
+
+test("google: the server accepts its rows and refuses unknown platforms", () => {
+  const out = normaliseRows([good({ date: "2011-05-01" })], "google", TODAY);
+  assert.equal(out.rows.length, 1);
+  assert.equal(toPerformanceRow(out.rows[0], CAMPAIGN, "google").source, "google");
+  assert.equal(normaliseRows([good({ campaign: " " })], "google", TODAY).rows[0].campaign, PLATFORMS.google.unnamed);
+  assert.throws(() => normaliseRows([good({ date: "2009-01-01" })], "google", TODAY), /outside the range Google Ads/);
+  // TikTok started later than Google, so a date valid for one is not for the other.
+  assert.throws(() => normaliseRows([good({ date: "2011-05-01" })], "tiktok", TODAY), /outside the range TikTok Ads/);
+  assert.throws(() => platformOf("myspace"), (e) => e.status === 404);
+  assert.throws(() => normaliseRows([good()], "myspace", TODAY), (e) => e.status === 404);
+});
+
+test("google: a Google tracked link uses cpc and travels alongside auto-tagging", () => {
+  const link = new URL(buildTrackedLink({ url: "https://example.com/book", platform: "google", campaignId: CAMPAIGN }));
+  assert.equal(link.searchParams.get("utm_source"), "google");
+  assert.equal(link.searchParams.get("utm_medium"), "cpc");
+});
+
+test("demo: TikTok and Google are kept apart, and both appear in the platform table", async () => {
+  resetDemo();
+  const g = google.readReport(GOOGLE);
+  const gBuilt = google.buildRows(g.data, g.mapping);
+  const t = readReport(SAMPLE);
+  const tBuilt = buildRows(t.data, t.mapping);
+
+  await demoAdapter.request("POST", "/api/bp/platform-import/google", {
+    rows: gBuilt.rows, currency: "EUR",
+    targets: [{ campaign: "Book launch — Search", book_id: DEMO_BOOK.id }, { campaign: "Backlist — Search", book_id: DEMO_BOOK.id }],
+  });
+  await demoAdapter.request("POST", "/api/bp/platform-import/tiktok", {
+    rows: tBuilt.rows, currency: "EUR", targets: [{ campaign: "Spring TikTok", book_id: DEMO_BOOK.id }],
+  });
+
+  const analytics = await demoAdapter.request("GET", "/api/bp/analytics?days=30");
+  const by = Object.fromEntries(analytics.platforms.map((p) => [p.source, p.metrics]));
+  assert.equal(by.google.spendCents, 3290);
+  assert.equal(by.tiktok.spendCents, 4000);
+  assert.ok(by.meta, "Meta stays visible beside both");
+
+  // Each platform's campaigns and summary are its own.
+  assert.equal((await demoAdapter.request("GET", "/api/bp/platform-campaigns/google")).campaigns.length, 2);
+  assert.equal((await demoAdapter.request("GET", "/api/bp/platform-campaigns/tiktok")).campaigns.length, 1);
+  assert.equal((await demoAdapter.request("GET", "/api/bp/platform-import/google")).summary.rows, 3);
+
+  // Removing one leaves the other untouched.
+  await demoAdapter.request("DELETE", "/api/bp/platform-import/google");
+  const after = await demoAdapter.request("GET", "/api/bp/analytics?days=30");
+  assert.equal(after.platforms.some((p) => p.source === "google"), false);
+  assert.equal(after.platforms.find((p) => p.source === "tiktok").metrics.spendCents, 4000);
+
+  await assert.rejects(() => demoAdapter.request("GET", "/api/bp/platform-import/myspace"), (e) => e.status === 404);
 });

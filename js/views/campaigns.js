@@ -633,7 +633,7 @@ export async function renderDetail(container, params) {
     ${raw(pageHead({
       title: campaign.name,
       description: campaign.external_only
-        ? `${book.title} · Runs on ${fmt.platformName(campaign.platform)} Ads Manager`
+        ? `${book.title} · Runs on ${fmt.platformTool(campaign.platform)}`
         : `${book.title} · ${fmt.money(campaign.daily_budget_cents, campaign.currency)}/day · ${fmt.platformName(campaign.platform)}`,
       actions: `${statusBadge(campaign.status)}
         <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="analyse-btn">Analyse · 10 credits</button>`,
@@ -708,12 +708,12 @@ export async function renderDetail(container, params) {
         <div class="bp-card__title" style="margin-bottom:var(--bp-3)">Campaign settings</div>
         <dl class="bp-kv">
           <dt>Objective</dt><dd>${OBJECTIVES.find((o) => o.value === campaign.objective)?.label || campaign.objective}</dd>
-          <dt>Daily budget</dt><dd>${campaign.external_only ? `Set in ${fmt.platformName(campaign.platform)} Ads Manager` : fmt.money(campaign.daily_budget_cents, campaign.currency)}</dd>
+          <dt>Daily budget</dt><dd>${campaign.external_only ? `Set in ${fmt.platformTool(campaign.platform)}` : fmt.money(campaign.daily_budget_cents, campaign.currency)}</dd>
           <dt>Runs</dt><dd>${campaign.start_date ? fmt.date(campaign.start_date) : "—"} → ${campaign.end_date ? fmt.date(campaign.end_date) : "no end date"}</dd>
           <dt>Destination</dt><dd class="bp-truncate">${campaign.destination_url || "—"}</dd>
           <dt>Audiences</dt><dd>${(detail.adSets || []).map((s) => s.name).join(", ") || "—"}</dd>
           ${raw(campaign.external_only
-            ? html`<dt>Runs on</dt><dd>${fmt.platformName(campaign.platform)} Ads Manager. BookPilot tracks it and imports its reports, but can't launch, pause or change it.</dd>`
+            ? html`<dt>Runs on</dt><dd>${fmt.platformTool(campaign.platform)}. BookPilot tracks it and imports its reports, but can't launch, pause or change it.</dd>`
             : html`<dt>On Meta</dt><dd>${campaign.external_campaign_id ? "Yes" : "Not pushed yet"}</dd>`)}
         </dl>
         <div class="bp-row bp-row--wrap" style="margin-top:var(--bp-4)">

@@ -19,7 +19,7 @@ import { deriveMetrics, confidenceLevel } from "./bookpilot-lib/metrics.js";
 import * as audit from "./bookpilot-lib/audit.js";
 import * as tracking from "./bookpilot-lib/tracking.js";
 import * as amazon from "./bookpilot-lib/amazon.js";
-import * as tiktok from "./bookpilot-lib/tiktok.js";
+import * as platformReport from "./bookpilot-lib/platform-report.js";
 
 const PREFIX = "/api/bp";
 
@@ -632,7 +632,7 @@ async function handleAnalytics(ctx, segments, url) {
 
   // Paid platforms side by side. Website-tracked rows are not a platform
   // and never appear here.
-  const platforms = ["meta", "tiktok"]
+  const platforms = ["meta", "tiktok", "google"]
     .map((source) => ({ source, metrics: deriveMetrics(platformRows.filter((r) => r.source === source)) }))
     .filter((p) => p.metrics.hasData);
 
@@ -839,17 +839,21 @@ async function handleAmazonImport(ctx, method, body) {
   throw Errors.notFound("endpoint");
 }
 
-/** The author's TikTok tracking campaigns (run elsewhere, tracked here). */
-async function tiktokCampaigns(ctx) {
+/**
+ * The author's campaigns on a platform BookPilot does not run (TikTok,
+ * Google Ads): they exist so links and imported figures have a home.
+ */
+async function externalCampaigns(ctx, platform) {
   return ctx.db.select("campaigns", {
     select: "id,name,book_id,currency,destination_url,created_at",
-    eq: { user_id: ctx.user.id, platform: "tiktok", external_only: true },
+    eq: { user_id: ctx.user.id, platform, external_only: true },
     order: "created_at.desc", limit: 200,
   });
 }
 
-async function handleTikTokCampaigns(ctx, method, body) {
-  if (method === "GET") return json({ campaigns: await tiktokCampaigns(ctx) });
+async function handlePlatformCampaigns(ctx, method, platformId, body) {
+  const platform = platformReport.platformOf(platformId);
+  if (method === "GET") return json({ campaigns: await externalCampaigns(ctx, platform.id) });
   if (method !== "POST") throw Errors.notFound("endpoint");
 
   const name = v.str(body.name, "Campaign name", { max: 200, required: true });
@@ -861,45 +865,47 @@ async function handleTikTokCampaigns(ctx, method, body) {
     user_id: ctx.user.id,
     book_id: bookId,
     name,
-    platform: "tiktok",
+    platform: platform.id,
     objective: "conversions",
     daily_budget_cents: 0,
     currency: body.currency ? v.currency(body.currency) : ctx.profile.currency,
     destination_url: v.url(body.destination_url, "Destination URL"),
-    // Run by the author in TikTok Ads Manager. "active" is their say-so;
+    // Run by the author on the platform itself. "active" is their say-so;
     // BookPilot cannot see, launch or pause it.
     status: "active",
     external_only: true,
   });
-  await audit.record(ctx.user.id, "campaign.created", { entity: "campaign", entityId: campaign.id, detail: { platform: "tiktok" } });
+  await audit.record(ctx.user.id, "campaign.created", { entity: "campaign", entityId: campaign.id, detail: { platform: platform.id } });
   return json({ campaign }, 201);
 }
 
-async function handleTikTokImport(ctx, method, body) {
+async function handlePlatformImport(ctx, method, platformId, body) {
+  const platform = platformReport.platformOf(platformId);
+
   if (method === "GET") {
-    const campaigns = await tiktokCampaigns(ctx);
+    const campaigns = await externalCampaigns(ctx, platform.id);
     const ids = campaigns.map((c) => c.id);
     const rows = ids.length
       ? await selectAll(ctx.db, "performance_metrics", {
-          select: "campaign_id,metric_date,synced_at", in: { campaign_id: ids }, eq: { source: "tiktok" },
+          select: "campaign_id,metric_date,synced_at", in: { campaign_id: ids }, eq: { source: platform.source },
         })
       : [];
-    return json({ summary: tiktok.summarise(rows, new Map(campaigns.map((c) => [c.id, c.name]))), campaigns });
+    return json({ summary: platformReport.summarise(rows, new Map(campaigns.map((c) => [c.id, c.name]))), campaigns });
   }
 
   if (method === "POST") {
     const currency = v.currency(body.currency);
-    const parsed = tiktok.normaliseRows(body.rows);
-    const targets = tiktok.resolveTargets(parsed.campaigns, body.targets);
+    const parsed = platformReport.normaliseRows(body.rows, platform.id);
+    const targets = platformReport.resolveTargets(parsed.campaigns, body.targets);
 
     // Resolve every target before writing anything, so a bad one cannot
     // leave an import half done.
-    const existing = new Map((await tiktokCampaigns(ctx)).map((c) => [c.id, c]));
+    const existing = new Map((await externalCampaigns(ctx, platform.id)).map((c) => [c.id, c]));
     const plan = new Map();
     for (const [name, target] of targets) {
       if (target.campaignId) {
         const c = existing.get(v.uuid(target.campaignId, "Campaign"));
-        if (!c) throw Errors.invalid(`"${name.slice(0, 60)}" was linked to a campaign that isn't one of your TikTok campaigns.`);
+        if (!c) throw Errors.invalid(`"${name.slice(0, 60)}" was linked to a campaign that isn't one of your ${platform.name} campaigns.`);
         if (c.currency !== currency) {
           throw Errors.invalid(`"${c.name}" is in ${c.currency} but this report is in ${currency}. Pick the matching currency, or a different campaign.`);
         }
@@ -916,7 +922,7 @@ async function handleTikTokImport(ctx, method, body) {
     for (const [name, p] of plan) {
       if (!p.create) continue;
       const campaign = await ctx.db.insert("campaigns", {
-        user_id: ctx.user.id, book_id: p.create.book_id, name, platform: "tiktok", objective: "conversions",
+        user_id: ctx.user.id, book_id: p.create.book_id, name, platform: platform.id, objective: "conversions",
         daily_budget_cents: 0, currency, status: "active", external_only: true,
       });
       p.id = campaign.id;
@@ -924,25 +930,25 @@ async function handleTikTokImport(ctx, method, body) {
     }
 
     // Re-importing replaces a campaign-day rather than adding to it.
-    const dbRows = parsed.rows.map((r) => tiktok.toPerformanceRow(r, plan.get(r.campaign).id));
+    const dbRows = parsed.rows.map((r) => platformReport.toPerformanceRow(r, plan.get(r.campaign).id, platform.id));
     const service = dbAsService();
     for (let i = 0; i < dbRows.length; i += 500) {
       await service.upsert("performance_metrics", dbRows.slice(i, i + 500), {
         onConflict: "campaign_id,ad_id,metric_date,source", returning: false,
       });
     }
-    await audit.record(ctx.user.id, "tiktok.imported", {
-      entity: "tiktok", detail: { days: parsed.rows.length, campaigns: plan.size, created, from: parsed.from, to: parsed.to },
+    await audit.record(ctx.user.id, `${platform.id}.imported`, {
+      entity: platform.id, detail: { days: parsed.rows.length, campaigns: plan.size, created, from: parsed.from, to: parsed.to },
     });
     return json({ imported: dbRows.length, campaigns: plan.size, created, from: parsed.from, to: parsed.to }, 201);
   }
 
   if (method === "DELETE") {
-    const ids = (await tiktokCampaigns(ctx)).map((c) => c.id);
+    const ids = (await externalCampaigns(ctx, platform.id)).map((c) => c.id);
     if (ids.length) {
-      await dbAsService().remove("performance_metrics", { in: { campaign_id: ids }, eq: { source: "tiktok" } });
+      await dbAsService().remove("performance_metrics", { in: { campaign_id: ids }, eq: { source: platform.source } });
     }
-    await audit.record(ctx.user.id, "tiktok.import_removed", { entity: "tiktok" });
+    await audit.record(ctx.user.id, `${platform.id}.import_removed`, { entity: platform.id });
     return json({ deleted: true });
   }
   throw Errors.notFound("endpoint");
@@ -1024,10 +1030,10 @@ export default withGuards(async (req) => {
       return handleTrackingSites(ctx, req.method, segments, body);
     case "amazon-import":
       return handleAmazonImport(ctx, req.method, body);
-    case "tiktok-campaigns":
-      return handleTikTokCampaigns(ctx, req.method, body);
-    case "tiktok-import":
-      return handleTikTokImport(ctx, req.method, body);
+    case "platform-campaigns":
+      return handlePlatformCampaigns(ctx, req.method, segments[1], body);
+    case "platform-import":
+      return handlePlatformImport(ctx, req.method, segments[1], body);
     default:
       break;
   }

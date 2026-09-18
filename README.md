@@ -388,16 +388,22 @@ Stated plainly, because the alternative is a feature list that lies:
   guessed and shown for correction, totals rows are skipped, and re-importing a
   campaign-day replaces it (migration 010). Amazon-attributed figures are stored and
   reported apart from Meta and website numbers and never summed with them.
-- **TikTok Ads is a tracked link plus a report import, not a connection.** The
-  TikTok Marketing API needs an approved TikTok developer app, and TikTok ads need a
-  video file that BookPilot cannot make. So an author runs the ads in Ads Manager;
-  BookPilot builds the tracked destination URL (the campaign id in `utm_campaign`,
-  which website tracking credits sales to) and imports a daily campaign-level
-  Ads Manager CSV (`js/core/tiktok-report.js`, re-validated in
-  `bookpilot-lib/tiktok.js`). Imports create `external_only` campaigns that no screen
-  offers to launch, pause or sync. Re-importing a campaign-day replaces it (migration
-  011). Reach is not imported: it cannot be summed across ad groups. Analytics shows
-  Meta and TikTok side by side and warns that their conversions can overlap.
+- **TikTok Ads and Google Ads are a tracked link plus a report import, not
+  connections.** The TikTok Marketing API needs an approved developer app and the
+  Google Ads API a developer token; TikTok ads also need a video file BookPilot
+  cannot make. So an author runs the ads on the platform; BookPilot builds the
+  tracked destination URL (the campaign id in `utm_campaign`, which website
+  tracking credits sales to) and imports a daily campaign-level CSV report
+  (`js/core/ad-report.js` holds each platform's column names; the parsing is shared
+  with the Amazon import in `report-parse.js`; `bookpilot-lib/platform-report.js`
+  re-validates on the server). Imports create `external_only` campaigns that no
+  screen offers to launch, pause or sync. Re-importing a campaign-day replaces it
+  (migrations 011, 012). Reach is not imported: it cannot be summed across ad
+  groups. Google's Conversions count every conversion action an account tracks, not
+  only purchases, and fractional conversions are rounded per day; the screen says
+  so. Analytics shows Meta, TikTok and Google side by side and warns that their
+  conversions can overlap. Adding another platform is a row in `PLATFORMS`
+  (server), `PLATFORM_REPORTS` (browser) and a migration for its source value.
 - **Meta persona targeting passes age and geography only.** Interest terms are
   carried as a note on the ad set for the operator to confirm in Ads Manager,
   rather than guessed at against Meta's interest IDs — a wrong ID spends money on
@@ -431,7 +437,7 @@ Stated plainly, because the alternative is a feature list that lies:
 | Phase | Work |
 |---|---|
 | 1 | Book illustration rendering; author-supplied artwork for figures and covers |
-| 2 | Amazon Attribution and TikTok API connections, Google and Pinterest ads |
+| 2 | Amazon Attribution, TikTok and Google Ads API connections, Pinterest ads |
 | 3 | AI image and video rendering, automatic creative refresh, A/B testing |
 | 4 | Publisher and agency accounts, team invitations, white-label |
 | 5 | Cross-platform AI marketing agent |

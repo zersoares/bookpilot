@@ -1,20 +1,38 @@
-// TikTok Ads report imports: validation and summaries.
+// Ad-platform report imports (TikTok, Google Ads): validation and summaries.
 //
-// The browser parses the author's Ads Manager CSV and sends daily
+// The browser parses the author's report CSV and sends daily
 // campaign-level rows; nothing it says is trusted. Every value is
 // re-checked here and duplicates are merged, so a hand-built request
 // cannot store anything a real import could not.
 //
-// Pure functions, no I/O, so the rules can be tested without a database.
+// One implementation for every platform whose campaigns run outside
+// BookPilot: what differs between them is a few names and dates, kept in
+// PLATFORMS. Pure functions, no I/O, so the rules can be tested without a
+// database.
 
 import { Errors } from "./errors.js";
 
 export const MAX_ROWS = 3000;
-export const UNNAMED = "TikTok (all campaigns)";
+
+/**
+ * The platforms that can be imported. `source` is the value stored in
+ * performance_metrics.source (and allowed by its check constraint);
+ * `earliest` is the first date the platform could have reported on, so a
+ * mistyped year is refused rather than stored.
+ */
+export const PLATFORMS = {
+  tiktok: { source: "tiktok", name: "TikTok Ads", earliest: "2018-01-01", unnamed: "TikTok (all campaigns)" },
+  google: { source: "google", name: "Google Ads", earliest: "2010-01-01", unnamed: "Google Ads (all campaigns)" },
+};
+
+export function platformOf(value) {
+  const platform = PLATFORMS[value];
+  if (!platform) throw Errors.notFound("platform");
+  return { id: value, ...platform };
+}
 
 const MAX_COUNT = 10_000_000_000;
 const MAX_CENTS = 100_000_000_000; // 1bn in currency units
-const EARLIEST = "2018-01-01"; // TikTok for Business launched in 2018; earlier is a typo
 
 const COUNTS = ["impressions", "clicks", "conversions"];
 const MONEY = ["spend_cents", "revenue_cents"];
@@ -39,7 +57,8 @@ function isRealDate(value) {
  * @param {unknown} input   the `rows` array from the request
  * @param {string}  today   ISO date, injectable for tests
  */
-export function normaliseRows(input, today = new Date().toISOString().slice(0, 10)) {
+export function normaliseRows(input, platform, today = new Date().toISOString().slice(0, 10)) {
+  const config = platformOf(platform);
   if (!Array.isArray(input) || input.length === 0) throw Errors.invalid("There are no rows to import.");
   if (input.length > MAX_ROWS) {
     throw Errors.invalid(
@@ -53,10 +72,10 @@ export function normaliseRows(input, today = new Date().toISOString().slice(0, 1
     const line = index + 1;
     if (!raw || typeof raw !== "object") throw Errors.invalid(`Row ${line} is not a row.`);
     if (!isRealDate(raw.date)) throw Errors.invalid(`Row ${line}: "${String(raw.date).slice(0, 20)}" is not a date.`);
-    if (raw.date < EARLIEST || raw.date > tomorrow) {
-      throw Errors.invalid(`Row ${line}: ${raw.date} is outside the range TikTok Ads can report on.`);
+    if (raw.date < config.earliest || raw.date > tomorrow) {
+      throw Errors.invalid(`Row ${line}: ${raw.date} is outside the range ${config.name} can report on.`);
     }
-    const campaign = (typeof raw.campaign === "string" ? raw.campaign.trim() : "").slice(0, 200) || UNNAMED;
+    const campaign = (typeof raw.campaign === "string" ? raw.campaign.trim() : "").slice(0, 200) || config.unnamed;
 
     const key = JSON.stringify([campaign, raw.date]);
     const row = merged.get(key) || { campaign, date: raw.date, impressions: 0, clicks: 0, conversions: 0, spend_cents: 0, revenue_cents: 0 };
@@ -78,12 +97,12 @@ export function normaliseRows(input, today = new Date().toISOString().slice(0, 1
 }
 
 /** The stored performance row: campaign and day level, so no ad id. */
-export function toPerformanceRow(row, campaignId) {
+export function toPerformanceRow(row, campaignId, platform) {
   return {
     campaign_id: campaignId,
     ad_id: null,
     metric_date: row.date,
-    source: "tiktok",
+    source: platformOf(platform).source,
     impressions: row.impressions,
     reach: 0, // unique reach cannot be summed across ad groups, so it is not imported
     clicks: row.clicks,
@@ -95,7 +114,7 @@ export function toPerformanceRow(row, campaignId) {
 }
 
 /**
- * Which BookPilot campaign each TikTok campaign name lands on. Every name
+ * Which BookPilot campaign each platform campaign name lands on. Every name
  * in the report needs a target: an existing tracking campaign, or a book to
  * create one under. Returns a Map name -> { campaignId } | { bookId }.
  */
@@ -114,7 +133,7 @@ export function resolveTargets(names, targets) {
   return out;
 }
 
-/** What the TikTok card shows about existing imports. */
+/** What a platform card shows about existing imports. */
 export function summarise(perfRows, campaignNames = new Map()) {
   if (!perfRows.length) return { days: 0, rows: 0, campaigns: [], from: null, to: null, last_imported_at: null };
   const dates = perfRows.map((r) => r.metric_date).sort();

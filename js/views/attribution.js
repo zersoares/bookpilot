@@ -17,15 +17,17 @@ import { notify, confirmDialog } from "../core/toast.js";
 import { pageHead, fmt, demoBadge } from "./shared.js";
 import { healthBadge, wireTrackingChecks } from "./tracking-check.js";
 import { amazonImportBlock, wireAmazonImport } from "./amazon-import.js";
-import { tiktokCard, wireTikTok } from "./tiktok-card.js";
+import { platformCard, wirePlatform } from "./platform-card.js";
 
 export async function render(container, params, query) {
-  const [{ integrations, capabilities }, { sites }, { summary: amazonSummary }, { campaigns }, tiktok, { books }] = await Promise.all([
+  const empty = { summary: null, campaigns: [] };
+  const [{ integrations, capabilities }, { sites }, { summary: amazonSummary }, { campaigns }, tiktok, google, { books }] = await Promise.all([
     API.integrations(),
     API.trackingSites().catch(() => ({ sites: [] })),
     API.amazonSummary().catch(() => ({ summary: null })),
     API.campaigns().catch(() => ({ campaigns: [] })),
-    API.tiktokSummary().catch(() => ({ summary: null, campaigns: [] })),
+    API.platformSummary("tiktok").catch(() => empty),
+    API.platformSummary("google").catch(() => empty),
     API.books().catch(() => ({ books: [] })),
   ]);
 
@@ -55,19 +57,22 @@ export async function render(container, params, query) {
     <div class="bp-stack-lg">
       ${raw(metaCard(meta, capabilities))}
       ${raw(trackingCard(sites, statuses))}
-      ${raw(tiktokCard(tiktok.summary, tiktok.campaigns, { books }))}
+      ${raw(platformCard("tiktok", tiktok.summary, tiktok.campaigns, { books }))}
+      ${raw(platformCard("google", google.summary, google.campaigns, { books }))}
       ${raw(amazonCard(amazonSummary))}
       ${raw(comingSoonCard())}
     </div>
   `;
 
   wireTrackingChecks(container, statuses);
-  wireTikTok(container, {
-    tracking: tiktok.campaigns,
-    books,
-    defaultCurrency: tiktok.campaigns[0]?.currency || campaigns[0]?.currency || "EUR",
-    done: () => render(container, params, query),
-  });
+  for (const [platform, data] of [["tiktok", tiktok], ["google", google]]) {
+    wirePlatform(container, platform, {
+      tracking: data.campaigns,
+      books,
+      defaultCurrency: data.campaigns[0]?.currency || campaigns[0]?.currency || "EUR",
+      done: () => render(container, params, query),
+    });
+  }
   wireAmazonImport(container, {
     campaigns: campaigns.filter((c) => !c.is_demo || isDemo()),
     defaultCurrency: campaigns[0]?.currency || "EUR",
@@ -309,7 +314,6 @@ function amazonCard(summary) {
 
 function comingSoonCard() {
   const platforms = [
-    ["Google Ads", "Search demand for readers already looking."],
     ["Pinterest Ads", "Strong for several non-fiction categories."],
   ];
   return html`

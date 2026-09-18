@@ -10,6 +10,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-9a-f][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-
 
 export const SOURCES = {
   tiktok: { label: "TikTok", source: "tiktok", medium: "paid_social" },
+  // Google Ads also auto-tags with a click id; these parameters travel alongside it.
+  google: { label: "Google Ads", source: "google", medium: "cpc" },
   facebook: { label: "Facebook & Instagram", source: "facebook", medium: "paid_social" },
   other: { label: "Other", source: "ads", medium: "paid" },
 };
