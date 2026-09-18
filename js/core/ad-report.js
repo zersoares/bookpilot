@@ -54,6 +54,25 @@ export const PLATFORM_REPORTS = {
       field("currency", "Currency", false, ["currency code", "currency"]),
     ],
   },
+  pinterest: {
+    name: "Pinterest Ads",
+    tool: "Pinterest Ads Manager",
+    unnamed: "Pinterest (all campaigns)",
+    fields: [
+      field("campaign", "Campaign", false, ["campaign name", "campaign"]),
+      field("date", "Date", false, ["date", "day"]),
+      field("impressions", "Impressions", true, ["impressions", "impression"]),
+      // Outbound clicks are the ones that reached the author's site; a Pin
+      // click can be a look at the Pin itself, so it is the last resort.
+      field("clicks", "Clicks", true, ["outbound clicks", "link clicks", "clicks", "pin clicks"]),
+      field("spend", "Spend", true, ["spend", "total spend", "amount spent"]),
+      field("conversions", "Conversions (checkouts)", true,
+        ["checkouts", "total checkouts", "web checkouts", "purchases", "total conversions", "conversions", "results"]),
+      field("revenue", "Checkout value", true,
+        ["checkout value", "total checkout value", "web checkout value", "order value", "total order value", "conversion value", "total conversion value", "revenue"]),
+      field("currency", "Currency", false, ["currency", "account currency", "currency code"]),
+    ],
+  },
 };
 
 /** The reader for one platform's reports. */

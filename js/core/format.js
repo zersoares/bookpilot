@@ -85,14 +85,14 @@ export function relativeTime(value) {
   return formatter.format(diffSeconds, "second");
 }
 
-const PLATFORM_NAMES = { meta: "Meta", tiktok: "TikTok", instagram: "Instagram", facebook: "Facebook", google: "Google", youtube: "YouTube" };
+const PLATFORM_NAMES = { meta: "Meta", tiktok: "TikTok", instagram: "Instagram", facebook: "Facebook", google: "Google", pinterest: "Pinterest", youtube: "YouTube" };
 
 /** A platform's proper name: title-casing alone turns "tiktok" into "Tiktok". */
 export function platformName(value) {
   return PLATFORM_NAMES[String(value || "").toLowerCase()] || titleCase(value);
 }
 
-const PLATFORM_TOOLS = { tiktok: "TikTok Ads Manager", google: "Google Ads", meta: "Meta Ads Manager" };
+const PLATFORM_TOOLS = { tiktok: "TikTok Ads Manager", google: "Google Ads", pinterest: "Pinterest Ads Manager", meta: "Meta Ads Manager" };
 
 /** Where an author manages a platform's campaigns. */
 export function platformTool(value) {

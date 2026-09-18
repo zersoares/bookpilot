@@ -10,7 +10,7 @@
 // Pure functions: no DOM, no network, and testable.
 
 export const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-const RATE_WORDS = /\b(rate|percent|percentage|ratio|per|acos|roas|cpc|cpm|cpa|ctr)\b/;
+const RATE_WORDS = /\b(rate|percent|percentage|ratio|per|acos|roas|cpc|cpm|cpa|ctr|ecpc|ecpm)\b/;
 
 // --- CSV ---------------------------------------------------------------
 
@@ -74,7 +74,9 @@ export function guessMapping(headers, fields) {
       // not a different column.
       const raw = headers[index];
       const withoutCurrency = norm(String(raw).replace(/\s*[(\[]?\b[A-Z]{3}\b[)\]]?\s*$/, ""));
-      const rank = Math.min(...[h, withoutCurrency].map((x) => {
+      // Pinterest writes "Spend in account currency": same column, longer name.
+      const withoutUnit = h.replace(/ in account currency$/, "");
+      const rank = Math.min(...[h, withoutCurrency, withoutUnit].map((x) => {
         const i = synonyms.indexOf(x);
         return i === -1 ? Infinity : i;
       }));

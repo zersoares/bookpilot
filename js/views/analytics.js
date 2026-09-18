@@ -196,7 +196,7 @@ function paintCreatives(rows, currency) {
   });
 }
 
-const PLATFORM_NAME = { meta: "Meta (Facebook & Instagram)", tiktok: "TikTok", google: "Google Ads" };
+const PLATFORM_NAME = { meta: "Meta (Facebook & Instagram)", tiktok: "TikTok", google: "Google Ads", pinterest: "Pinterest" };
 
 function platformPanel(platforms, currency) {
   return html`

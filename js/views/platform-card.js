@@ -54,6 +54,22 @@ const COPY = {
     overlap: "Google counts conversions its own way and can claim a sale your website or Meta also claims. Its Conversions column counts every conversion action your account tracks (sign-ups and add-to-carts too, not just purchases), and shared credit makes some of them fractions that are rounded to whole numbers per day. If yours counts more than purchases, choose a purchases-only column, or the numbers here will flatter the campaign.",
     dayHint: "Add the <em>Day</em> segment and export it again",
   },
+  pinterest: {
+    title: "Pinterest Ads",
+    tool: "Pinterest Ads Manager",
+    campaigns: "Pinterest campaigns",
+    placeholderCampaign: "Book launch — Pinterest",
+    placeholderReport: "Date,Campaign name,Spend in account currency,Impressions,Outbound clicks,Checkouts,…",
+    headerHint: "Campaign name, Date, Spend, Impressions, Outbound clicks, and your checkouts or their value",
+    steps: [
+      "In Pinterest Ads Manager, open Reports and create a report at the campaign level (menu names change over time).",
+      "Set the date range and the granularity to <strong>daily</strong>. A report without a daily breakdown can't be placed on days, so it is refused.",
+      "Include Spend, Impressions, Outbound clicks, and Checkouts with their value if you track purchases.",
+      "Download it as CSV and choose the file here. Importing the same days again replaces them.",
+    ],
+    overlap: "Pinterest counts conversions its own way, over a window after someone clicks or views, and can claim a sale your website or Meta also claims. Its Total conversions counts every conversion event you track (sign-ups and page visits too); use the Checkouts column for purchases, or the numbers here will flatter the campaign.",
+    dayHint: "Set the report's granularity to <em>daily</em> and export it again",
+  },
 };
 
 export function platformCard(platform, summary, tracking, { books = [] } = {}) {
@@ -283,7 +299,7 @@ export function wirePlatform(root, platform, { tracking = [], books = [], defaul
               ${raw(stat(nameOf("revenue"), fmt.money(built.totals.revenue_cents, state.currency)))}
             </div>
             <div class="bp-table-wrap" style="margin-top:var(--bp-3)"><table class="bp-table">
-              <thead><tr><th>Date</th><th>Campaign</th><th class="bp-num">Spend</th><th class="bp-num">Clicks</th><th class="bp-num">${nameOf("conversions").replace(" (purchases)", "")}</th></tr></thead>
+              <thead><tr><th>Date</th><th>Campaign</th><th class="bp-num">Spend</th><th class="bp-num">Clicks</th><th class="bp-num">${nameOf("conversions").replace(/ \(.*\)$/, "")}</th></tr></thead>
               <tbody>${raw(built.rows.slice(0, 6).map((r) => html`<tr><td class="bp-small">${fmt.date(r.date)}</td><td class="bp-small">${r.campaign}</td>
                 <td class="bp-small bp-num">${fmt.money(r.spend_cents, state.currency)}</td><td class="bp-small bp-num">${fmt.number(r.clicks)}</td>
                 <td class="bp-small bp-num">${fmt.number(r.conversions)}</td></tr>`).join(""))}</tbody></table></div>

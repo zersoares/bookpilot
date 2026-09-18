@@ -21,13 +21,14 @@ import { platformCard, wirePlatform } from "./platform-card.js";
 
 export async function render(container, params, query) {
   const empty = { summary: null, campaigns: [] };
-  const [{ integrations, capabilities }, { sites }, { summary: amazonSummary }, { campaigns }, tiktok, google, { books }] = await Promise.all([
+  const [{ integrations, capabilities }, { sites }, { summary: amazonSummary }, { campaigns }, tiktok, google, pinterest, { books }] = await Promise.all([
     API.integrations(),
     API.trackingSites().catch(() => ({ sites: [] })),
     API.amazonSummary().catch(() => ({ summary: null })),
     API.campaigns().catch(() => ({ campaigns: [] })),
     API.platformSummary("tiktok").catch(() => empty),
     API.platformSummary("google").catch(() => empty),
+    API.platformSummary("pinterest").catch(() => empty),
     API.books().catch(() => ({ books: [] })),
   ]);
 
@@ -59,13 +60,13 @@ export async function render(container, params, query) {
       ${raw(trackingCard(sites, statuses))}
       ${raw(platformCard("tiktok", tiktok.summary, tiktok.campaigns, { books }))}
       ${raw(platformCard("google", google.summary, google.campaigns, { books }))}
+      ${raw(platformCard("pinterest", pinterest.summary, pinterest.campaigns, { books }))}
       ${raw(amazonCard(amazonSummary))}
-      ${raw(comingSoonCard())}
     </div>
   `;
 
   wireTrackingChecks(container, statuses);
-  for (const [platform, data] of [["tiktok", tiktok], ["google", google]]) {
+  for (const [platform, data] of [["tiktok", tiktok], ["google", google], ["pinterest", pinterest]]) {
     wirePlatform(container, platform, {
       tracking: data.campaigns,
       books,
@@ -308,27 +309,6 @@ function amazonCard(summary) {
         </div>
       </div>
       ${raw(amazonImportBlock(summary))}
-    </section>
-  `;
-}
-
-function comingSoonCard() {
-  const platforms = [
-    ["Pinterest Ads", "Strong for several non-fiction categories."],
-  ];
-  return html`
-    <section class="bp-card">
-      <div class="bp-card__title" style="margin-bottom:var(--bp-3)">On the roadmap</div>
-      <div class="bp-grid bp-grid--3">
-        ${raw(platforms.map(([name, note]) => html`
-          <div class="bp-panel">
-            <div class="bp-row bp-row--between"><strong class="bp-small">${name}</strong><span class="bp-badge">Planned</span></div>
-            <p class="bp-tiny bp-muted" style="margin:6px 0 0">${note}</p>
-          </div>`).join(""))}
-      </div>
-      <p class="bp-tiny bp-subtle" style="margin-top:var(--bp-3)">
-        Listed so you know what's coming — not shown as switches that do nothing.
-      </p>
     </section>
   `;
 }

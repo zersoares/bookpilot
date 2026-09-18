@@ -340,9 +340,9 @@ function demoAmazonTotals(state) {
   };
 }
 
-// --- Other platforms (demo): TikTok, Google Ads ------------------------
+// --- Other platforms (demo): TikTok, Google Ads, Pinterest ------------------------
 
-const DEMO_PLATFORMS = ["tiktok", "google"];
+const DEMO_PLATFORMS = ["tiktok", "google", "pinterest"];
 
 function demoPlatform(value) {
   if (!DEMO_PLATFORMS.includes(value)) throw new DemoError("not_found", "We couldn't find that platform.", 404);

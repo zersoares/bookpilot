@@ -1,4 +1,4 @@
-// Ad-platform imports (TikTok Ads, Google Ads): reading a platform report,
+// Ad-platform imports (TikTok Ads, Google Ads, Pinterest Ads): reading a platform report,
 // building tracked links, and the rules the server applies to what the
 // browser sends.
 //
@@ -368,4 +368,99 @@ test("demo: TikTok and Google are kept apart, and both appear in the platform ta
   assert.equal(after.platforms.find((p) => p.source === "tiktok").metrics.spendCents, 4000);
 
   await assert.rejects(() => demoAdapter.request("GET", "/api/bp/platform-import/myspace"), (e) => e.status === 404);
+});
+
+// --- Pinterest Ads --------------------------------------------------------
+
+const pinterest = reportFor("pinterest");
+
+const PINTEREST = [
+  "Date,Campaign name,Ad group name,Spend in account currency,Impressions,Pin clicks,Outbound clicks,CTR,eCPC,Total conversions,Checkouts,Checkout value in account currency,Checkout ROAS",
+  "2026-09-01,Spring Pins,Group A,10.00,5000,150,60,3.0%,0.07,4,1,8.99,0.90",
+  "2026-09-01,Spring Pins,Group B,5.00,2500,70,30,2.8%,0.07,2,0,0.00,0",
+  "2026-09-02,Spring Pins,Group A,12.00,6000,180,75,3.0%,0.07,3,2,17.98,1.50",
+  "Total,,,27.00,13500,400,165,,,9,3,26.97,",
+].join("\n");
+
+test("pinterest: outbound clicks over Pin clicks, checkouts over total conversions, units in the heading ignored", () => {
+  const report = pinterest.readReport(PINTEREST);
+  assert.equal(report.ok, true);
+  const h = report.headers, m = report.mapping;
+  assert.equal(h[m.spend], "Spend in account currency");
+  assert.equal(h[m.clicks], "Outbound clicks", "the clicks that reached the site, not clicks on the Pin");
+  assert.equal(h[m.conversions], "Checkouts", "purchases, not every conversion event");
+  assert.equal(h[m.revenue], "Checkout value in account currency");
+  assert.equal(h[m.impressions], "Impressions");
+  assert.equal(h[m.date], "Date");
+  assert.equal(h[m.campaign], "Campaign name");
+  // eCPC, CTR and ROAS are rates, never figures.
+  for (const key of ["clicks", "spend", "conversions", "revenue"]) {
+    assert.doesNotMatch(h[m[key]], /ecpc|ctr|roas/i);
+  }
+});
+
+test("pinterest: ad groups merge per campaign-day and the Total row is left out", () => {
+  const report = pinterest.readReport(PINTEREST);
+  const built = pinterest.buildRows(report.data, report.mapping);
+  assert.equal(built.rows.length, 2);
+  assert.deepEqual(built.rows.find((r) => r.date === "2026-09-01"), {
+    campaign: "Spring Pins", date: "2026-09-01", impressions: 7500, clicks: 90,
+    spend_cents: 1500, conversions: 1, revenue_cents: 899,
+  });
+  assert.equal(built.totals.spend_cents, 2700, "the Total row is not added on top");
+  assert.equal(built.totals.clicks, 165);
+  assert.equal(built.skipped.length, 1);
+  assert.match(built.skipped[0].reason, /no valid date/);
+});
+
+test("pinterest: with no Checkouts column, Total conversions is used", () => {
+  const report = pinterest.readReport("Date,Campaign name,Spend,Impressions,Outbound clicks,Total conversions\n2026-09-01,A,5.00,100,10,3");
+  const built = pinterest.buildRows(report.data, report.mapping);
+  assert.equal(built.rows[0].conversions, 3);
+  assert.equal(built.rows[0].spend_cents, 500);
+});
+
+test("pinterest: the server and the tracked link know the platform", () => {
+  const out = normaliseRows([good({ date: "2014-03-01" })], "pinterest", TODAY);
+  assert.equal(toPerformanceRow(out.rows[0], CAMPAIGN, "pinterest").source, "pinterest");
+  assert.equal(normaliseRows([good({ campaign: "" })], "pinterest", TODAY).rows[0].campaign, PLATFORMS.pinterest.unnamed);
+  assert.equal(pinterest.unnamed, PLATFORMS.pinterest.unnamed, "browser and server agree on the placeholder");
+  assert.throws(() => normaliseRows([good({ date: "2012-01-01" })], "pinterest", TODAY), /outside the range Pinterest Ads/);
+
+  const link = new URL(buildTrackedLink({ url: "https://example.com/book", platform: "pinterest", campaignId: CAMPAIGN }));
+  assert.equal(link.searchParams.get("utm_source"), "pinterest");
+  assert.equal(link.searchParams.get("utm_medium"), "paid_social");
+});
+
+test("demo: Pinterest is a third platform, kept apart from TikTok and Google", async () => {
+  resetDemo();
+  const pin = pinterest.readReport(PINTEREST);
+  const built = pinterest.buildRows(pin.data, pin.mapping);
+  const t = readReport(SAMPLE);
+  const tBuilt = buildRows(t.data, t.mapping);
+
+  await demoAdapter.request("POST", "/api/bp/platform-import/pinterest", {
+    rows: built.rows, currency: "EUR", targets: [{ campaign: "Spring Pins", book_id: DEMO_BOOK.id }],
+  });
+  await demoAdapter.request("POST", "/api/bp/platform-import/tiktok", {
+    rows: tBuilt.rows, currency: "EUR", targets: [{ campaign: "Spring TikTok", book_id: DEMO_BOOK.id }],
+  });
+
+  const analytics = await demoAdapter.request("GET", "/api/bp/analytics?days=30");
+  const by = Object.fromEntries(analytics.platforms.map((p) => [p.source, p.metrics]));
+  assert.equal(by.pinterest.spendCents, 2700);
+  assert.equal(by.tiktok.spendCents, 4000);
+  assert.ok(by.meta);
+  assert.equal(by.google, undefined, "no Google import, no Google row");
+
+  const campaigns = (await demoAdapter.request("GET", "/api/bp/platform-campaigns/pinterest")).campaigns;
+  assert.equal(campaigns.length, 1);
+  assert.equal(campaigns[0].platform, "pinterest");
+  assert.equal(campaigns[0].external_only, true);
+  assert.equal((await demoAdapter.request("GET", "/api/bp/platform-campaigns/tiktok")).campaigns.length, 1);
+
+  await demoAdapter.request("DELETE", "/api/bp/platform-import/pinterest");
+  const after = await demoAdapter.request("GET", "/api/bp/analytics?days=30");
+  assert.equal(after.platforms.some((p) => p.source === "pinterest"), false);
+  assert.equal(after.platforms.find((p) => p.source === "tiktok").metrics.spendCents, 4000);
 });

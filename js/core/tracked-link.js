@@ -12,6 +12,7 @@ export const SOURCES = {
   tiktok: { label: "TikTok", source: "tiktok", medium: "paid_social" },
   // Google Ads also auto-tags with a click id; these parameters travel alongside it.
   google: { label: "Google Ads", source: "google", medium: "cpc" },
+  pinterest: { label: "Pinterest", source: "pinterest", medium: "paid_social" },
   facebook: { label: "Facebook & Instagram", source: "facebook", medium: "paid_social" },
   other: { label: "Other", source: "ads", medium: "paid" },
 };

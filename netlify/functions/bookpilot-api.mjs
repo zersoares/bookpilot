@@ -632,7 +632,7 @@ async function handleAnalytics(ctx, segments, url) {
 
   // Paid platforms side by side. Website-tracked rows are not a platform
   // and never appear here.
-  const platforms = ["meta", "tiktok", "google"]
+  const platforms = ["meta", "tiktok", "google", "pinterest"]
     .map((source) => ({ source, metrics: deriveMetrics(platformRows.filter((r) => r.source === source)) }))
     .filter((p) => p.metrics.hasData);
 

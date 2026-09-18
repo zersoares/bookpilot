@@ -1,4 +1,4 @@
-// Ad-platform report imports (TikTok, Google Ads): validation and summaries.
+// Ad-platform report imports (TikTok, Google Ads, Pinterest): validation and summaries.
 //
 // The browser parses the author's report CSV and sends daily
 // campaign-level rows; nothing it says is trusted. Every value is
@@ -23,6 +23,7 @@ export const MAX_ROWS = 3000;
 export const PLATFORMS = {
   tiktok: { source: "tiktok", name: "TikTok Ads", earliest: "2018-01-01", unnamed: "TikTok (all campaigns)" },
   google: { source: "google", name: "Google Ads", earliest: "2010-01-01", unnamed: "Google Ads (all campaigns)" },
+  pinterest: { source: "pinterest", name: "Pinterest Ads", earliest: "2013-01-01", unnamed: "Pinterest (all campaigns)" },
 };
 
 export function platformOf(value) {
