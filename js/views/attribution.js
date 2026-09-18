@@ -17,13 +17,16 @@ import { notify, confirmDialog } from "../core/toast.js";
 import { pageHead, fmt, demoBadge } from "./shared.js";
 import { healthBadge, wireTrackingChecks } from "./tracking-check.js";
 import { amazonImportBlock, wireAmazonImport } from "./amazon-import.js";
+import { tiktokCard, wireTikTok } from "./tiktok-card.js";
 
 export async function render(container, params, query) {
-  const [{ integrations, capabilities }, { sites }, { summary: amazonSummary }, { campaigns }] = await Promise.all([
+  const [{ integrations, capabilities }, { sites }, { summary: amazonSummary }, { campaigns }, tiktok, { books }] = await Promise.all([
     API.integrations(),
     API.trackingSites().catch(() => ({ sites: [] })),
     API.amazonSummary().catch(() => ({ summary: null })),
     API.campaigns().catch(() => ({ campaigns: [] })),
+    API.tiktokSummary().catch(() => ({ summary: null, campaigns: [] })),
+    API.books().catch(() => ({ books: [] })),
   ]);
 
   // One status per site, fetched up front so each card can show whether
@@ -52,12 +55,19 @@ export async function render(container, params, query) {
     <div class="bp-stack-lg">
       ${raw(metaCard(meta, capabilities))}
       ${raw(trackingCard(sites, statuses))}
+      ${raw(tiktokCard(tiktok.summary, tiktok.campaigns, { books }))}
       ${raw(amazonCard(amazonSummary))}
       ${raw(comingSoonCard())}
     </div>
   `;
 
   wireTrackingChecks(container, statuses);
+  wireTikTok(container, {
+    tracking: tiktok.campaigns,
+    books,
+    defaultCurrency: tiktok.campaigns[0]?.currency || campaigns[0]?.currency || "EUR",
+    done: () => render(container, params, query),
+  });
   wireAmazonImport(container, {
     campaigns: campaigns.filter((c) => !c.is_demo || isDemo()),
     defaultCurrency: campaigns[0]?.currency || "EUR",
@@ -299,7 +309,6 @@ function amazonCard(summary) {
 
 function comingSoonCard() {
   const platforms = [
-    ["TikTok Ads", "Short-form video campaigns for the same angles."],
     ["Google Ads", "Search demand for readers already looking."],
     ["Pinterest Ads", "Strong for several non-fiction categories."],
   ];

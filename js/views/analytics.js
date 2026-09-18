@@ -46,6 +46,8 @@ export async function render(container, params, query) {
     <div class="bp-stack-lg">
       <section>${raw(statGrid(analytics.totals, currency))}</section>
 
+      ${raw(analytics.platforms?.length > 1 || analytics.platforms?.some((p) => p.source === "tiktok") ? platformPanel(analytics.platforms, currency) : "")}
+
       ${raw(analytics.amazon ? amazonPanel(analytics.amazon, currency) : "")}
 
       <section>
@@ -192,6 +194,41 @@ function paintCreatives(rows, currency) {
       paintCreatives(rows, currency);
     });
   });
+}
+
+const PLATFORM_NAME = { meta: "Meta (Facebook & Instagram)", tiktok: "TikTok" };
+
+function platformPanel(platforms, currency) {
+  return html`
+    <section>
+      <h2 style="font-size:1.05rem;margin-bottom:var(--bp-3)">By platform</h2>
+      <div class="bp-card bp-card--flush">
+        <div class="bp-table-wrap">
+          <table class="bp-table">
+            <thead><tr><th>Platform</th><th class="bp-num">Spend</th><th class="bp-num">Clicks</th><th class="bp-num">CTR</th>
+              <th class="bp-num">CPC</th><th class="bp-num">Sales</th><th class="bp-num">CPA</th><th class="bp-num">Revenue</th><th class="bp-num">ROAS</th></tr></thead>
+            <tbody>
+              ${raw(platforms.map(({ source, metrics: m }) => html`<tr>
+                <td>${PLATFORM_NAME[source] || source}</td>
+                <td class="bp-num">${fmt.money(m.spendCents, currency)}</td>
+                <td class="bp-num">${fmt.number(m.clicks)}</td>
+                <td class="bp-num">${fmt.percent(m.ctr)}</td>
+                <td class="bp-num">${m.cpc === null ? "N/A" : fmt.money(Math.round(m.cpc), currency)}</td>
+                <td class="bp-num">${fmt.number(m.conversions)}</td>
+                <td class="bp-num">${m.cpa === null ? "N/A" : fmt.money(Math.round(m.cpa), currency)}</td>
+                <td class="bp-num">${fmt.money(m.revenueCents, currency)}</td>
+                <td class="bp-num">${m.roas === null ? "N/A" : fmt.multiple(m.roas)}</td>
+              </tr>`).join(""))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="bp-tiny bp-subtle" style="margin:var(--bp-2) 0 0">
+        Each platform counts sales its own way and can claim a sale another also claims, so the totals above
+        can count one sale twice. Figures assume one currency: campaigns in different currencies are not converted.
+      </p>
+    </section>
+  `;
 }
 
 function amazonPanel(amazon, currency) {

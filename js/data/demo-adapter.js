@@ -340,6 +340,31 @@ function demoAmazonTotals(state) {
   };
 }
 
+// --- TikTok (demo) ----------------------------------------------------
+
+function demoTikTokCampaigns(state) {
+  return state.campaigns.filter((c) => c.platform === "tiktok" && c.external_only);
+}
+
+function demoTikTokSummary(state, tracking) {
+  const rows = state.performance.filter((p) => p.source === "tiktok");
+  if (!rows.length) return { days: 0, rows: 0, campaigns: [], from: null, to: null, last_imported_at: null };
+  const names = new Map(tracking.map((c) => [c.id, c.name]));
+  const dates = rows.map((r) => r.metric_date).sort();
+  return {
+    days: new Set(dates).size, rows: rows.length,
+    campaigns: [...new Set(rows.map((r) => names.get(r.campaign_id) || "Unnamed"))].sort(),
+    from: dates[0], to: dates[dates.length - 1],
+    last_imported_at: rows.map((r) => r.synced_at).sort().pop(),
+  };
+}
+
+function demoPlatforms(state) {
+  // Sample rows are the demo's "Meta" data.
+  const of = (source) => deriveMetrics(state.performance.filter((r) => (source === "meta" ? r.source !== "tiktok" && r.source !== "website" : r.source === source)));
+  return ["meta", "tiktok"].map((source) => ({ source, metrics: of(source) })).filter((p) => p.metrics.hasData);
+}
+
 // --- Request routing --------------------------------------------------
 
 async function handle(method, path, body) {
@@ -483,7 +508,75 @@ async function handle(method, path, body) {
           creative: row.creative, metrics: row.metrics, confidence: row.confidence,
         })),
         amazon: demoAmazonTotals(state),
+        platforms: demoPlatforms(state),
       };
+    }
+
+    // Demo only, in memory like everything else here: campaigns that run on
+    // TikTok, and the figures imported for them.
+    if (resource === "tiktok-campaigns") {
+      if (method === "GET") return { campaigns: demoTikTokCampaigns(state) };
+      if (method === "POST") {
+        if (!body.name) throw new DemoError("invalid", "Give the campaign a name.", 400);
+        if (!state.books.some((b) => b.id === body.book_id)) throw new DemoError("invalid", "We couldn't find that book.", 400);
+        const campaign = {
+          id: uid(), user_id: "demo", book_id: body.book_id, name: body.name, platform: "tiktok", objective: "conversions",
+          daily_budget_cents: 0, currency: body.currency || "EUR", destination_url: body.destination_url || null,
+          status: "active", external_only: true, is_demo: true, created_at: new Date().toISOString(),
+        };
+        state.campaigns.unshift(campaign);
+        return { campaign };
+      }
+    }
+
+    if (resource === "tiktok-import") {
+      const tracking = demoTikTokCampaigns(state);
+      if (method === "GET") return { summary: demoTikTokSummary(state, tracking), campaigns: tracking };
+      if (method === "POST") {
+        const rows = Array.isArray(body.rows) ? body.rows : [];
+        if (!rows.length) throw new DemoError("invalid", "There are no rows to import.", 400);
+        const currency = body.currency || "EUR";
+        const targets = new Map((body.targets || []).map((t) => [t.campaign, t]));
+        const plan = new Map();
+        for (const name of new Set(rows.map((r) => r.campaign))) {
+          const t = targets.get(name);
+          if (t?.campaign_id) {
+            const c = tracking.find((x) => x.id === t.campaign_id);
+            if (!c) throw new DemoError("invalid", "That isn't one of your TikTok campaigns.", 400);
+            if (c.currency !== currency) throw new DemoError("invalid", `"${c.name}" is in ${c.currency} but this report is in ${currency}.`, 400);
+            plan.set(name, c.id);
+          } else if (t?.book_id) {
+            if (!state.books.some((b) => b.id === t.book_id)) throw new DemoError("invalid", "We couldn't find the book you chose.", 400);
+            const campaign = {
+              id: uid(), user_id: "demo", book_id: t.book_id, name, platform: "tiktok", objective: "conversions",
+              daily_budget_cents: 0, currency, status: "active", external_only: true, is_demo: true,
+              created_at: new Date().toISOString(),
+            };
+            state.campaigns.unshift(campaign);
+            plan.set(name, campaign.id);
+          } else {
+            throw new DemoError("invalid", `Choose where "${name}" goes.`, 400);
+          }
+        }
+        for (const r of rows) {
+          const campaign_id = plan.get(r.campaign);
+          // One row per campaign per day; a re-import replaces it.
+          state.performance = state.performance.filter(
+            (p) => !(p.source === "tiktok" && p.campaign_id === campaign_id && p.metric_date === r.date));
+          state.performance.push({
+            id: uid(), campaign_id, ad_id: null, metric_date: r.date, source: "tiktok",
+            impressions: r.impressions, reach: 0, clicks: r.clicks, spend_cents: r.spend_cents,
+            conversions: r.conversions, revenue_cents: r.revenue_cents, synced_at: new Date().toISOString(),
+          });
+        }
+        const dates = rows.map((r) => r.date).sort();
+        return { imported: rows.length, campaigns: plan.size, created: [...plan.values()].filter((id) => !tracking.some((c) => c.id === id)).length,
+          from: dates[0], to: dates[dates.length - 1] };
+      }
+      if (method === "DELETE") {
+        state.performance = state.performance.filter((p) => p.source !== "tiktok");
+        return { deleted: true };
+      }
     }
 
     // Demo only: Amazon Attribution data is imported into memory and

@@ -71,7 +71,7 @@ export async function renderList(container) {
               return html`<tr>
                 <td><a href="#/campaigns/${campaign.id}">${campaign.name}</a></td>
                 <td class="bp-small bp-muted">${bookTitle(campaign.book_id)}</td>
-                <td class="bp-small">${fmt.titleCase(campaign.platform)}</td>
+                <td class="bp-small">${fmt.platformName(campaign.platform)}</td>
                 <td>${raw(statusBadge(campaign.status))}</td>
                 <td class="bp-num">${fmt.money(campaign.daily_budget_cents, campaign.currency)}</td>
                 <td class="bp-num">${m?.hasData ? fmt.money(m.spendCents, campaign.currency) : "—"}</td>
@@ -632,7 +632,9 @@ export async function renderDetail(container, params) {
 
     ${raw(pageHead({
       title: campaign.name,
-      description: `${book.title} · ${fmt.money(campaign.daily_budget_cents, campaign.currency)}/day · ${fmt.titleCase(campaign.platform)}`,
+      description: campaign.external_only
+        ? `${book.title} · Runs on ${fmt.platformName(campaign.platform)} Ads Manager`
+        : `${book.title} · ${fmt.money(campaign.daily_budget_cents, campaign.currency)}/day · ${fmt.platformName(campaign.platform)}`,
       actions: `${statusBadge(campaign.status)}
         <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="analyse-btn">Analyse · 10 credits</button>`,
     }))}
@@ -706,11 +708,13 @@ export async function renderDetail(container, params) {
         <div class="bp-card__title" style="margin-bottom:var(--bp-3)">Campaign settings</div>
         <dl class="bp-kv">
           <dt>Objective</dt><dd>${OBJECTIVES.find((o) => o.value === campaign.objective)?.label || campaign.objective}</dd>
-          <dt>Daily budget</dt><dd>${fmt.money(campaign.daily_budget_cents, campaign.currency)}</dd>
+          <dt>Daily budget</dt><dd>${campaign.external_only ? `Set in ${fmt.platformName(campaign.platform)} Ads Manager` : fmt.money(campaign.daily_budget_cents, campaign.currency)}</dd>
           <dt>Runs</dt><dd>${campaign.start_date ? fmt.date(campaign.start_date) : "—"} → ${campaign.end_date ? fmt.date(campaign.end_date) : "no end date"}</dd>
           <dt>Destination</dt><dd class="bp-truncate">${campaign.destination_url || "—"}</dd>
           <dt>Audiences</dt><dd>${(detail.adSets || []).map((s) => s.name).join(", ") || "—"}</dd>
-          <dt>On Meta</dt><dd>${campaign.external_campaign_id ? "Yes" : "Not pushed yet"}</dd>
+          ${raw(campaign.external_only
+            ? html`<dt>Runs on</dt><dd>${fmt.platformName(campaign.platform)} Ads Manager. BookPilot tracks it and imports its reports, but can't launch, pause or change it.</dd>`
+            : html`<dt>On Meta</dt><dd>${campaign.external_campaign_id ? "Yes" : "Not pushed yet"}</dd>`)}
         </dl>
         <div class="bp-row bp-row--wrap" style="margin-top:var(--bp-4)">
           <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="budget-btn">Budget advice · 2 credits</button>

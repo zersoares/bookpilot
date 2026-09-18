@@ -113,7 +113,7 @@ function creativeCard(creative) {
         <p class="bp-small bp-muted bp-clamp-3" style="margin:0">${creative.primary_text || ""}</p>
         <div class="bp-row bp-row--between">
           ${raw(scoreBadge(creative.score))}
-          <span class="bp-tiny bp-subtle">${fmt.titleCase(creative.platform)}</span>
+          <span class="bp-tiny bp-subtle">${fmt.platformName(creative.platform)}</span>
         </div>
         <div class="bp-creative__footer">
           <a class="bp-btn bp-btn--secondary bp-btn--sm" href="#/creatives/${creative.id}">Open</a>
@@ -319,7 +319,7 @@ export async function renderDetail(container, params) {
         <section class="bp-card">
           <div class="bp-card__header">
             <div class="bp-card__title">Copy</div>
-            <span class="bp-badge">${fmt.titleCase(creative.platform)}</span>
+            <span class="bp-badge">${fmt.platformName(creative.platform)}</span>
           </div>
           <dl class="bp-kv">
             <dt>Headline</dt><dd>${creative.headline || "—"}</dd>

@@ -16,9 +16,7 @@ import { API } from "../core/api.js";
 import { notify, confirmDialog } from "../core/toast.js";
 import { fmt } from "./shared.js";
 import { FIELDS, readReport, buildRows } from "../core/amazon-report.js";
-
-const MAX_FILE_BYTES = 5 * 1024 * 1024;
-const CURRENCIES = ["EUR", "USD", "GBP", "CAD", "AUD", "JPY", "SEK", "PLN", "BRL", "INR", "MXN", "AED"];
+import { MAX_FILE_BYTES, CURRENCIES, readFileText, stat } from "./import-shared.js";
 
 /** The card's static part: what is imported, and the buttons. */
 export function amazonImportBlock(summary) {
@@ -49,21 +47,6 @@ export function amazonImportBlock(summary) {
     </details>
   `;
 }
-
-async function readFileText(file) {
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  // Spreadsheet exports are sometimes UTF-16, which a UTF-8 decoder
-  // turns into text full of gaps.
-  if (bytes[0] === 0xff && bytes[1] === 0xfe) return new TextDecoder("utf-16le").decode(bytes);
-  if (bytes[0] === 0xfe && bytes[1] === 0xff) return new TextDecoder("utf-16be").decode(bytes);
-  return new TextDecoder("utf-8").decode(bytes);
-}
-
-const stat = (label, value) => html`
-  <div class="bp-panel" style="padding:var(--bp-3)">
-    <div class="bp-tiny bp-subtle">${label}</div>
-    <div style="font-size:1.1rem;font-variant-numeric:tabular-nums">${value}</div>
-  </div>`;
 
 /**
  * Wire the importer. `done` is called after a successful import or

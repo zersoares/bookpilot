@@ -85,6 +85,13 @@ export function relativeTime(value) {
   return formatter.format(diffSeconds, "second");
 }
 
+const PLATFORM_NAMES = { meta: "Meta", tiktok: "TikTok", instagram: "Instagram", facebook: "Facebook", google: "Google", youtube: "YouTube" };
+
+/** A platform's proper name: title-casing alone turns "tiktok" into "Tiktok". */
+export function platformName(value) {
+  return PLATFORM_NAMES[String(value || "").toLowerCase()] || titleCase(value);
+}
+
 export function titleCase(value) {
   if (!value) return "";
   return String(value)
