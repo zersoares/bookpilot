@@ -17,6 +17,9 @@ import {
   DEMO_RECOMMENDATIONS, DEMO_PROFILE, DEMO_IDS,
 } from "./demo.js";
 import { deriveMetrics, confidenceLevel, budgetRecommendation } from "../core/metrics.js";
+import {
+  freshBuilderState, handleBuilder, exportBookFromState, DemoError as BuilderError,
+} from "./demo-builder.js";
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
@@ -46,6 +49,12 @@ const CREDIT_COSTS = {
   creative_concept: 1, creative_image: 5, creative_image_advanced: 8, video_concept: 5,
   video_generation: 20, creative_scoring: 1, advisor_message: 2,
   performance_analysis: 10, budget_recommendation: 2,
+  // Book Builder
+  book_positioning: 5, book_architecture: 15, book_bible: 8, chapter_write: 12,
+  chapter_revise: 4, front_matter: 4, back_matter: 4, editorial_review: 6,
+  research_brief: 8, visual_direction: 6, visual_render: 2, book_image: 5,
+  cover_concepts: 10, cover_check: 3, quality_report: 10,
+  marketing_campaign: 20, repurpose_book: 8,
 };
 
 function freshState() {
@@ -70,6 +79,8 @@ function freshState() {
       is_active: true,
       created_at: "2026-01-10T10:00:00.000Z",
     }],
+    // The authoring half keeps its own slice, reset by the same button.
+    builder: freshBuilderState(),
   };
 }
 
@@ -590,6 +601,23 @@ async function handle(method, path, body) {
     throw new DemoError("forbidden", "The admin dashboard isn't part of the demo.", 403);
   }
 
+  // ---- Book Builder ---------------------------------------------------
+  if (section === "bb" || section === "bb-ai") {
+    if (section === "bb-ai") await wait(650);
+    const segments = path.split("?")[0].split("/").filter(Boolean).slice(1);
+    try {
+      return handleBuilder(method, segments, body || {}, state.builder, {
+        profile: state.profile,
+        spend,
+      });
+    } catch (err) {
+      // The builder module has its own error class; the adapter's callers
+      // only know about this one.
+      if (err instanceof BuilderError) throw new DemoError(err.code, err.message, err.status);
+      throw err;
+    }
+  }
+
   throw new DemoError("not_found", "That isn't available in the demo.", 404);
 }
 
@@ -598,5 +626,22 @@ export const demoAdapter = {
     // Small, uniform latency for reads so loading states are exercised.
     if (!path.startsWith("/api/bp-ai")) await wait(120);
     return handle(method, path, body);
+  },
+
+  /**
+   * Building a book in the demo.
+   *
+   * Not simulated: this runs the real PDF, EPUB, DOCX and HTML writers
+   * in the page. The file that downloads from the demo workspace is
+   * produced by exactly the code the server would have run.
+   */
+  async exportBook(format, projectId) {
+    await wait(400);
+    try {
+      return exportBookFromState(format, projectId, state.builder);
+    } catch (err) {
+      if (err instanceof BuilderError) throw new DemoError(err.code, err.message, err.status);
+      throw err;
+    }
   },
 };

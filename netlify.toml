@@ -61,6 +61,21 @@
   [headers.values]
     Cache-Control = "public, max-age=3600"
 
+# The functions directory is inside the publish root, so Netlify uploads
+# it as static files too — the same reason /sql needs a rule below. That
+# would serve the server-side AI prompts and the shared server modules to
+# anyone who guessed the path. The functions themselves are invoked
+# through their /api/* paths and are unaffected by this.
+#
+# The document engine deliberately lives in js/doc instead: it is shared
+# between the exporter and the in-app page previewer, so it is meant to
+# be fetched by the browser.
+[[redirects]]
+  from = "/netlify/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
 # The SQL is version-controlled documentation, not something to serve.
 # `force` is required: without it Netlify serves the file on disk and the
 # rule never fires, publishing the schema and the RLS policies.
@@ -69,3 +84,13 @@
   to = "/404.html"
   status = 404
   force = true
+
+# ---------------------------------------------------------------------
+# Functions
+# ---------------------------------------------------------------------
+
+# The exporter imports the document engine from js/doc, which is outside
+# the functions directory. Naming it here means the bundle carries it
+# whether or not the bundler follows the relative import on its own.
+[functions]
+  included_files = ["js/doc/**"]

@@ -299,3 +299,88 @@
   gap: var(--bp-4);
   justify-content: space-between;
 }
+
+/* ---- Book Builder section ------------------------------------------ */
+
+.bp-section__sub {
+  margin-top: var(--bp-3);
+  color: var(--bp-text-muted);
+  line-height: 1.65;
+}
+
+/* The steps are an ordered list here, because the order is the point. */
+ol.bp-steps { list-style: none; padding: 0; margin: 0; counter-reset: none; }
+
+.bp-split {
+  display: grid;
+  gap: var(--bp-5);
+  margin-top: var(--bp-10);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+.bp-split__panel {
+  padding: var(--bp-6);
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-lg);
+  background: var(--bp-surface);
+}
+.bp-split__title { font-size: 1.05rem; margin-bottom: var(--bp-3); }
+.bp-split__panel p { color: var(--bp-text-muted); line-height: 1.65; margin-bottom: var(--bp-3); }
+.bp-split__panel p:last-child { margin-bottom: 0; }
+
+.bp-check-list { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--bp-3); }
+.bp-check-list li {
+  position: relative;
+  padding-left: 26px;
+  color: var(--bp-text-muted);
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+/* A cross rather than a tick: this list is what the product refuses to
+   do, and a tick beside "will not invent a citation" reads backwards. */
+.bp-check-list li::before {
+  content: "×";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--bp-danger-soft);
+  border: 1px solid var(--bp-danger-border);
+  color: var(--bp-danger);
+  font-size: 0.72rem;
+}
+
+.bp-compare {
+  display: grid;
+  gap: var(--bp-4);
+  margin-top: var(--bp-6);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.bp-compare__side {
+  padding: var(--bp-5);
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-lg);
+  background: var(--bp-sunken);
+}
+.bp-compare__side--ours {
+  background: var(--bp-primary-soft);
+  border-color: var(--bp-primary-border);
+}
+.bp-compare__side h4 {
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bp-text-subtle);
+  margin-bottom: var(--bp-3);
+}
+.bp-compare__side--ours h4 { color: var(--bp-primary-text); }
+.bp-compare__flow {
+  font-family: var(--bp-font-serif);
+  font-size: 1.05rem;
+  line-height: 1.45;
+  margin-bottom: var(--bp-2);
+}
+.bp-compare__note { font-size: 0.87rem; color: var(--bp-text-muted); margin: 0; }

@@ -4,3 +4,6 @@ node_modules
 
 # Netlify CLI state
 .netlify
+
+# Local preview scratch (PDF proofs, generated samples)
+.scratch

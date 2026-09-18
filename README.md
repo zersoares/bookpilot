@@ -1,19 +1,27 @@
-# BookPilot AI
+# BookPilot
 
-**Your AI marketing manager for books.**
+**Write the book. Then sell it.**
 
-Upload your book. Find your readers. Create your ads. Launch your campaign.
-Discover which ads actually sell.
+Two halves of one product, sharing one account, one credit balance and one
+database:
 
-BookPilot AI is an advertising platform for independent authors, KDP authors,
-small publishers, coaches and digital-product creators. It is not a generic ad
-tool with a book-shaped skin: the product starts by reading the book, and every
-artefact downstream — persona, angle, creative, campaign, result — stays
+**Book Builder** turns an idea into a finished, designed, publication-ready
+book. Positioning, structure, manuscript, figures, interior design, cover,
+publication check, and files an author can actually send to a printer.
+
+**BookPilot AI** is the advertising half: it reads the finished book, finds its
+readers, writes the campaign and reports what actually sold.
+
+```
+Idea → Positioning → Blueprint → Manuscript → Figures → Design → Cover → PDF/EPUB/DOCX
+                                                                            │
+Book → Reader → Marketing angle → Creative → Campaign → Sale → Learning ←────┘
+```
+
+Neither half is a wrapper around a chat box. The Book Builder keeps a **Book
+Bible** that every generation reads first, which is what stops chapter nine
+contradicting chapter two; and the advertising side keeps every creative
 attached to the hypothesis it came from.
-
-```
-Book → Reader → Marketing angle → Creative → Campaign → Sale → Learning → Optimisation
-```
 
 ---
 
@@ -23,14 +31,17 @@ Book → Reader → Marketing angle → Creative → Campaign → Sale → Learn
 |---|---|
 | `index.html` | Public landing page |
 | `app.html` | The application shell (a buildless ES-module SPA) |
-| `js/core/` | Router, auth, API client, store, metrics, formatting |
+| `js/core/` | Router, auth, API clients, store, metrics, formatting |
 | `js/views/` | One module per screen |
-| `js/data/` | The demo workspace: dataset and in-memory adapter |
+| `js/views/builder/` | The Book Builder's screens |
+| `js/doc/` | **The document engine** — typesetting, PDF, EPUB, DOCX, HTML |
+| `js/data/` | The demo workspace: datasets and in-memory adapters |
 | `assets/css/` | Design system, landing page, application shell |
 | `track/bp.js` | The website tracking script authors install |
 | `sql/` | Schema, RLS policies, seed data, database functions |
 | `{privacy,terms,cookies}.html` | Legal pages |
-| `netlify/functions/bookpilot-*.mjs` | The API |
+| `netlify/functions/bookpilot-*.mjs` | The advertising API |
+| `netlify/functions/bookbuilder-*.mjs` | The authoring API, agents and exporter |
 | `netlify/functions/bookpilot-lib/` | Shared server modules (not deployed as functions) |
 | `tests/` | Unit tests and structural security checks |
 
@@ -42,8 +53,15 @@ The demo workspace needs no account, no database and no API keys:
 
 ```
 python3 -m http.server 8899
-open http://127.0.0.1:8899/app.html?demo=1
+open http://127.0.0.1:8899/app.html?demo=1#/studio    # the Book Builder
+open http://127.0.0.1:8899/app.html?demo=1#/overview  # the advertising side
 ```
+
+The sample book — *The 17 Principles of Human Power* — has five written
+chapters, a blueprint for the rest, a Book Bible, figures, a designed interior
+and a cover. **Its exports are real**: the demo runs the actual PDF, EPUB, DOCX
+and HTML writers in the browser, from the same manuscript, so the file that
+downloads is the file the server would have built.
 
 Every screen works against the sample book, every mutation is real (in memory),
 and every screen carries a **DEMO DATA** badge. The app also falls back to the
@@ -57,9 +75,11 @@ Run the tests:
 node --test "tests/*.test.mjs"
 ```
 
-82 unit tests and structural security checks, no dependencies. There is
-also an end-to-end walk of the product through the demo workspace, which
-needs Playwright installed somewhere:
+144 unit tests and structural security checks, no dependencies. They cover
+the layout guarantees, the container formats, the demo workspace and the row
+level security on every table. There is also an end-to-end walk of the
+advertising side through the demo workspace, which needs Playwright installed
+somewhere:
 
 ```
 python3 -m http.server 8899 &
@@ -93,6 +113,55 @@ escape hatch — and a test asserts it.
 
 ---
 
+## The document engine
+
+`js/doc/` is the part with no equivalent in an ad tool, so it is worth
+describing properly. It sets a book — no dependency, no headless browser, no
+LaTeX.
+
+| Module | What it does |
+|---|---|
+| `markdown.js` | The restricted manuscript format, parsed to blocks |
+| `metrics.js` | Adobe AFM widths for the PDF base-14 faces |
+| `themes.js` | Eight interior designs, page geometry, margins and gutters |
+| `layout.js` | Line breaking, pagination, running heads, folios, contents |
+| `figures.js` | Drawn figures — diagrams, timelines, tables, checklists |
+| `pdf.js` | The PDF writer: objects, xref, outline, fonts |
+| `epub.js` | EPUB 3, with an EPUB 2 NCX alongside |
+| `docx.js` | Office Open XML, as real Word styles |
+| `zip.js` / `deflate.js` | The container, and compression |
+| `render-html.js` | The same pages as HTML — the in-app previewer |
+
+Four properties are enforced rather than hoped for, and `tests/doc-engine.test.mjs`
+fails when any of them stops being true:
+
+- **Text never overflows the measure.** Lines are broken against the same font
+  metrics the reader draws with, and a word longer than the measure is broken
+  rather than allowed to run off the page.
+- **Text never overlaps a figure.** A figure is one atom; if it does not fit in
+  what is left of the page it moves down whole.
+- **No widows and no orphans.** A paragraph never leaves one line at the foot of
+  a page or carries one alone to the top.
+- **A page never ends on a heading.**
+
+### Why it runs in the browser too
+
+The engine is plain ES modules with no Node imports, so the page previewer
+imports the same files the exporter does. The preview is not a picture of the
+page — it is the page, drawn with a different pen. That is also why compression
+is passed in rather than imported: the server hands it Node's zlib, and the
+browser falls back to a stored-block DEFLATE encoder that is valid but does not
+compress.
+
+### The trade
+
+Type is set in the PDF base-14 faces (Times and Helvetica), because a repository
+with no build step has nowhere to subset a font from and no way to embed one.
+That sets a book that looks like a book, and it was the honest price of shipping
+an exporter that works rather than one that is promised.
+
+---
+
 ## Setup
 
 ### 1. Database
@@ -106,6 +175,9 @@ sql/002_rls.sql       -- row level security (run this; it is not optional)
 sql/003_seed.sql      -- plans, credit costs, flags, settings
 sql/004_functions.sql -- credit accounting, plan changes, deletion, admin stats
 sql/005_hardening.sql -- search_path pinning, security_invoker view, column grants
+sql/006_book_builder.sql      -- projects, chapters, versions, figures, covers, exports
+sql/007_book_builder_rls.sql  -- row level security for all of the above
+sql/008_book_builder_seed.sql -- design themes, templates, credit costs, flags
 ```
 
 To make yourself an admin:
@@ -157,6 +229,36 @@ Point a webhook at `https://yoursite/api/bp-stripe-webhook` for
 | `bookpilot-stripe-webhook` | `/api/bp-stripe-webhook` | The only place a paid plan is granted |
 | `bookpilot-track` | `/api/bp-track` | Website event collector (called cross-origin) |
 | `bookpilot-admin` | `/api/bp-admin/*` | Admin dashboard |
+| `bookbuilder-api` | `/api/bb/*` | Book projects, blueprint, Bible, figures, covers, versions |
+| `bookbuilder-ai` | `/api/bb-ai/*` | The eleven authoring agents |
+| `bookbuilder-export` | `/api/bb-export/*` | PDF, EPUB, DOCX and HTML, built on request |
+
+---
+
+## The authoring agents
+
+Eleven specialists rather than one prompt, each with its own system prompt,
+schema and idea of what "good" means. They live in
+`netlify/functions/bookpilot-lib/book-prompts.js`, and the `ai_prompts` table
+overrides any of them at runtime.
+
+| Agent | Does |
+|---|---|
+| Book Architect | Positioning, the blueprint, the Book Bible |
+| Book Writer | Chapters, revisions, continuations |
+| Editorial Director | Per-chapter review with actionable notes |
+| Researcher | Separates fact from interpretation; says where to look |
+| Visual Director | Which figures earn their page, and their content |
+| Image Director | Prompts for the figures that need a renderer |
+| Cover Designer | Complete cover specifications, and a craft review |
+| Quality Controller | The publication check, over the whole book |
+| Marketing Director | The campaign, written from the finished book |
+
+Every one of them receives the Book Bible. Two rule sets exist and a prompt
+inherits the one that fits what it writes: the advertising rules
+(`bookpilot-lib/safety.js`) and the authoring rules (`BOOK_RULES`). The
+Marketing Director inherits both, because what it produces is advertising.
+`tests/security.test.mjs` fails if any prompt inherits neither.
 
 ---
 
@@ -229,6 +331,27 @@ These are product decisions, enforced in code, not marketing copy:
 7. **It does not simulate an integration.** Where credentials are missing, the API
    reports the capability as unavailable and the UI offers "Connect integration"
    or the clearly-labelled demo workspace.
+8. **It does not fabricate a citation.** The Research Agent has no internet
+   access and says so: it separates fact from interpretation and names the kind
+   of source that would settle a claim, rather than producing a bibliography of
+   plausible-looking papers. Every source it records starts `unverified`, and the
+   publication check keeps asking until the author says otherwise.
+9. **It does not invent the author.** No credentials, clients, results or
+   endorsements. Where the book needs the author's own material, the manuscript
+   carries a marked `[author: ...]` placeholder, and the publication check counts
+   the ones still outstanding.
+10. **It does not show artwork that does not exist.** Drawn figures are rendered
+    by the layout engine and always work. An illustration with no image carries
+    its art direction and its prompt, is labelled as unrendered, and is left out
+    of the exported book rather than shown as an empty frame.
+11. **It does not overwrite a draft.** Every content change writes the previous
+    version first — including the ones the AI makes — and a revision arrives as a
+    proposal beside the author's text until they accept it.
+12. **It does not invent an ISBN**, a publisher or a printing history. The
+    copyright page and the EPUB carry a marked placeholder.
+13. **Publication readiness is an editorial judgement**, stated as one. It is not
+    a claim about copyright, rights clearance, legal compliance or reception, and
+    the screen that shows it says so.
 
 ---
 
@@ -236,6 +359,18 @@ These are product decisions, enforced in code, not marketing copy:
 
 Stated plainly, because the alternative is a feature list that lies:
 
+- **Book illustration rendering is not implemented.** Drawn figures — diagrams,
+  processes, timelines, comparisons, tables, checklists, quote cards — are set by
+  the layout engine and are finished work. Illustrations and conceptual images
+  are not: the Image Director writes the art direction and the prompt, the figure
+  is labelled as having no image, and it is left out of the export. The
+  `ImageService` seam and the credit costs are in place for a renderer.
+- **A figure cannot yet take an image the author already has.** Attaching artwork
+  by URL is the next step and is the same validation path covers already use.
+- **Type is set in the PDF base-14 faces.** See "The document engine" above for
+  why, and what it would take to change.
+- **Export is synchronous.** A 200-page book is well inside the function
+  timeout; a 600-page one with hundreds of figures has not been measured.
 - **Image and video rendering are not implemented.** BookPilot writes the copy and
   the art direction for every creative — enough to hand to a designer or an image
   model — and the UI says so rather than showing a placeholder as finished
@@ -279,6 +414,7 @@ Stated plainly, because the alternative is a feature list that lies:
 
 | Phase | Work |
 |---|---|
+| 1 | Book illustration rendering; author-supplied artwork for figures and covers |
 | 2 | Amazon Attribution import, TikTok, Google and Pinterest ads |
 | 3 | AI image and video rendering, automatic creative refresh, A/B testing |
 | 4 | Publisher and agency accounts, team invitations, white-label |
