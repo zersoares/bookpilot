@@ -14,7 +14,12 @@
 import { env } from "./env.js";
 import { Errors } from "./errors.js";
 
-const GRAPH_VERSION = "v21.0";
+// Bumped from v21.0 (which Meta retires on 2027-01-21) to v25.0, supported
+// until 2028-07-29. v22–v25 were checked against Meta's changelog for the
+// calls made here; the one that bites is v24's mandatory
+// is_adset_budget_sharing_enabled on ad-set budgets (see createAdSet).
+// v26.0 was not adopted: its changelog could not be read.
+const GRAPH_VERSION = "v25.0";
 const GRAPH = `https://graph.facebook.com/${GRAPH_VERSION}`;
 
 export const REQUIRED_SCOPES = ["ads_management", "ads_read", "business_management"];
@@ -194,6 +199,10 @@ export async function createAdSet(token, adAccountId, {
       name,
       campaign_id: campaignId,
       daily_budget: String(dailyBudgetCents),
+      // Required with an ad-set budget from v24. False keeps each ad
+      // set to exactly the budget the author set; Meta's default of
+      // sharing budget between ad sets would move their money around.
+      is_adset_budget_sharing_enabled: false,
       billing_event: "IMPRESSIONS",
       optimization_goal: "LINK_CLICKS",
       bid_strategy: "LOWEST_COST_WITHOUT_CAP",
