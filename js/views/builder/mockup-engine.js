@@ -884,6 +884,18 @@ export const SCENES = [
     },
   },
   {
+    id: "interior-closeup",
+    name: "Interior close-up",
+    blurb: "In tight on the spread, cropped by the frame: the typography and layout, up close.",
+    needs: "pages",
+    paint(ctx, W, H, a, pal) {
+      const S = W / 2400;
+      const w = W * 0.46, k = w / a.trim.width, h = a.trim.height * k;
+      const cam = makeCamera({ W, H, yaw: 4, pitch: 50, cx: W * 0.5, cy: H * 0.62, zoom: 1 });
+      openBook(ctx, cam, a, { w, h, thick: thicknessFor(a.pageCount) * k * 0.55, board: 16 * S, pal, S, ribbon: a.accent });
+    },
+  },
+  {
     id: "softcover-booklet",
     name: "Softcover & spread",
     blurb: "A softcover open beside its own cover: the booklet look, close to top-down.",
