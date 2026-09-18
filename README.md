@@ -202,7 +202,10 @@ else degrades gracefully when absent.
 | `META_APP_ID` | Meta integration | |
 | `META_APP_SECRET` | Meta integration | **Secret** |
 | `META_REDIRECT_URI` | Meta integration | `https://yoursite/api/bp-meta/callback` |
-| `BOOKPILOT_OAUTH_STATE_SECRET` | Meta integration | **Secret.** Random string; signs the OAuth `state` |
+| `PINTEREST_APP_ID` | Pinterest sync | |
+| `PINTEREST_APP_SECRET` | Pinterest sync | **Secret** |
+| `PINTEREST_REDIRECT_URI` | Pinterest sync | `https://yoursite/api/bp-pinterest/callback` |
+| `BOOKPILOT_OAUTH_STATE_SECRET` | Meta and Pinterest | **Secret.** Random string; signs the OAuth `state` |
 | `BOOKPILOT_SITE_URL` | Redirects | Defaults to Netlify's `URL` |
 | `BOOKPILOT_ALLOWED_ORIGINS` | Extra origins | Comma-separated, optional |
 
@@ -403,6 +406,18 @@ Stated plainly, because the alternative is a feature list that lies:
   so. Analytics shows Meta, TikTok, Google and Pinterest side by side and warns that their
   conversions can overlap. Adding another platform is a row in `PLATFORMS`
   (server), `PLATFORM_REPORTS` (browser) and a migration for its source value.
+- **Pinterest also has a read-only API sync, written but never run against a live
+  Pinterest account.** It needs an approved Pinterest app. The client asks for one
+  scope (`ads:read`) and calls only ad accounts, campaigns and campaign analytics
+  by day (`bookpilot-lib/pinterest.js`, `bookpilot-pinterest.mjs`, migration 014).
+  It was built from Pinterest's published OpenAPI description and tested with the
+  network stubbed, so the first real sync is the real test. Each Pinterest campaign
+  becomes, or is matched to, an `external_only` BookPilot campaign, by Pinterest id
+  first and then by an unambiguous name (which claims a campaign a CSV import
+  created rather than duplicating it). Nothing is ever written to Pinterest. The
+  CSV import stays as the fallback. Pinterest only supports revoking tokens issued
+  to system users, so "Disconnect" clears BookPilot's copy and the author removes
+  access in their Pinterest settings.
 - **Meta persona targeting passes age and geography only.** Interest terms are
   carried as a note on the ad set for the operator to confirm in Ads Manager,
   rather than guessed at against Meta's interest IDs — a wrong ID spends money on
@@ -436,7 +451,7 @@ Stated plainly, because the alternative is a feature list that lies:
 | Phase | Work |
 |---|---|
 | 1 | Book illustration rendering; author-supplied artwork for figures and covers |
-| 2 | API connections for Amazon Attribution, TikTok, Google Ads and Pinterest |
+| 2 | API connections for Amazon Attribution, TikTok and Google Ads (Pinterest's read-only sync is written, awaiting an approved app) |
 | 3 | AI image and video rendering, automatic creative refresh, A/B testing |
 | 4 | Publisher and agency accounts, team invitations, white-label |
 | 5 | Cross-platform AI marketing agent |

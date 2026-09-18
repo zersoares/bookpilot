@@ -72,7 +72,7 @@ const COPY = {
   },
 };
 
-export function platformCard(platform, summary, tracking, { books = [] } = {}) {
+export function platformCard(platform, summary, tracking, { books = [], connect = "" } = {}) {
   const has = summary && summary.rows > 0;
   const copy = COPY[platform];
   return html`
@@ -92,7 +92,9 @@ export function platformCard(platform, summary, tracking, { books = [] } = {}) {
         </div>
       </div>
 
-      <h3 class="bp-small" style="margin:0 0 var(--bp-2)"><strong>1. Tracked link</strong></h3>
+      ${raw(connect)}
+
+      <h3 class="bp-small" style="margin:var(--bp-5) 0 var(--bp-2)"><strong>1. Tracked link</strong></h3>
       <div data-tt-links>${raw(linkForm(platform, tracking, books))}</div>
 
       <h3 class="bp-small" style="margin:var(--bp-6) 0 var(--bp-2)"><strong>2. Import a report</strong></h3>

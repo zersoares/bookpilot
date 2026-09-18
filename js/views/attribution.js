@@ -18,6 +18,7 @@ import { pageHead, fmt, demoBadge } from "./shared.js";
 import { healthBadge, wireTrackingChecks } from "./tracking-check.js";
 import { amazonImportBlock, wireAmazonImport } from "./amazon-import.js";
 import { platformCard, wirePlatform } from "./platform-card.js";
+import { pinterestConnectBlock, wirePinterestConnect } from "./pinterest-connect.js";
 
 export async function render(container, params, query) {
   const empty = { summary: null, campaigns: [] };
@@ -48,6 +49,11 @@ export async function render(container, params, query) {
   if (metaResult === "failed") notify.error("We couldn't connect your Meta account. Please try again.");
   if (metaResult === "declined") notify.info("Meta connection cancelled.");
 
+  const pinterestResult = query?.get("pinterest") || new URLSearchParams(location.search).get("pinterest");
+  if (pinterestResult === "connected") notify.success("Pinterest connected. Choose your ad account and sync.");
+  if (pinterestResult === "failed") notify.error("We couldn't connect your Pinterest account. Please try again.");
+  if (pinterestResult === "declined") notify.info("Pinterest connection cancelled.");
+
   container.innerHTML = html`
     ${raw(pageHead({
       title: "Attribution & integrations",
@@ -60,7 +66,10 @@ export async function render(container, params, query) {
       ${raw(trackingCard(sites, statuses))}
       ${raw(platformCard("tiktok", tiktok.summary, tiktok.campaigns, { books }))}
       ${raw(platformCard("google", google.summary, google.campaigns, { books }))}
-      ${raw(platformCard("pinterest", pinterest.summary, pinterest.campaigns, { books }))}
+      ${raw(platformCard("pinterest", pinterest.summary, pinterest.campaigns, {
+        books,
+        connect: pinterestConnectBlock(integrations.find((i) => i.provider === "pinterest"), capabilities, { books }),
+      }))}
       ${raw(amazonCard(amazonSummary))}
     </div>
   `;
@@ -74,6 +83,7 @@ export async function render(container, params, query) {
       done: () => render(container, params, query),
     });
   }
+  wirePinterestConnect(container, { books, done: () => render(container, params, query) });
   wireAmazonImport(container, {
     campaigns: campaigns.filter((c) => !c.is_demo || isDemo()),
     defaultCurrency: campaigns[0]?.currency || "EUR",

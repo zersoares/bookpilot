@@ -164,6 +164,13 @@ export const API = {
   checkout: (planId) => api.post("/api/bp-billing/checkout", { plan_id: planId }),
   portal: () => api.post("/api/bp-billing/portal"),
 
+  // Pinterest (read-only sync)
+  pinterestAuthorizeUrl: () => api.get("/api/bp-pinterest/authorize-url"),
+  pinterestAccounts: () => api.get("/api/bp-pinterest/accounts"),
+  pinterestSelectAccount: (payload) => api.post("/api/bp-pinterest/select-account", payload),
+  pinterestSync: (payload) => api.post("/api/bp-pinterest/sync", payload),
+  pinterestDisconnect: () => api.post("/api/bp-pinterest/disconnect", {}),
+
   // Meta
   metaAuthorizeUrl: () => api.get("/api/bp-meta/authorize-url"),
   metaAccounts: () => api.get("/api/bp-meta/accounts"),

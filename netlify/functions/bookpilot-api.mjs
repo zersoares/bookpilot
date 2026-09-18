@@ -725,7 +725,7 @@ async function handleIntegrations(ctx, method, segments) {
     return json({ integrations, capabilities: capabilities() });
   }
   if (method === "DELETE" && segments[1]) {
-    const provider = v.oneOf(segments[1], "Provider", ["meta", "amazon_attribution", "tiktok", "google"], {
+    const provider = v.oneOf(segments[1], "Provider", ["meta", "amazon_attribution", "tiktok", "google", "pinterest"], {
       required: true,
     });
     // The client has no grant on `integrations`, so the disconnect is

@@ -60,6 +60,18 @@ export const Errors = {
       "Meta rejected that request. Your campaign was not changed — check that your ad account is active and try again.",
       502
     ),
+  pinterestConnect: () =>
+    new AppError(
+      "pinterest_connection_failed",
+      "We couldn't reach your Pinterest account. Please reconnect it and try again.",
+      502
+    ),
+  pinterestAction: () =>
+    new AppError(
+      "pinterest_action_failed",
+      "Pinterest didn't return that data. Check that the ad account is still active and that you can see it in Pinterest Ads Manager, then try again.",
+      502
+    ),
   integrationMissing: (name) =>
     new AppError(
       "integration_missing",
