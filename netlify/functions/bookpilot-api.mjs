@@ -18,6 +18,7 @@ import { planFor, assertCanAddBook, creditCosts } from "./bookpilot-lib/credits.
 import { deriveMetrics, confidenceLevel } from "./bookpilot-lib/metrics.js";
 import * as audit from "./bookpilot-lib/audit.js";
 import * as tracking from "./bookpilot-lib/tracking.js";
+import * as amazon from "./bookpilot-lib/amazon.js";
 
 const PREFIX = "/api/bp";
 
@@ -576,7 +577,12 @@ async function handleAnalytics(ctx, segments, url) {
     limit: 200,
   });
   if (!campaigns.length) {
-    return json({ totals: deriveMetrics([]), campaigns: [], creatives: [], amazon: null, days });
+    // No campaigns does not mean no Amazon data: an author can import
+    // Attribution reports before running a single BookPilot campaign.
+    return json({
+      totals: deriveMetrics([]), campaigns: [], creatives: [], days,
+      amazon: await amazonTotals(ctx, since),
+    });
   }
 
   const campaignIds = campaigns.map((c) => c.id);
@@ -623,31 +629,38 @@ async function handleAnalytics(ctx, segments, url) {
     });
   }
 
-  const amazonRows = await ctx.db.select("amazon_attribution_metrics", {
-    select: "*", eq: { user_id: ctx.user.id },
-    filters: { metric_date: `gte.${since}` }, limit: 2000,
-  });
-
   return json({
     days,
     totals: deriveMetrics(platformRows),
     campaigns: perCampaign,
     creatives: creativeTable,
     // Reported separately, never folded into the totals above.
-    amazon: amazonRows.length
-      ? amazonRows.reduce(
-          (acc, r) => ({
-            clicks: acc.clicks + Number(r.clicks || 0),
-            detailPageViews: acc.detailPageViews + Number(r.detail_page_views || 0),
-            addToCarts: acc.addToCarts + Number(r.add_to_carts || 0),
-            purchases: acc.purchases + Number(r.purchases || 0),
-            unitsSold: acc.unitsSold + Number(r.units_sold || 0),
-            productSalesCents: acc.productSalesCents + Number(r.product_sales_cents || 0),
-          }),
-          { clicks: 0, detailPageViews: 0, addToCarts: 0, purchases: 0, unitsSold: 0, productSalesCents: 0 }
-        )
-      : null,
+    amazon: await amazonTotals(ctx, since),
   });
+}
+
+/**
+ * PostgREST caps a response (1000 rows on Supabase), and a year of daily
+ * Amazon data across a few campaigns exceeds that, so page through it.
+ * Ordering is fixed so pages neither overlap nor skip.
+ */
+async function selectAll(db, table, options, cap = 20_000) {
+  const out = [];
+  for (let offset = 0; offset < cap; offset += 1000) {
+    const page = await db.select(table, { ...options, order: "metric_date.asc,id.asc", limit: 1000, offset });
+    out.push(...page);
+    if (page.length < 1000) break;
+  }
+  return out;
+}
+
+async function amazonTotals(ctx, since) {
+  const rows = await selectAll(ctx.db, "amazon_attribution_metrics", {
+    select: "metric_date,clicks,detail_page_views,add_to_carts,purchases,units_sold,product_sales_cents,currency,imported_at,external_campaign",
+    eq: { user_id: ctx.user.id },
+    filters: { metric_date: `gte.${since}` },
+  });
+  return amazon.totalsOf(rows);
 }
 
 // ---------------------------------------------------------------------
@@ -755,6 +768,69 @@ async function trackingStatus(ctx, siteId) {
   });
 }
 
+async function handleAmazonImport(ctx, method, body) {
+  if (method === "GET") {
+    const rows = await selectAll(ctx.db, "amazon_attribution_metrics", {
+      select: "metric_date,external_campaign,currency,imported_at", eq: { user_id: ctx.user.id },
+    });
+    return json({ summary: amazon.summarise(rows) });
+  }
+
+  if (method === "POST") {
+    const currency = v.currency(body.currency);
+    const parsed = amazon.normaliseRows(body.rows);
+
+    // Optional links from an Amazon campaign name to one of the author's
+    // BookPilot campaigns. Ownership is checked through the user-scoped
+    // client, so another account's campaign id is simply not found.
+    const links = new Map();
+    for (const link of Array.isArray(body.links) ? body.links.slice(0, 200) : []) {
+      const name = v.str(link?.campaign, "Campaign", { max: 200 });
+      if (name && link.campaign_id) links.set(name, v.uuid(link.campaign_id, "Campaign id"));
+    }
+    const owned = new Map();
+    if (links.size) {
+      const found = await ctx.db.select("campaigns", {
+        select: "id,book_id", in: { id: [...new Set(links.values())] }, limit: 200,
+      });
+      for (const c of found) owned.set(c.id, c);
+      for (const id of links.values()) {
+        if (!owned.has(id)) throw Errors.invalid("One of the BookPilot campaigns you linked wasn't found.");
+      }
+    }
+
+    const dbRows = parsed.rows.map((row) => {
+      const campaignId = links.get(row.campaign) || null;
+      return amazon.toDbRow(row, {
+        userId: ctx.user.id, currency, campaignId, bookId: campaignId ? owned.get(campaignId).book_id : null,
+      });
+    });
+
+    // Re-importing a report replaces the same campaign and day rather
+    // than adding to it: Amazon restates recent days, and an author will
+    // re-download an overlapping range.
+    const service = dbAsService();
+    for (let i = 0; i < dbRows.length; i += 500) {
+      await service.upsert("amazon_attribution_metrics", dbRows.slice(i, i + 500), {
+        onConflict: "user_id,external_campaign,metric_date", returning: false,
+      });
+    }
+    await audit.record(ctx.user.id, "amazon.imported", {
+      entity: "amazon_attribution", detail: { days: parsed.rows.length, from: parsed.from, to: parsed.to },
+    });
+    return json({
+      imported: dbRows.length, campaigns: parsed.campaigns.length, from: parsed.from, to: parsed.to,
+    }, 201);
+  }
+
+  if (method === "DELETE") {
+    await dbAsService().remove("amazon_attribution_metrics", { eq: { user_id: ctx.user.id } });
+    await audit.record(ctx.user.id, "amazon.import_removed", { entity: "amazon_attribution" });
+    return json({ deleted: true });
+  }
+  throw Errors.notFound("endpoint");
+}
+
 async function handleTrackingSites(ctx, method, segments, body) {
   if (method === "GET" && segments[1] && segments[2] === "status") {
     return trackingStatus(ctx, segments[1]);
@@ -829,6 +905,8 @@ export default withGuards(async (req) => {
       return handleIntegrations(ctx, req.method, segments);
     case "tracking-sites":
       return handleTrackingSites(ctx, req.method, segments, body);
+    case "amazon-import":
+      return handleAmazonImport(ctx, req.method, body);
     default:
       break;
   }

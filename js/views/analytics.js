@@ -195,6 +195,7 @@ function paintCreatives(rows, currency) {
 }
 
 function amazonPanel(amazon, currency) {
+  const shownCurrency = amazon.currency || currency;
   return html`
     <section class="bp-card">
       <div class="bp-card__header">
@@ -204,7 +205,8 @@ function amazonPanel(amazon, currency) {
       <p class="bp-small bp-muted">
         Imported from Amazon Attribution and reported on its own. Amazon counts conversions
         differently from Meta and from your website, so these figures are never added to the totals
-        above.
+        above.${amazon.from ? ` Covers ${fmt.date(amazon.from)} to ${fmt.date(amazon.to)}, from the report${amazon.importedAt ? ` imported ${fmt.relativeTime(amazon.importedAt)}` : "s you imported"}.` : ""}
+        <a href="#/attribution">Import another report</a>
       </p>
       <div class="bp-stat-grid">
         <div class="bp-stat"><div class="bp-stat__label">Clicks</div><div class="bp-stat__value">${fmt.number(amazon.clicks)}</div></div>
@@ -212,7 +214,7 @@ function amazonPanel(amazon, currency) {
         <div class="bp-stat"><div class="bp-stat__label">Add to cart</div><div class="bp-stat__value">${fmt.number(amazon.addToCarts)}</div></div>
         <div class="bp-stat"><div class="bp-stat__label">Purchases</div><div class="bp-stat__value">${fmt.number(amazon.purchases)}</div></div>
         <div class="bp-stat"><div class="bp-stat__label">Units sold</div><div class="bp-stat__value">${fmt.number(amazon.unitsSold)}</div></div>
-        <div class="bp-stat"><div class="bp-stat__label">Product sales</div><div class="bp-stat__value">${fmt.money(amazon.productSalesCents, currency)}</div></div>
+        <div class="bp-stat"><div class="bp-stat__label">Product sales</div><div class="bp-stat__value">${amazon.mixedCurrencies ? "Mixed currencies" : fmt.money(amazon.productSalesCents, shownCurrency)}</div></div>
       </div>
     </section>
   `;

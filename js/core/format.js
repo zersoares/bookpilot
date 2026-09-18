@@ -50,10 +50,15 @@ export function date(value, { withTime = false } = {}) {
   if (!value) return NA;
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return NA;
+  // A bare calendar date ("2026-09-01") is a day, not an instant. Read as
+  // UTC midnight and shown in a western timezone it would print as the
+  // day before, so format it in UTC.
+  const calendarDay = typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
   return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "short",
     year: "numeric",
+    ...(calendarDay ? { timeZone: "UTC" } : {}),
     ...(withTime ? { hour: "2-digit", minute: "2-digit" } : {}),
   }).format(parsed);
 }

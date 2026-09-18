@@ -16,11 +16,14 @@ import { API, isDemo } from "../core/api.js";
 import { notify, confirmDialog } from "../core/toast.js";
 import { pageHead, fmt, demoBadge } from "./shared.js";
 import { healthBadge, wireTrackingChecks } from "./tracking-check.js";
+import { amazonImportBlock, wireAmazonImport } from "./amazon-import.js";
 
 export async function render(container, params, query) {
-  const [{ integrations, capabilities }, { sites }] = await Promise.all([
+  const [{ integrations, capabilities }, { sites }, { summary: amazonSummary }, { campaigns }] = await Promise.all([
     API.integrations(),
     API.trackingSites().catch(() => ({ sites: [] })),
+    API.amazonSummary().catch(() => ({ summary: null })),
+    API.campaigns().catch(() => ({ campaigns: [] })),
   ]);
 
   // One status per site, fetched up front so each card can show whether
@@ -32,7 +35,6 @@ export async function render(container, params, query) {
   }));
 
   const meta = integrations.find((i) => i.provider === "meta");
-  const amazon = integrations.find((i) => i.provider === "amazon_attribution");
 
   // The Meta OAuth callback comes back with a status in the query string.
   const metaResult = query?.get("meta") || new URLSearchParams(location.search).get("meta");
@@ -50,12 +52,17 @@ export async function render(container, params, query) {
     <div class="bp-stack-lg">
       ${raw(metaCard(meta, capabilities))}
       ${raw(trackingCard(sites, statuses))}
-      ${raw(amazonCard(amazon, capabilities))}
+      ${raw(amazonCard(amazonSummary))}
       ${raw(comingSoonCard())}
     </div>
   `;
 
   wireTrackingChecks(container, statuses);
+  wireAmazonImport(container, {
+    campaigns: campaigns.filter((c) => !c.is_demo || isDemo()),
+    defaultCurrency: campaigns[0]?.currency || "EUR",
+    done: () => render(container, params, query),
+  });
 
   $("#connect-meta")?.addEventListener("click", async (event) => {
     setBusy(event.currentTarget, true, "Opening Meta…");
@@ -266,37 +273,26 @@ function trackingCard(sites, statuses = {}) {
   `;
 }
 
-function amazonCard(amazon, capabilities) {
-  const connected = amazon?.status === "connected";
+function amazonCard(summary) {
+  const has = summary && summary.rows > 0;
   return html`
     <section class="bp-card">
       <div class="bp-card__header">
         <div class="bp-card__title">Amazon Attribution</div>
-        <span class="bp-badge ${connected ? "bp-badge--success" : ""}">${connected ? "Connected" : "Not connected"}</span>
+        <span class="bp-badge ${has ? "bp-badge--success" : ""}">${has ? "Imported" : "No data yet"}</span>
       </div>
       <div class="bp-alert bp-alert--info" style="margin-bottom:var(--bp-4)">
         <span class="bp-alert__icon">◆</span>
         <div class="bp-small">
           <strong>What this can and can't do.</strong> Amazon does not report your KDP sales to
           third-party tools, and no advertising platform can change that. What it does offer is
-          Amazon Attribution: if you have an eligible account, its click, detail-page-view,
-          add-to-cart and purchase data can be connected here and reported alongside your ad spend.
+          Amazon Attribution: if you have an eligible account, you can download its reports (clicks,
+          detail-page views, add-to-carts and purchases) and import them here, next to your ad spend.
           Those figures stay labelled as Amazon-attributed and are never merged with sales tracked on
-          your own website.
+          your own website or reported by Meta.
         </div>
       </div>
-      <p class="bp-small bp-muted">
-        Connect eligible Amazon Attribution campaigns to measure traffic and conversion performance
-        for books you sell on Amazon.
-      </p>
-      <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" disabled>
-        ${capabilities?.amazon ? "Connect Amazon Attribution" : "Connect integration — coming soon"}
-      </button>
-      <p class="bp-tiny bp-subtle" style="margin-top:var(--bp-2)">
-        The import is built into the data model and the analytics already separate the two sources.
-        The connection itself isn't available on this deployment yet, and the button says so rather
-        than failing when you press it.
-      </p>
+      ${raw(amazonImportBlock(summary))}
     </section>
   `;
 }

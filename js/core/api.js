@@ -133,6 +133,9 @@ export const API = {
   trackingSites: () => api.get("/api/bp/tracking-sites"),
   createTrackingSite: (site) => api.post("/api/bp/tracking-sites", site),
   deleteTrackingSite: (id) => api.delete(`/api/bp/tracking-sites/${id}`),
+  amazonSummary: () => api.get("/api/bp/amazon-import"),
+  amazonImport: (payload) => api.post("/api/bp/amazon-import", payload),
+  amazonRemove: () => api.delete("/api/bp/amazon-import"),
   trackingStatus: (id) => api.get(`/api/bp/tracking-sites/${id}/status`),
   // Demo workspace only: there is no real site to visit.
   simulateTestVisit: (id) => api.post(`/api/bp/tracking-sites/${id}/simulate-test`, {}),

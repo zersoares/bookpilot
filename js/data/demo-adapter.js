@@ -85,6 +85,7 @@ function freshState() {
       created_at: "2026-01-10T10:00:00.000Z",
     }],
     trackingEvents: demoTrackingEvents(),
+    amazonRows: [],
     // The authoring half keeps its own slice, reset by the same button.
     builder: freshBuilderState(),
   };
@@ -309,6 +310,36 @@ function demoTrackingStatus(state, site) {
   };
 }
 
+// --- Amazon Attribution (demo) ----------------------------------------
+
+function demoAmazonSummary(state) {
+  const rows = state.amazonRows;
+  if (!rows.length) return { days: 0, rows: 0, campaigns: [], from: null, to: null, last_imported_at: null, currencies: [] };
+  const dates = rows.map((r) => r.metric_date).sort();
+  return {
+    days: new Set(rows.map((r) => r.metric_date)).size,
+    rows: rows.length,
+    campaigns: [...new Set(rows.map((r) => r.external_campaign))].sort(),
+    from: dates[0], to: dates[dates.length - 1],
+    last_imported_at: rows.map((r) => r.imported_at).sort().pop(),
+    currencies: [...new Set(rows.map((r) => r.currency))],
+  };
+}
+
+function demoAmazonTotals(state) {
+  const rows = state.amazonRows;
+  if (!rows.length) return null;
+  const sum = (f) => rows.reduce((a, r) => a + Number(r[f] || 0), 0);
+  const summary = demoAmazonSummary(state);
+  return {
+    clicks: sum("clicks"), detailPageViews: sum("detail_page_views"), addToCarts: sum("add_to_carts"),
+    purchases: sum("purchases"), unitsSold: sum("units_sold"), productSalesCents: sum("product_sales_cents"),
+    currency: summary.currencies.length === 1 ? summary.currencies[0] : null,
+    mixedCurrencies: summary.currencies.length > 1,
+    from: summary.from, to: summary.to, importedAt: summary.last_imported_at,
+  };
+}
+
 // --- Request routing --------------------------------------------------
 
 async function handle(method, path, body) {
@@ -451,8 +482,36 @@ async function handle(method, path, body) {
         creatives: perCreative(DEMO_IDS.CAMPAIGN_ID).map((row) => ({
           creative: row.creative, metrics: row.metrics, confidence: row.confidence,
         })),
-        amazon: null,
+        amazon: demoAmazonTotals(state),
       };
+    }
+
+    // Demo only: Amazon Attribution data is imported into memory and
+    // vanishes with "Reset demo", like everything else here.
+    if (resource === "amazon-import") {
+      if (method === "GET") return { summary: demoAmazonSummary(state) };
+      if (method === "POST") {
+        const rows = Array.isArray(body.rows) ? body.rows : [];
+        if (!rows.length) throw new DemoError("invalid", "There are no rows to import.", 400);
+        const currency = body.currency || "EUR";
+        const links = new Map((body.links || []).map((l) => [l.campaign, l.campaign_id]));
+        for (const row of rows) {
+          // Same rule as the server: one row per campaign per day, and a
+          // re-import replaces it.
+          state.amazonRows = state.amazonRows.filter(
+            (r) => !(r.external_campaign === row.campaign && r.metric_date === row.date));
+          state.amazonRows.push({
+            external_campaign: row.campaign, metric_date: row.date, currency,
+            clicks: row.clicks, detail_page_views: row.detail_page_views, add_to_carts: row.add_to_carts,
+            purchases: row.purchases, units_sold: row.units_sold, product_sales_cents: row.product_sales_cents,
+            campaign_id: links.get(row.campaign) || null, imported_at: new Date().toISOString(),
+          });
+        }
+        const dates = rows.map((r) => r.date).sort();
+        return { imported: rows.length, campaigns: new Set(rows.map((r) => r.campaign)).size,
+          from: dates[0], to: dates[dates.length - 1] };
+      }
+      if (method === "DELETE") { state.amazonRows = []; return { deleted: true }; }
     }
 
     if (resource === "notifications") {

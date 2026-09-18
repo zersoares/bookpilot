@@ -380,8 +380,14 @@ Stated plainly, because the alternative is a feature list that lies:
 - **AI generation is synchronous.** Netlify's function timeout is the ceiling. The
   prompts are sized to fit, and effort is tunable per prompt from the admin panel;
   a queue with polling is the right answer at higher volume.
-- **Amazon Attribution import is not connected.** The tables, the separation in the
-  analytics and the UI state exist; the connection does not.
+- **Amazon Attribution is imported from CSV, not connected.** Reading Attribution
+  data through Amazon's API needs approved Amazon Ads API access, which BookPilot
+  does not have. Instead, an author downloads a report from the Attribution console
+  and imports it on the Attribution screen (`js/core/amazon-report.js` parses it in
+  the browser; `bookpilot-lib/amazon.js` re-validates it on the server). Columns are
+  guessed and shown for correction, totals rows are skipped, and re-importing a
+  campaign-day replaces it (migration 010). Amazon-attributed figures are stored and
+  reported apart from Meta and website numbers and never summed with them.
 - **Meta persona targeting passes age and geography only.** Interest terms are
   carried as a note on the ad set for the operator to confirm in Ads Manager,
   rather than guessed at against Meta's interest IDs — a wrong ID spends money on
@@ -415,7 +421,7 @@ Stated plainly, because the alternative is a feature list that lies:
 | Phase | Work |
 |---|---|
 | 1 | Book illustration rendering; author-supplied artwork for figures and covers |
-| 2 | Amazon Attribution import, TikTok, Google and Pinterest ads |
+| 2 | Amazon Attribution API connection, TikTok, Google and Pinterest ads |
 | 3 | AI image and video rendering, automatic creative refresh, A/B testing |
 | 4 | Publisher and agency accounts, team invitations, white-label |
 | 5 | Cross-platform AI marketing agent |
