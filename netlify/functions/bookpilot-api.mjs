@@ -17,6 +17,7 @@ import * as v from "./bookpilot-lib/validate.js";
 import { planFor, assertCanAddBook, creditCosts } from "./bookpilot-lib/credits.js";
 import { deriveMetrics, confidenceLevel } from "./bookpilot-lib/metrics.js";
 import * as audit from "./bookpilot-lib/audit.js";
+import * as tracking from "./bookpilot-lib/tracking.js";
 
 const PREFIX = "/api/bp";
 
@@ -719,7 +720,45 @@ async function handleIntegrations(ctx, method, segments) {
   throw Errors.notFound("endpoint");
 }
 
+async function trackingStatus(ctx, siteId) {
+  v.uuid(siteId, "Site id");
+  // The user-scoped client: row-level security means another account's
+  // site id simply is not found.
+  const site = await ctx.db.selectOne("tracking_sites", { select: "*", eq: { id: siteId } });
+  if (!site) throw Errors.notFound("tracking site");
+
+  const cap = 500;
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const events = await ctx.db.select("tracking_events", {
+    select: "id,event_type,value_cents,currency,utm,campaign_id,occurred_at",
+    eq: { site_id: siteId },
+    filters: { occurred_at: `gte.${since}` },
+    order: "occurred_at.desc",
+    limit: cap,
+  });
+  // The 7-day window can miss an older "last event"; one more row tells
+  // the screen a site is quiet rather than never used.
+  const latest = events.length ? events[0] : await ctx.db.selectOne("tracking_events", {
+    select: "id,event_type,value_cents,currency,utm,campaign_id,occurred_at",
+    eq: { site_id: siteId },
+    order: "occurred_at.desc",
+  });
+
+  const scope = latest && !events.length ? [latest] : events;
+  const summary = tracking.summarise(scope, { capped: events.length >= cap });
+  return json({
+    site: { id: site.id, domain: site.domain, is_active: site.is_active },
+    health: tracking.health({ summary, site }),
+    summary,
+    test_url: tracking.testUrl(site.domain),
+    recent: scope.slice(0, 25).map(tracking.shapeEvent),
+  });
+}
+
 async function handleTrackingSites(ctx, method, segments, body) {
+  if (method === "GET" && segments[1] && segments[2] === "status") {
+    return trackingStatus(ctx, segments[1]);
+  }
   if (method === "GET") {
     const sites = await ctx.db.select("tracking_sites", {
       select: "*", eq: { user_id: ctx.user.id }, limit: 50,

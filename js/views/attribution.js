@@ -15,12 +15,21 @@ import { html, raw, $, formData, setBusy } from "../core/dom.js";
 import { API, isDemo } from "../core/api.js";
 import { notify, confirmDialog } from "../core/toast.js";
 import { pageHead, fmt, demoBadge } from "./shared.js";
+import { healthBadge, wireTrackingChecks } from "./tracking-check.js";
 
 export async function render(container, params, query) {
   const [{ integrations, capabilities }, { sites }] = await Promise.all([
     API.integrations(),
     API.trackingSites().catch(() => ({ sites: [] })),
   ]);
+
+  // One status per site, fetched up front so each card can show whether
+  // its script is actually reporting. A failure leaves that card without
+  // a badge rather than blocking the page.
+  const statuses = {};
+  await Promise.all(sites.map(async (site) => {
+    try { statuses[site.id] = await API.trackingStatus(site.id); } catch { /* shown as unavailable */ }
+  }));
 
   const meta = integrations.find((i) => i.provider === "meta");
   const amazon = integrations.find((i) => i.provider === "amazon_attribution");
@@ -40,11 +49,13 @@ export async function render(container, params, query) {
 
     <div class="bp-stack-lg">
       ${raw(metaCard(meta, capabilities))}
-      ${raw(trackingCard(sites))}
+      ${raw(trackingCard(sites, statuses))}
       ${raw(amazonCard(amazon, capabilities))}
       ${raw(comingSoonCard())}
     </div>
   `;
+
+  wireTrackingChecks(container, statuses);
 
   $("#connect-meta")?.addEventListener("click", async (event) => {
     setBusy(event.currentTarget, true, "Opening Meta…");
@@ -191,7 +202,7 @@ function metaCard(meta, capabilities) {
   `;
 }
 
-function trackingCard(sites) {
+function trackingCard(sites, statuses = {}) {
   const origin = location.origin;
   return html`
     <section class="bp-card">
@@ -207,17 +218,22 @@ function trackingCard(sites) {
 
       ${raw(sites.length
         ? `<div class="bp-stack-sm" style="margin:var(--bp-4) 0">${sites.map((site) => html`
-            <div class="bp-panel">
+            <div class="bp-panel" data-site-card>
               <div class="bp-row bp-row--between">
                 <div>
                   <strong class="bp-small">${site.name}</strong>
                   <div class="bp-tiny bp-subtle">${site.domain}</div>
                 </div>
+                <span data-site-health>${raw(statuses[site.id] ? healthBadge(statuses[site.id]) : "")}</span>
                 <button type="button" class="bp-btn bp-btn--ghost bp-btn--sm" data-remove-site="${site.id}">Remove</button>
               </div>
               <code class="bp-code" style="margin-top:var(--bp-3)">&lt;script async src="${origin}/track/bp.js" data-key="${site.public_key}"&gt;&lt;/script&gt;</code>
               <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" style="margin-top:var(--bp-2)"
                 data-copy='<script async src="${origin}/track/bp.js" data-key="${site.public_key}"></script>'>Copy snippet</button>
+              <details data-check-site="${site.id}" style="margin-top:var(--bp-4);border-top:1px solid var(--bp-border);padding-top:var(--bp-3)">
+                <summary class="bp-small" style="cursor:pointer"><strong>Check installation</strong></summary>
+                <div data-check-body style="margin-top:var(--bp-3)"></div>
+              </details>
             </div>`).join("")}</div>`
         : "")}
 

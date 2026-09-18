@@ -16,8 +16,8 @@ import { json } from "./bookpilot-lib/http.js";
 import { dbAsService } from "./bookpilot-lib/db.js";
 import { memoryLimit } from "./bookpilot-lib/ratelimit.js";
 import { AppError } from "./bookpilot-lib/errors.js";
+import { EVENT_TYPES, hostMatches, hostOf } from "./bookpilot-lib/tracking.js";
 
-const EVENT_TYPES = ["click", "page_view", "add_to_cart", "checkout", "purchase"];
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-9a-f][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function corsFor(origin) {
@@ -30,14 +30,28 @@ function corsFor(origin) {
   };
 }
 
-function hostMatches(origin, domain) {
-  if (!origin) return true; // sendBeacon from a same-origin page
+// One breadcrumb per key per instance per ten minutes is plenty for the
+// "wrong domain" diagnostic, and keeps a misconfigured site from turning
+// every page view into a database write.
+const REJECT_NOTE_MS = 10 * 60_000;
+const lastRejectNote = new Map();
+
+async function noteRejectedOrigin(service, site, key, origin) {
+  const host = hostOf(origin);
+  if (!host) return;
+  const now = Date.now();
+  if (now - (lastRejectNote.get(key) || 0) < REJECT_NOTE_MS) return;
+  lastRejectNote.set(key, now);
   try {
-    const host = new URL(origin).hostname.toLowerCase();
-    const registered = domain.toLowerCase();
-    return host === registered || host.endsWith(`.${registered}`);
-  } catch {
-    return false;
+    await service.update(
+      "tracking_sites",
+      { last_rejected_host: host, last_rejected_at: new Date(now).toISOString() },
+      { eq: { id: site.id } }
+    );
+  } catch (err) {
+    // Migration 009 not applied yet, or a transient error. The diagnostic
+    // is a convenience; the collector must not care.
+    console.warn("[bookpilot] could not record a rejected origin:", err?.message || err);
   }
 }
 
@@ -84,7 +98,11 @@ export default async (req) => {
   });
   // An unknown or disabled key gets the same answer as a valid one, so
   // the endpoint can't be used to enumerate live tracking keys.
-  if (!site || !site.is_active || !hostMatches(origin, site.domain)) {
+  if (!site || !site.is_active) {
+    return new Response(JSON.stringify({ ok: true }), { status: 202, headers: corsFor(origin) });
+  }
+  if (!hostMatches(origin, site.domain)) {
+    await noteRejectedOrigin(service, site, key, origin);
     return new Response(JSON.stringify({ ok: true }), { status: 202, headers: corsFor(origin) });
   }
 

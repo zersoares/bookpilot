@@ -23,6 +23,11 @@ import {
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
+// Declared up here because the initial state is built as the module loads.
+const DEMO_SITE_ID = "d0000000-0000-4000-8000-000000000701";
+const ago = (ms) => new Date(Date.now() - ms).toISOString();
+const HOUR = 3_600_000;
+
 // Latency, so buttons show their loading states and the demo feels like
 // the real thing rather than an instant re-render.
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -79,6 +84,7 @@ function freshState() {
       is_active: true,
       created_at: "2026-01-10T10:00:00.000Z",
     }],
+    trackingEvents: demoTrackingEvents(),
     // The authoring half keeps its own slice, reset by the same button.
     builder: freshBuilderState(),
   };
@@ -234,6 +240,72 @@ function demoCampaignAnalysis() {
         metrics: "20 days live, one dominant creative", confidence: "high",
         action: "Generate three reel variations from the same angle." },
     ],
+  };
+}
+
+// --- Website tracking (demo) ------------------------------------------
+//
+// The real status comes from the server (see bookpilot-lib/tracking.js).
+// The demo keeps raw events and derives the same response shape, and a
+// test asserts the two agree, so the screen is exercised honestly.
+
+function demoTrackingEvents() {
+  const utm = { source: "meta", medium: "paid", campaign: DEMO_CAMPAIGN.id };
+  // A visit from a newsletter link: recorded, but with no BookPilot
+  // campaign behind it, so it shows why attribution can be missing.
+  const newsletter = { campaign_id: null, utm: { source: "newsletter", medium: "email", campaign: "september-issue" } };
+  // Fixed ids: `uid` is declared further down the file and this runs as
+  // the module loads.
+  let n = 0;
+  const row = (offset, event_type, value_cents = 0, extra = {}) => ({
+    id: `d0000000-0000-4000-8000-0000000008${String(++n).padStart(2, "0")}`, site_id: DEMO_SITE_ID, event_type, value_cents, currency: "EUR",
+    campaign_id: DEMO_CAMPAIGN.id, utm, occurred_at: ago(offset), ...extra,
+  });
+  return [
+    row(1.2 * HOUR, "page_view"),
+    row(1.4 * HOUR, "page_view"),
+    row(3 * HOUR, "checkout"),
+    row(3.1 * HOUR, "purchase", 899),
+    row(9 * HOUR, "page_view", 0, newsletter),
+    row(26 * HOUR, "page_view"),
+    row(30 * HOUR, "add_to_cart"),
+    row(51 * HOUR, "purchase", 899),
+  ];
+}
+
+function demoTrackingStatus(state, site) {
+  const isTest = (e) => e.utm?.source === "bookpilot" && e.utm?.medium === "test";
+  const events = state.trackingEvents
+    .filter((e) => e.site_id === site.id)
+    .sort((a, b) => Date.parse(b.occurred_at) - Date.parse(a.occurred_at));
+
+  const counts = { page_view: 0, click: 0, add_to_cart: 0, checkout: 0, purchase: 0 };
+  let revenue = 0, last24h = 0, lastReal = null;
+  for (const e of events) {
+    if (isTest(e)) continue;
+    counts[e.event_type] += 1;
+    if (e.event_type === "purchase") revenue += e.value_cents;
+    if (Date.now() - Date.parse(e.occurred_at) <= 24 * HOUR) last24h += 1;
+    lastReal = lastReal || e.occurred_at;
+  }
+  const summary = {
+    counts, revenue_cents: revenue, last_24h: last24h,
+    last_event_at: events[0]?.occurred_at || null,
+    last_real_event_at: lastReal, capped: false,
+  };
+  const state_ = lastReal && Date.now() - Date.parse(lastReal) <= 7 * 24 * HOUR ? "receiving"
+    : events.length ? (lastReal ? "quiet" : "tested") : "waiting";
+  const params = new URLSearchParams({ utm_source: "bookpilot", utm_medium: "test", utm_campaign: "installation-check" });
+  return {
+    site: { id: site.id, domain: site.domain, is_active: true },
+    health: { state: state_ },
+    summary,
+    test_url: `https://${site.domain}/?${params}`,
+    recent: events.slice(0, 25).map((e) => ({
+      id: e.id, occurred_at: e.occurred_at, event_type: e.event_type, value_cents: e.value_cents,
+      currency: e.currency, attributed: Boolean(e.campaign_id), label: e.utm?.campaign || e.utm?.source || null,
+      is_test: isTest(e),
+    })),
   };
 }
 
@@ -417,6 +489,21 @@ async function handle(method, path, body) {
     }
 
     if (resource === "tracking-sites") {
+      if (method === "GET" && id && sub === "status") {
+        const site = state.trackingSites.find((s) => s.id === id);
+        if (!site) throw new DemoError("not_found", "We couldn't find that tracking site.", 404);
+        return demoTrackingStatus(state, site);
+      }
+      // Demo only: there is no real website to visit, so let the screen
+      // show what a received test visit looks like.
+      if (method === "POST" && id && sub === "simulate-test") {
+        state.trackingEvents.push({
+          id: uid(), site_id: id, event_type: "page_view", value_cents: 0, currency: "EUR",
+          campaign_id: null, utm: { source: "bookpilot", medium: "test", campaign: "installation-check" },
+          occurred_at: new Date().toISOString(),
+        });
+        return { ok: true };
+      }
       if (method === "GET") return { sites: state.trackingSites };
       if (method === "POST") {
         const site = { ...body, id: uid(), public_key: `bp_demo${Math.random().toString(16).slice(2, 12)}`,
