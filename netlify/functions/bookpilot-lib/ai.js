@@ -56,27 +56,69 @@ const ALLOWED_EFFORT = ["low", "medium", "high", "xhigh", "max"];
 // against the API, not assumed.
 const EFFORT_MODELS = new Set(["claude-opus-5", "claude-sonnet-5"]);
 
+/** Append a sentence to a schema node's description. */
+function addNote(node, note) {
+  if (!note) return;
+  node.description = node.description ? `${node.description} ${note}` : note;
+}
+
 /**
- * Close every object in a JSON schema.
+ * Rewrite a JSON schema into the subset Anthropic's structured output
+ * accepts, without losing what the schema was saying.
  *
- * Anthropic's structured output requires `additionalProperties: false` on
- * each object, and refuses the request otherwise:
+ * The API is strict about three things, each of which the prompts here
+ * relied on, and each of which fails the whole request:
  *
- *   output_config.format.schema: For 'object' type,
- *   'additionalProperties' must be explicitly set to false
+ *   For 'object' type, 'additionalProperties' must be explicitly set to false
+ *   For 'array' type, property 'maxItems' is not supported
+ *   For 'array' type, 'minItems' values other than 0 or 1 are not supported
+ *   For 'integer' type, properties maximum, minimum are not supported
  *
- * The prompts declare their schemas without it. Normalising here rather
- * than editing each schema means a new prompt cannot reintroduce the
- * problem. Returns a copy — PROMPTS is module-level and shared.
+ * Dropping those keywords would quietly change behaviour: `minItems: 3,
+ * maxItems: 5` is the *only* place the reader_personas prompt says how
+ * many personas it wants — the wording never mentions a number. So the
+ * constraint is moved into `description`, which the API does accept and
+ * the model does read, rather than being deleted.
+ *
+ * Returns a copy. PROMPTS is module-level and shared between invocations.
  */
-export function strictSchema(node) {
-  if (Array.isArray(node)) return node.map(strictSchema);
+export function schemaForApi(node) {
+  if (Array.isArray(node)) return node.map(schemaForApi);
   if (!node || typeof node !== "object") return node;
+
   const out = {};
-  for (const [key, value] of Object.entries(node)) out[key] = strictSchema(value);
+  for (const [key, value] of Object.entries(node)) out[key] = schemaForApi(value);
+
   if (out.type === "object" && out.additionalProperties === undefined) {
     out.additionalProperties = false;
   }
+
+  if (out.type === "array") {
+    const { minItems, maxItems } = out;
+    let note = "";
+    if (minItems != null && maxItems != null) note = `Provide between ${minItems} and ${maxItems} items.`;
+    else if (minItems != null) note = `Provide at least ${minItems} items.`;
+    else if (maxItems != null) note = `Provide at most ${maxItems} items.`;
+    addNote(out, note);
+    delete out.maxItems;
+    // 0 and 1 are the only values the API tolerates.
+    if (minItems !== 0 && minItems !== 1) delete out.minItems;
+  }
+
+  if (out.type === "integer" || out.type === "number") {
+    const { minimum, maximum } = out;
+    let note = "";
+    if (minimum != null && maximum != null) note = `A value from ${minimum} to ${maximum}.`;
+    else if (minimum != null) note = `At least ${minimum}.`;
+    else if (maximum != null) note = `At most ${maximum}.`;
+    addNote(out, note);
+    delete out.minimum;
+    delete out.maximum;
+    delete out.exclusiveMinimum;
+    delete out.exclusiveMaximum;
+    delete out.multipleOf;
+  }
+
   return out;
 }
 
@@ -260,7 +302,7 @@ export async function generate(key, variables = {}) {
       // Not every model accepts `effort`: Haiku 4.5 rejects the whole
       // request with "This model does not support the effort parameter".
       ...(EFFORT_MODELS.has(model) ? { effort } : {}),
-      ...(schema ? { format: { type: "json_schema", schema: strictSchema(schema) } } : {}),
+      ...(schema ? { format: { type: "json_schema", schema: schemaForApi(schema) } } : {}),
     },
   };
 

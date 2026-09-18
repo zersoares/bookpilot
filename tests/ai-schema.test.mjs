@@ -14,7 +14,7 @@ import assert from "node:assert/strict";
 process.env.SUPABASE_URL = "https://example.supabase.co";
 process.env.SUPABASE_ANON_KEY = "test-anon-key";
 
-const { strictSchema } = await import("../netlify/functions/bookpilot-lib/ai.js");
+const { schemaForApi } = await import("../netlify/functions/bookpilot-lib/ai.js");
 const { PROMPTS } = await import("../netlify/functions/bookpilot-lib/prompts.js");
 
 /** Every object node in a schema, depth-first. */
@@ -41,7 +41,7 @@ test("a nested schema has every object closed", () => {
       },
     },
   };
-  const out = strictSchema(schema);
+  const out = schemaForApi(schema);
   const objects = objectNodes(out);
   assert.equal(objects.length, 3, "expected the root, the item and the nested persona");
   for (const o of objects) {
@@ -50,7 +50,7 @@ test("a nested schema has every object closed", () => {
 });
 
 test("an explicit additionalProperties is left alone", () => {
-  const out = strictSchema({ type: "object", additionalProperties: true, properties: {} });
+  const out = schemaForApi({ type: "object", additionalProperties: true, properties: {} });
   assert.equal(out.additionalProperties, true, "an author's deliberate choice must survive");
 });
 
@@ -58,17 +58,17 @@ test("the original schema is not mutated", () => {
   // PROMPTS is module-level and shared across invocations; mutating it
   // would leak one request's normalisation into the next.
   const schema = { type: "object", properties: { a: { type: "string" } } };
-  const out = strictSchema(schema);
+  const out = schemaForApi(schema);
   assert.equal(schema.additionalProperties, undefined, "input must be untouched");
   assert.equal(out.additionalProperties, false);
   assert.notEqual(out, schema);
 });
 
 test("non-object nodes pass through unchanged", () => {
-  assert.equal(strictSchema("plain"), "plain");
-  assert.equal(strictSchema(7), 7);
-  assert.equal(strictSchema(null), null);
-  assert.deepEqual(strictSchema({ type: "string" }), { type: "string" });
+  assert.equal(schemaForApi("plain"), "plain");
+  assert.equal(schemaForApi(7), 7);
+  assert.equal(schemaForApi(null), null);
+  assert.deepEqual(schemaForApi({ type: "string" }), { type: "string" });
 });
 
 test("every schema the prompts declare survives normalisation closed", () => {
@@ -76,10 +76,64 @@ test("every schema the prompts declare survives normalisation closed", () => {
   assert.ok(withSchema.length > 0, "expected prompts that declare a schema");
 
   for (const [name, prompt] of withSchema) {
-    const objects = objectNodes(strictSchema(prompt.schema));
+    const objects = objectNodes(schemaForApi(prompt.schema));
     assert.ok(objects.length > 0, `${name} has no object nodes`);
     for (const o of objects) {
       assert.equal(o.additionalProperties, false, `${name} still has an open object`);
     }
   }
+});
+
+// --- constraints the API rejects, preserved rather than dropped ---------
+
+test("maxItems is removed but its meaning is kept", () => {
+  const out = schemaForApi({ type: "array", items: { type: "string" }, maxItems: 5 });
+  assert.equal(out.maxItems, undefined, "the API rejects maxItems outright");
+  assert.match(out.description, /at most 5 items/i);
+});
+
+test("a minItems the API refuses becomes a description", () => {
+  // This is the only place reader_personas says how many personas it
+  // wants — the prompt wording never mentions a number. Deleting it would
+  // have quietly changed what the model returns.
+  const out = schemaForApi({ type: "array", items: { type: "object" }, minItems: 3, maxItems: 5 });
+  assert.equal(out.minItems, undefined);
+  assert.equal(out.maxItems, undefined);
+  assert.match(out.description, /between 3 and 5 items/i);
+});
+
+test("minItems of 0 or 1 is kept, because the API accepts those", () => {
+  assert.equal(schemaForApi({ type: "array", minItems: 0 }).minItems, 0);
+  assert.equal(schemaForApi({ type: "array", minItems: 1 }).minItems, 1);
+});
+
+test("integer bounds move into the description", () => {
+  const out = schemaForApi({ type: "integer", minimum: 0, maximum: 100 });
+  assert.equal(out.minimum, undefined);
+  assert.equal(out.maximum, undefined);
+  assert.match(out.description, /from 0 to 100/i);
+});
+
+test("an existing description is added to, not replaced", () => {
+  const out = schemaForApi({ type: "array", description: "Marketing angles.", minItems: 6 });
+  assert.match(out.description, /^Marketing angles\./);
+  assert.match(out.description, /at least 6 items/i);
+});
+
+test("no schema the prompts declare keeps a keyword the API rejects", () => {
+  const offenders = [];
+  const walk = (node, path = "") => {
+    if (Array.isArray(node)) return node.forEach((n, i) => walk(n, `${path}[${i}]`));
+    if (!node || typeof node !== "object") return;
+    if (node.type === "array" && node.maxItems !== undefined) offenders.push(`${path}.maxItems`);
+    if (node.type === "array" && node.minItems !== undefined
+        && node.minItems !== 0 && node.minItems !== 1) offenders.push(`${path}.minItems`);
+    if ((node.type === "integer" || node.type === "number")
+        && (node.minimum !== undefined || node.maximum !== undefined)) offenders.push(`${path}.bounds`);
+    Object.entries(node).forEach(([k, v]) => walk(v, `${path}.${k}`));
+  };
+  for (const [name, prompt] of Object.entries(PROMPTS)) {
+    if (prompt?.schema) walk(schemaForApi(prompt.schema), name);
+  }
+  assert.deepEqual(offenders, [], `these would be rejected by the API: ${offenders.join(", ")}`);
 });
