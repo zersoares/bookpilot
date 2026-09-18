@@ -13,11 +13,11 @@ import { withGuards, json, readJson, pathSegments } from "./bookpilot-lib/http.j
 import { authenticate } from "./bookpilot-lib/auth.js";
 import { dbAsService } from "./bookpilot-lib/db.js";
 import { Errors } from "./bookpilot-lib/errors.js";
-import { env } from "./bookpilot-lib/env.js";
 import { memoryLimit } from "./bookpilot-lib/ratelimit.js";
 import * as meta from "./bookpilot-lib/meta.js";
 import * as v from "./bookpilot-lib/validate.js";
 import * as audit from "./bookpilot-lib/audit.js";
+import { backToApp } from "./bookpilot-lib/oauth-return.js";
 
 const PREFIX = "/api/bp-meta";
 
@@ -50,17 +50,16 @@ async function authorizeUrl(ctx) {
  */
 async function callback(req) {
   const url = new URL(req.url);
-  const appUrl = `${env.siteUrl.replace(/\/$/, "")}/app.html#/attribution`;
 
   const error = url.searchParams.get("error");
   if (error) {
     console.warn("[bookpilot] Meta OAuth declined:", error);
-    return Response.redirect(`${appUrl}?meta=declined`, 302);
+    return backToApp("meta", "declined");
   }
 
   const userId = await meta.verifyState(url.searchParams.get("state"));
   const code = url.searchParams.get("code");
-  if (!userId || !code) return Response.redirect(`${appUrl}?meta=failed`, 302);
+  if (!userId || !code) return backToApp("meta", "failed");
 
   try {
     const { accessToken, expiresIn } = await meta.exchangeCode(code);
@@ -83,10 +82,10 @@ async function callback(req) {
     );
 
     await audit.record(userId, "integration.connected", { entity: "meta" });
-    return Response.redirect(`${appUrl}?meta=connected`, 302);
+    return backToApp("meta", "connected");
   } catch (err) {
     console.error("[bookpilot] Meta callback failed:", err);
-    return Response.redirect(`${appUrl}?meta=failed`, 302);
+    return backToApp("meta", "failed");
   }
 }
 

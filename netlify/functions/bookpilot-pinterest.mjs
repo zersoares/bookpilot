@@ -13,11 +13,11 @@ import { withGuards, json, readJson, pathSegments } from "./bookpilot-lib/http.j
 import { authenticate } from "./bookpilot-lib/auth.js";
 import { dbAsService } from "./bookpilot-lib/db.js";
 import { Errors } from "./bookpilot-lib/errors.js";
-import { env } from "./bookpilot-lib/env.js";
 import { memoryLimit } from "./bookpilot-lib/ratelimit.js";
 import * as pinterest from "./bookpilot-lib/pinterest.js";
 import * as v from "./bookpilot-lib/validate.js";
 import * as audit from "./bookpilot-lib/audit.js";
+import { backToApp } from "./bookpilot-lib/oauth-return.js";
 
 const PREFIX = "/api/bp-pinterest";
 
@@ -64,15 +64,14 @@ async function authorizeUrl(ctx) {
  */
 async function callback(req) {
   const url = new URL(req.url);
-  const appUrl = `${env.siteUrl.replace(/\/$/, "")}/app.html#/attribution`;
 
   if (url.searchParams.get("error")) {
     console.warn("[bookpilot] Pinterest OAuth declined:", url.searchParams.get("error"));
-    return Response.redirect(`${appUrl}?pinterest=declined`, 302);
+    return backToApp("pinterest", "declined");
   }
   const userId = await pinterest.verifyState(url.searchParams.get("state"));
   const code = url.searchParams.get("code");
-  if (!userId || !code) return Response.redirect(`${appUrl}?pinterest=failed`, 302);
+  if (!userId || !code) return backToApp("pinterest", "failed");
 
   try {
     const tokens = await pinterest.exchangeCode(code);
@@ -98,10 +97,10 @@ async function callback(req) {
       { onConflict: "user_id,provider", returning: false }
     );
     await audit.record(userId, "integration.connected", { entity: "pinterest" });
-    return Response.redirect(`${appUrl}?pinterest=connected`, 302);
+    return backToApp("pinterest", "connected");
   } catch (err) {
     console.error("[bookpilot] Pinterest callback failed:", err);
-    return Response.redirect(`${appUrl}?pinterest=failed`, 302);
+    return backToApp("pinterest", "failed");
   }
 }
 
