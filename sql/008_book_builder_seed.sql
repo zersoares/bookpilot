@@ -16,7 +16,7 @@
 -- Interior design themes (spec 16)
 -- ---------------------------------------------------------------------
 insert into public.book_design_themes
-  (id, name, tagline, description, body_font, heading_font, base_font_pt, leading,
+  (id, name, tagline, description, body_font, heading_font, base_font_pt, "leading",
    accent_color, chapter_style, sort_order)
 values
   ('editorial', 'Editorial', 'Magazine-inspired premium typography',

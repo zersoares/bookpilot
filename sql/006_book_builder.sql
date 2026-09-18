@@ -36,7 +36,7 @@ create table if not exists public.book_design_themes (
   body_font      text not null default 'serif',  -- serif | sans
   heading_font   text not null default 'serif',
   base_font_pt   numeric not null default 11,
-  leading        numeric not null default 1.5,
+  "leading"      numeric not null default 1.5,   -- reserved word; must stay quoted
   accent_color   text not null default '#3f3aa8',
   chapter_style  text not null default 'numbered',
   settings       jsonb not null default '{}'::jsonb,
