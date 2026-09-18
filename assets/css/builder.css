@@ -1183,3 +1183,62 @@
   text-transform: uppercase;
   color: var(--bp-text-subtle);
 }
+
+/* ------------------------------------------------------------------ */
+/* Mockups                                                             */
+/* ------------------------------------------------------------------ */
+
+.bb-mock-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--bp-5);
+  margin: var(--bp-5) 0;
+}
+.bb-mock-control { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.bb-mock-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--bp-text-subtle);
+}
+.bb-mock-selects { display: flex; flex-wrap: wrap; gap: var(--bp-4); }
+.bb-mock-palettes { display: flex; flex-wrap: wrap; gap: var(--bp-2); }
+.bb-mock-palette {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 5px;
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-pill);
+  background: var(--bp-surface);
+  color: var(--bp-text);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.bb-mock-palette:hover { border-color: var(--bp-border-strong); }
+.bb-mock-palette[aria-checked="true"] { border-color: var(--bp-primary); box-shadow: var(--bp-ring); }
+.bb-mock-swatch { width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12); }
+
+.bb-mock-grid { display: grid; gap: var(--bp-5); }
+@media (min-width: 760px) { .bb-mock-grid { grid-template-columns: 1fr 1fr; } }
+.bb-mock-card {
+  margin: 0;
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-lg);
+  background: var(--bp-surface);
+  overflow: hidden;
+  box-shadow: var(--bp-shadow);
+}
+.bb-mock-frame { background: var(--bp-sunken); aspect-ratio: 3 / 2; }
+.bb-mock-frame canvas { display: block; width: 100%; height: 100%; }
+.bb-mock-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bp-3);
+  padding: var(--bp-3) var(--bp-4);
+}
+.bb-mock-name { font-family: var(--bp-font-serif); font-size: 1.05rem; }

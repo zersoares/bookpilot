@@ -27,6 +27,7 @@ export const STAGES = [
   { key: "visuals", path: "/visuals", label: "Visuals", icon: "◐", agent: "Visual Director" },
   { key: "design", path: "/design", label: "Design", icon: "▤", agent: "Book Designer" },
   { key: "cover", path: "/cover", label: "Cover", icon: "▣", agent: "Cover Designer" },
+  { key: "mockups", path: "/mockups", label: "Mockups", icon: "◫" },
   { key: "preview", path: "/preview", label: "Preview", icon: "⊞" },
   { key: "publish", path: "/publish", label: "Publish", icon: "⇪", agent: "Quality Controller" },
   { key: "marketing", path: "/marketing", label: "Marketing", icon: "◇", agent: "Marketing Director" },

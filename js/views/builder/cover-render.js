@@ -21,7 +21,7 @@ const FALLBACK = {
   accent: "#a9631a",
 };
 
-function paletteOf(cover) {
+export function paletteOf(cover) {
   const out = { ...FALLBACK };
   for (const entry of cover?.palette || []) {
     if (entry && entry.role && /^#[0-9a-f]{6}$/i.test(entry.hex || "")) {
@@ -40,7 +40,7 @@ function paletteOf(cover) {
 }
 
 /** Relative luminance, the WCAG way — used only to pick black or white. */
-function contrastOn(hex) {
+export function contrastOn(hex) {
   const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || "");
   if (!m) return "#ffffff";
   const channel = (value) => {

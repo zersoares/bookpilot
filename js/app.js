@@ -46,6 +46,7 @@ import * as builderDesign from "./views/builder/design.js";
 import * as builderPublish from "./views/builder/publish.js";
 import * as builderMarketing from "./views/builder/marketing.js";
 import * as builderBrandKit from "./views/builder/brandkit.js";
+import * as builderMockups from "./views/builder/mockups.js";
 
 /**
  * The sidebar, in two groups.
@@ -466,6 +467,7 @@ function registerRoutes() {
   router.register("/studio/:id/visuals", view("Visuals", builderVisuals.render));
   router.register("/studio/:id/design", view("Design", builderDesign.renderDesign));
   router.register("/studio/:id/cover", view("Cover Studio", builderDesign.renderCover));
+  router.register("/studio/:id/mockups", view("Mockups", builderMockups.render));
   router.register("/studio/:id/preview", view("Preview", builderPublish.renderPreview));
   router.register("/studio/:id/publish", view("Publish", builderPublish.renderPublish));
   router.register("/studio/:id/marketing", view("Marketing Studio", builderMarketing.render));
