@@ -57,7 +57,8 @@ const rgba = (hex, a) => { const [r, g, b] = rgb(hex); return `rgba(${r},${g},${
 
 function mix(hexA, hexB, t) {
   const a = rgb(hexA), b = rgb(hexB);
-  return `rgb(${Math.round(lerp(a[0], b[0], t))},${Math.round(lerp(a[1], b[1], t))},${Math.round(lerp(a[2], b[2], t))})`;
+  const hx = (i) => Math.round(lerp(a[i], b[i], t)).toString(16).padStart(2, "0");
+  return `#${hx(0)}${hx(1)}${hx(2)}`;
 }
 
 /**
@@ -649,6 +650,75 @@ function coverFinish(ctx, cam, pose, face, outline, { hw, hd, h }) {
 }
 
 /**
+ * A flat rectangular prop — a card, a swatch, a bookmark — lying on the
+ * table with its own soft shadow.
+ */
+function flatCard(ctx, cam, spec) {
+  const { at, yaw = 0, w, h, fill, edge, pal, S, z = 1.5 } = spec;
+  const cy = Math.cos(yaw * DEG), sy = Math.sin(yaw * DEG);
+  const corner = (x, y, zz) => cam.project([x * cy - y * sy + at[0], x * sy + y * cy + at[1], zz]);
+  const quad = (zz) => [[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]].map(([x, y]) => corner(x, y, zz));
+  const foot = quad(0), top = quad(z);
+  const cast = [[-w / 2, -h / 2], [w / 2, -h / 2], [w / 2, h / 2], [-w / 2, h / 2]]
+    .map(([x, y]) => corner(x + 9 * S, y + 7 * S, 0));
+  softShape(ctx, () => polygon(ctx, hull(foot.concat(cast))), pal.shadow, 26 * S, pal.dark ? 0.6 : 0.4);
+  softShape(ctx, () => polygon(ctx, foot), pal.shadow, 7 * S, pal.dark ? 0.7 : 0.5);
+  ctx.beginPath();
+  polygon(ctx, top);
+  const g = ctx.createLinearGradient(top[0][0], top[0][1], top[2][0], top[2][1]);
+  g.addColorStop(0, mix(fill, "#ffffff", 0.12));
+  g.addColorStop(1, mix(fill, "#000000", 0.1));
+  ctx.fillStyle = g;
+  ctx.fill();
+  if (edge) {
+    ctx.lineWidth = Math.max(1, 1.4 * S);
+    ctx.strokeStyle = edge;
+    ctx.stroke();
+  }
+}
+
+/** A pen lying on the table: barrel, cap band, clip and a fine tip. */
+function pen(ctx, cam, spec) {
+  const { at, yaw = 0, len, color, band, pal, S } = spec;
+  const r = 12 * S;
+  const cy = Math.cos(yaw * DEG), sy = Math.sin(yaw * DEG);
+  const pt = (x, y, zz) => cam.project([x * cy - y * sy + at[0], x * sy + y * cy + at[1], zz]);
+  const along = (x0, x1, half, zz) => [pt(x0, -half, zz), pt(x1, -half, zz), pt(x1, half, zz), pt(x0, half, zz)];
+  const L0 = -len / 2, tip = len * 0.5, body = len * 0.42;
+
+  const shadowBody = along(L0 + 12 * S, tip, r, 0).map((p) => [p[0] + 12 * S, p[1] + 14 * S]);
+  softShape(ctx, () => polygon(ctx, shadowBody), pal.shadow, 16 * S, pal.dark ? 0.6 : 0.42);
+
+  const barrel = along(L0, body, r, 2 * S);
+  const a = barrel[0], b = barrel[3];
+  const g = ctx.createLinearGradient(a[0], a[1], b[0], b[1]);
+  g.addColorStop(0, mix(color, "#000000", 0.38));
+  g.addColorStop(0.35, mix(color, "#ffffff", 0.32));
+  g.addColorStop(0.7, color);
+  g.addColorStop(1, mix(color, "#000000", 0.5));
+  ctx.beginPath(); polygon(ctx, barrel); ctx.fillStyle = g; ctx.fill();
+
+  // Cap band and the metal grip section.
+  const gripEnd = len * 0.47;
+  const grip = along(body, gripEnd, r * 0.86, 2 * S);
+  const gg = ctx.createLinearGradient(grip[0][0], grip[0][1], grip[3][0], grip[3][1]);
+  gg.addColorStop(0, "#8c7a52"); gg.addColorStop(0.4, "#f1dea3"); gg.addColorStop(1, "#6b5b38");
+  ctx.beginPath(); polygon(ctx, grip); ctx.fillStyle = gg; ctx.fill();
+  const bandQuad = along(L0 + len * 0.06, L0 + len * 0.09, r * 1.02, 2.2 * S);
+  ctx.beginPath(); polygon(ctx, bandQuad); ctx.fillStyle = band; ctx.fill();
+
+  // Tip.
+  const t0 = pt(gripEnd, -r * 0.5, 2 * S), t1 = pt(gripEnd, r * 0.5, 2 * S), t2 = pt(tip + 9 * S, 0, 2 * S);
+  ctx.beginPath(); polygon(ctx, [t0, t1, t2]); ctx.fillStyle = "#2b2b2e"; ctx.fill();
+
+  // A clip along the top of the barrel.
+  const clip = along(L0 + len * 0.02, L0 + len * 0.3, r * 0.16, 3.4 * S);
+  const cg = ctx.createLinearGradient(clip[0][0], clip[0][1], clip[1][0], clip[1][1]);
+  cg.addColorStop(0, "#d9c58a"); cg.addColorStop(1, "#8c7a52");
+  ctx.beginPath(); polygon(ctx, clip); ctx.fillStyle = cg; ctx.fill();
+}
+
+/**
  * An open book lying on the table, seen from above at an angle. The
  * pages rise out of the gutter, dip toward the binding, and show the
  * edge of the block.
@@ -838,6 +908,27 @@ export const SCENES = [
       const d = thicknessFor(a.pageCount) * k;
       const cam = makeCamera({ W, H, yaw: 26, pitch: 17, cx: W * 0.5, cy: H * 0.84, zoom: 1 });
       closedBook(ctx, cam, a, { w, h, d, lay: "upright", yaw: 0, at: [0, 0], pal, S });
+    },
+  },
+  {
+    id: "flat-lay",
+    name: "Flat-lay",
+    blurb: "Straight down: the open pages, a closed copy, a pen and a card. The editorial desk shot.",
+    needs: "pages",
+    paint(ctx, W, H, a, pal) {
+      const S = W / 2400;
+      const w = W * 0.215, k = w / a.trim.width, h = a.trim.height * k;
+      const cam = makeCamera({ W, H, yaw: 0, pitch: 90, cx: W * 0.5, cy: H * 0.5, zoom: 1 });
+      const d = thicknessFor(a.pageCount) * k * 0.7;
+
+      // A swatch card, half hidden under the spread.
+      flatCard(ctx, cam, {
+        at: [-W * 0.335, H * 0.2], yaw: -14, w: W * 0.13, h: W * 0.19,
+        fill: pal.dark ? "#ece4d3" : "#fbf7ee", edge: rgba(a.accent, 0.5), pal, S,
+      });
+      openBook(ctx, cam, a, { w, h, thick: d * 0.4, board: 8 * S, pal, S, at: [-W * 0.12, 0], yaw: -5, ribbon: a.accent });
+      closedBook(ctx, cam, a, { w, h, d, lay: "flat", yaw: 11, at: [W * 0.3, -H * 0.02], pal, S });
+      pen(ctx, cam, { at: [W * 0.06, -H * 0.36], yaw: 14, len: W * 0.23, color: mix(a.boardColor, "#000000", 0.25), band: a.accent, pal, S });
     },
   },
   {
