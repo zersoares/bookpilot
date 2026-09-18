@@ -124,7 +124,15 @@ export function schemaForApi(node) {
 
 // Anthropic requests are bounded so a slow generation surfaces as a
 // friendly "try again" rather than a serverless timeout with no message.
-const REQUEST_TIMEOUT_MS = 55_000;
+//
+// This has to stay *under* the platform's own limit or it achieves the
+// opposite. Netlify kills a synchronous function at 30 seconds, measured
+// on this site: a 28s handler returns, a 31s one gets a 502. At 55s the
+// abort could never fire, so the platform killed the function before the
+// catch block ran — and the catch block is what refunds the credits. A
+// user paid for every generation that ran long and got nothing back.
+const PLATFORM_LIMIT_MS = 30_000;
+const REQUEST_TIMEOUT_MS = 25_000;
 
 let settingsCache = null;
 let settingsExpires = 0;
