@@ -7,3 +7,7 @@ node_modules
 
 # Local preview scratch (PDF proofs, generated samples)
 .scratch
+
+# Never commit or deploy key material
+*API_KEY*
+*.key
