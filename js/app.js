@@ -37,18 +37,57 @@ import * as billingView from "./views/billing.js";
 import * as settingsView from "./views/settings.js";
 import * as adminView from "./views/admin.js";
 
-const NAV = [
-  { path: "/overview", label: "Overview", icon: "◈", mobile: "Home" },
-  { path: "/books", label: "My Books", icon: "▤", mobile: "Books" },
-  { path: "/strategy", label: "AI Strategy", icon: "✦" },
-  { path: "/creatives", label: "Creatives", icon: "◐", mobile: "Creatives" },
-  { path: "/campaigns", label: "Campaigns", icon: "▶", mobile: "Campaigns" },
-  { path: "/analytics", label: "Analytics", icon: "▦", mobile: "Analytics" },
-  { path: "/advisor", label: "AI Advisor", icon: "✧" },
-  { path: "/attribution", label: "Attribution", icon: "⇱" },
-  { path: "/billing", label: "Billing", icon: "◇" },
-  { path: "/settings", label: "Settings", icon: "⚙" },
+import * as builderProjects from "./views/builder/projects.js";
+import * as builderWorkspace from "./views/builder/workspace.js";
+import * as builderPlan from "./views/builder/plan.js";
+import * as builderEditor from "./views/builder/editor.js";
+import * as builderVisuals from "./views/builder/visuals.js";
+import * as builderDesign from "./views/builder/design.js";
+import * as builderPublish from "./views/builder/publish.js";
+import * as builderMarketing from "./views/builder/marketing.js";
+import * as builderBrandKit from "./views/builder/brandkit.js";
+
+/**
+ * The sidebar, in two groups.
+ *
+ * Writing a book and advertising one are different jobs done at
+ * different times, and a single flat list of eighteen items makes both
+ * harder to find. The groups are labelled rather than merely spaced, so
+ * an author who came here to write is not hunting through campaign
+ * tools.
+ */
+const NAV_GROUPS = [
+  {
+    label: "Write",
+    items: [
+      { path: "/studio", label: "Book Builder", icon: "✎", mobile: "Write" },
+      { path: "/studio/templates", label: "Templates", icon: "▤" },
+      { path: "/studio/brand", label: "Brand Kit", icon: "◈" },
+    ],
+  },
+  {
+    label: "Market",
+    items: [
+      { path: "/overview", label: "Overview", icon: "◈", mobile: "Home" },
+      { path: "/books", label: "My Books", icon: "▤", mobile: "Books" },
+      { path: "/strategy", label: "AI Strategy", icon: "✦" },
+      { path: "/creatives", label: "Creatives", icon: "◐", mobile: "Creatives" },
+      { path: "/campaigns", label: "Campaigns", icon: "▶", mobile: "Campaigns" },
+      { path: "/analytics", label: "Analytics", icon: "▦", mobile: "Analytics" },
+      { path: "/advisor", label: "AI Advisor", icon: "✧" },
+      { path: "/attribution", label: "Attribution", icon: "⇱" },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { path: "/billing", label: "Billing", icon: "◇" },
+      { path: "/settings", label: "Settings", icon: "⚙" },
+    ],
+  },
 ];
+
+const NAV = NAV_GROUPS.flatMap((group) => group.items);
 
 const PUBLIC_ROUTES = ["/signin", "/signup", "/reset"];
 
@@ -64,28 +103,68 @@ const BELL_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" a
 // Shell
 // ---------------------------------------------------------------------
 
+/**
+ * Which nav item a path belongs to.
+ *
+ * Longest match wins, so /studio/templates highlights Templates rather
+ * than also lighting up Book Builder above it.
+ */
+function isActive(item, activePath, siblings) {
+  const matches = (path) => activePath === path || activePath.startsWith(`${path}/`);
+  if (!matches(item.path)) return false;
+  return !siblings.some((other) =>
+    other !== item && other.path.length > item.path.length && matches(other.path));
+}
+
 function navItems(activePath) {
   const showAdmin = store.get("profile")?.role === "admin";
-  const items = showAdmin ? [...NAV, { path: "/admin", label: "Admin", icon: "⛭" }] : NAV;
-  return items
-    .map((item) => {
-      const active = activePath === item.path || activePath.startsWith(`${item.path}/`);
-      return html`<a class="bp-nav-item ${active ? "bp-nav-item--active" : ""}" href="#${item.path}">
-        <span class="bp-nav-item__icon" aria-hidden="true">${item.icon}</span>${item.label}
-      </a>`;
+  const groups = showAdmin
+    ? NAV_GROUPS.map((group) =>
+        group.label === "Account"
+          ? { ...group, items: [...group.items, { path: "/admin", label: "Admin", icon: "⛭" }] }
+          : group)
+    : NAV_GROUPS;
+
+  return groups
+    .map((group) => {
+      const items = group.items
+        .map((item) => {
+          const active = isActive(item, activePath, group.items);
+          return html`<a class="bp-nav-item ${active ? "bp-nav-item--active" : ""}" href="#${item.path}">
+            <span class="bp-nav-item__icon" aria-hidden="true">${item.icon}</span>${item.label}
+          </a>`;
+        })
+        .join("");
+      return html`<div class="bp-nav-section">
+        <div class="bp-nav-section__label">${group.label}</div>
+        ${raw(items)}
+      </div>`;
     })
     .join("");
 }
 
 function bottomNav(activePath) {
-  return NAV.filter((item) => item.mobile)
+  const items = NAV.filter((item) => item.mobile);
+  return items
     .map((item) => {
-      const active = activePath === item.path || activePath.startsWith(`${item.path}/`);
+      const active = isActive(item, activePath, items);
       return html`<a class="bp-bottom-nav__item ${active ? "bp-bottom-nav__item--active" : ""}" href="#${item.path}">
         <span class="bp-bottom-nav__icon" aria-hidden="true">${item.icon}</span>${item.mobile}
       </a>`;
     })
     .join("");
+}
+
+/**
+ * The topbar's one primary action.
+ *
+ * It follows the half of the product you are in. "New campaign" on top
+ * of the chapter editor is an invitation to lose your place.
+ */
+function primaryAction(activePath) {
+  return activePath.startsWith("/studio")
+    ? '<a class="bp-btn bp-btn--primary bp-btn--sm" href="#/studio/new">Create a book</a>'
+    : '<a class="bp-btn bp-btn--primary bp-btn--sm" href="#/campaigns/new">New campaign</a>';
 }
 
 function creditsPanel() {
@@ -130,7 +209,7 @@ function renderShell(activePath) {
         <header class="bp-topbar">
           <div class="bp-topbar__title" id="topbar-title"></div>
           <div class="bp-topbar__actions">
-            <a class="bp-btn bp-btn--primary bp-btn--sm" href="#/campaigns/new">New campaign</a>
+            ${raw(primaryAction(activePath))}
             <button type="button" class="bp-icon-btn" id="notif-btn" aria-label="Notifications">
               ${raw(BELL_ICON)}${unread ? raw('<span class="bp-icon-btn__dot"></span>') : ""}
             </button>
@@ -288,7 +367,21 @@ function view(title, renderFn) {
     closeMenus();
     setTitle(title);
 
-    const container = $("#view");
+    // A fresh element per render, not just fresh innerHTML.
+    //
+    // Views attach delegated listeners to this container with
+    // dom.js/delegate(). Reusing the same node means every view ever
+    // rendered leaves its listener attached, so by the third visit one
+    // click runs the handler three times — which for a billed AI action
+    // is three charges for one generation. Replacing the node drops
+    // every listener bound to the old one, for all views at once.
+    const previous = $("#view");
+    const container = document.createElement("main");
+    container.id = "view";
+    container.className = previous.className;
+    container.tabIndex = -1;
+    previous.replaceWith(container);
+
     container.innerHTML = loading();
     try {
       await renderFn(container, params, query);
@@ -309,6 +402,10 @@ function refreshNav(activePath) {
   if (bottom) bottom.innerHTML = bottomNav(activePath);
   const credits = document.querySelector(".bp-sidebar__foot");
   if (credits) credits.innerHTML = creditsPanel();
+  // The topbar's primary action follows the half of the product you are
+  // in, so it has to be refreshed on navigation, not only on first paint.
+  const action = document.querySelector(".bp-topbar__actions > a.bp-btn");
+  if (action) action.outerHTML = primaryAction(activePath);
 }
 
 // The sidebar shows the credit balance and the admin link, so it has to
@@ -350,6 +447,28 @@ function registerRoutes() {
   router.register("/campaigns", view("Campaigns", campaignsView.renderList));
   router.register("/campaigns/new", view("New campaign", campaignsView.renderWizard));
   router.register("/campaigns/:id", view("Campaign", campaignsView.renderDetail));
+
+  // --- Book Builder -------------------------------------------------
+  // `/studio/new` and the other fixed segments are registered before
+  // `/studio/:id`, because the router takes the first pattern that
+  // matches and "new" is a perfectly good-looking id.
+  router.register("/studio", view("Book Builder", builderProjects.renderList));
+  router.register("/studio/new", view("Create a book", builderProjects.renderWizard));
+  router.register("/studio/templates", view("Templates", builderProjects.renderTemplates));
+  router.register("/studio/brand", view("Brand Kit", builderBrandKit.render));
+
+  router.register("/studio/:id", view("Book", builderWorkspace.render));
+  router.register("/studio/:id/positioning", view("Positioning", builderPlan.renderPositioning));
+  router.register("/studio/:id/blueprint", view("Blueprint", builderPlan.renderBlueprint));
+  router.register("/studio/:id/bible", view("Book Bible", builderPlan.renderBible));
+  router.register("/studio/:id/write", view("Manuscript", builderEditor.render));
+  router.register("/studio/:id/write/:chapterId", view("Manuscript", builderEditor.render));
+  router.register("/studio/:id/visuals", view("Visuals", builderVisuals.render));
+  router.register("/studio/:id/design", view("Design", builderDesign.renderDesign));
+  router.register("/studio/:id/cover", view("Cover Studio", builderDesign.renderCover));
+  router.register("/studio/:id/preview", view("Preview", builderPublish.renderPreview));
+  router.register("/studio/:id/publish", view("Publish", builderPublish.renderPublish));
+  router.register("/studio/:id/marketing", view("Marketing Studio", builderMarketing.render));
 
   router.register("/analytics", view("Analytics", analyticsView.render));
   router.register("/advisor", view("AI Advisor", advisorView.render));

@@ -26,6 +26,17 @@ export function isDemo() {
   return Boolean(demoAdapter);
 }
 
+/**
+ * The adapter itself, for the few calls that are not JSON over `request`.
+ *
+ * Exporting a book returns a file, so the download path in
+ * core/builder-api.js cannot go through `request` — it needs to ask the
+ * adapter directly when the demo workspace is on.
+ */
+export function currentAdapter() {
+  return demoAdapter;
+}
+
 async function request(method, path, body) {
   if (demoAdapter) return demoAdapter.request(method, path, body);
 

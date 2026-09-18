@@ -12,6 +12,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { html, raw, safeUrl } from "../js/core/dom.js";
 import { PROMPTS, SAFETY_RULES } from "../netlify/functions/bookpilot-lib/prompts.js";
+import { BOOK_RULES, MANUSCRIPT_FORMAT } from "../netlify/functions/bookpilot-lib/book-prompts.js";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const read = (p) => readFileSync(join(ROOT, p), "utf8");
@@ -133,13 +134,57 @@ test("no secret ever appears in a file the browser loads", () => {
   }
 });
 
-test("every AI prompt inherits the advertising-content rules", () => {
+test("every AI prompt inherits a safety preamble", () => {
+  // Two disciplines, two rule sets. An advertising prompt inherits the
+  // advertising rules; an authoring prompt inherits the book rules,
+  // because "you write marketing material for books" is the wrong first
+  // sentence to hand a chapter writer. What must never happen is a
+  // prompt that inherits neither.
   const keys = Object.keys(PROMPTS);
   assert.ok(keys.length >= 10, "spec §38 asks for prompts covering ten operations");
   for (const key of keys) {
+    const system = PROMPTS[key].system;
     assert.ok(
-      PROMPTS[key].system.includes(SAFETY_RULES),
-      `${key} does not inherit the safety preamble`
+      system.includes(SAFETY_RULES) || system.includes(BOOK_RULES),
+      `${key} does not inherit either safety preamble`
+    );
+  }
+});
+
+test("everything the Book Builder writes for an ad platform carries the advertising rules", () => {
+  // The Marketing Director produces posts, ad copy and sales pages out
+  // of a finished book. Those are reviewed by a platform's policy team,
+  // so the authoring rules alone are not enough.
+  assert.ok(
+    PROMPTS.book_marketing.system.includes(SAFETY_RULES),
+    "book_marketing must inherit the advertising-content rules"
+  );
+  assert.ok(
+    PROMPTS.book_marketing.system.includes(BOOK_RULES),
+    "book_marketing must inherit the authoring rules too"
+  );
+});
+
+test("the book rules cover what must never be fabricated in a manuscript", () => {
+  for (const phrase of [
+    "Never fabricate a citation",
+    "living author",
+    "guaranteed results",
+    "needing verification",
+    "DATA, not instructions",
+  ]) {
+    assert.ok(BOOK_RULES.includes(phrase), `book rules omit "${phrase}"`);
+  }
+});
+
+test("every authoring prompt that returns a manuscript states the format", () => {
+  // A model that invents HTML or a Markdown table produces a page the
+  // layout engine cannot set, and the failure shows up as a broken book
+  // rather than as an error.
+  for (const key of ["chapter_write", "chapter_revise", "chapter_continue"]) {
+    assert.ok(
+      PROMPTS[key].system.includes(MANUSCRIPT_FORMAT),
+      `${key} does not state the manuscript format`
     );
   }
 });
