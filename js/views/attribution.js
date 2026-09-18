@@ -18,7 +18,7 @@ import { pageHead, fmt, demoBadge } from "./shared.js";
 import { healthBadge, wireTrackingChecks } from "./tracking-check.js";
 import { amazonImportBlock, wireAmazonImport } from "./amazon-import.js";
 import { platformCard, wirePlatform } from "./platform-card.js";
-import { pinterestConnectBlock, wirePinterestConnect } from "./pinterest-connect.js";
+import { platformConnectBlock, wirePlatformConnect } from "./platform-connect.js";
 
 export async function render(container, params, query) {
   const empty = { summary: null, campaigns: [] };
@@ -54,6 +54,10 @@ export async function render(container, params, query) {
   if (pinterestResult === "failed") notify.error("We couldn't connect your Pinterest account. Please try again.");
   if (pinterestResult === "declined") notify.info("Pinterest connection cancelled.");
 
+  const tiktokResult = query?.get("tiktok") || new URLSearchParams(location.search).get("tiktok");
+  if (tiktokResult === "connected") notify.success("TikTok connected. Choose your ad account and sync.");
+  if (tiktokResult === "failed") notify.error("We couldn't connect your TikTok account. Please try again.");
+
   container.innerHTML = html`
     ${raw(pageHead({
       title: "Attribution & integrations",
@@ -64,11 +68,14 @@ export async function render(container, params, query) {
     <div class="bp-stack-lg">
       ${raw(metaCard(meta, capabilities))}
       ${raw(trackingCard(sites, statuses))}
-      ${raw(platformCard("tiktok", tiktok.summary, tiktok.campaigns, { books }))}
+      ${raw(platformCard("tiktok", tiktok.summary, tiktok.campaigns, {
+        books,
+        connect: platformConnectBlock("tiktok", integrations.find((i) => i.provider === "tiktok"), capabilities, { books }),
+      }))}
       ${raw(platformCard("google", google.summary, google.campaigns, { books }))}
       ${raw(platformCard("pinterest", pinterest.summary, pinterest.campaigns, {
         books,
-        connect: pinterestConnectBlock(integrations.find((i) => i.provider === "pinterest"), capabilities, { books }),
+        connect: platformConnectBlock("pinterest", integrations.find((i) => i.provider === "pinterest"), capabilities, { books }),
       }))}
       ${raw(amazonCard(amazonSummary))}
     </div>
@@ -83,7 +90,9 @@ export async function render(container, params, query) {
       done: () => render(container, params, query),
     });
   }
-  wirePinterestConnect(container, { books, done: () => render(container, params, query) });
+  for (const platform of ["tiktok", "pinterest"]) {
+    wirePlatformConnect(container, platform, { done: () => render(container, params, query) });
+  }
   wireAmazonImport(container, {
     campaigns: campaigns.filter((c) => !c.is_demo || isDemo()),
     defaultCurrency: campaigns[0]?.currency || "EUR",

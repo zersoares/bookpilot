@@ -72,6 +72,18 @@ export const Errors = {
       "Pinterest didn't return that data. Check that the ad account is still active and that you can see it in Pinterest Ads Manager, then try again.",
       502
     ),
+  tiktokConnect: () =>
+    new AppError(
+      "tiktok_connection_failed",
+      "We couldn't reach your TikTok account. Please reconnect it and try again.",
+      502
+    ),
+  tiktokAction: () =>
+    new AppError(
+      "tiktok_action_failed",
+      "TikTok didn't return that data. Check that the ad account is still active and that you can see it in TikTok Ads Manager, then try again.",
+      502
+    ),
   integrationMissing: (name) =>
     new AppError(
       "integration_missing",

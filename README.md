@@ -205,7 +205,10 @@ else degrades gracefully when absent.
 | `PINTEREST_APP_ID` | Pinterest sync | |
 | `PINTEREST_APP_SECRET` | Pinterest sync | **Secret** |
 | `PINTEREST_REDIRECT_URI` | Pinterest sync | `https://yoursite/api/bp-pinterest/callback` |
-| `BOOKPILOT_OAUTH_STATE_SECRET` | Meta and Pinterest | **Secret.** Random string; signs the OAuth `state` |
+| `TIKTOK_APP_ID` | TikTok sync | |
+| `TIKTOK_APP_SECRET` | TikTok sync | **Secret** |
+| `TIKTOK_AUTH_URL` | TikTok sync | The app's "Advertiser authorization URL" from the TikTok developer portal (My Apps, the app, Basic Information). It carries the app id and redirect address; only `state` is set at run time |
+| `BOOKPILOT_OAUTH_STATE_SECRET` | Meta, Pinterest and TikTok | **Secret.** Random string; signs the OAuth `state` |
 | `BOOKPILOT_SITE_URL` | Redirects | Defaults to Netlify's `URL` |
 | `BOOKPILOT_ALLOWED_ORIGINS` | Extra origins | Comma-separated, optional |
 
@@ -418,6 +421,19 @@ Stated plainly, because the alternative is a feature list that lies:
   CSV import stays as the fallback. Pinterest only supports revoking tokens issued
   to system users, so "Disconnect" clears BookPilot's copy and the author removes
   access in their Pinterest settings.
+- **TikTok has a read-only API sync too, equally unrun against a live account.** It
+  needs an approved TikTok developer app whose permissions are limited to Reporting
+  and Ad Account Information (`bookpilot-lib/tiktok.js`, `bookpilot-tiktok.mjs`; no
+  migration, the provider was already allowed). Differences from Pinterest, all from
+  TikTok's documentation: the authorization URL is generated in the developer portal
+  and supplied as configuration; the callback carries `auth_code`; the access token
+  is long-term (no refresh) and Disconnect really revokes it; a daily report spans at
+  most 30 days, so longer pulls are windowed; and campaign names come from the report
+  itself, so the broader Ads Management permission is not needed. Because campaign
+  status is not requested, it is inferred from spend in the last three days.
+  Purchases are `complete_payment` and their value is `total_complete_payment_rate`
+  (TikTok's name for "Purchase value (website)"). Campaign matching is shared with
+  Pinterest (`sync-plan.js`).
 - **Meta persona targeting passes age and geography only.** Interest terms are
   carried as a note on the ad set for the operator to confirm in Ads Manager,
   rather than guessed at against Meta's interest IDs — a wrong ID spends money on
@@ -451,7 +467,7 @@ Stated plainly, because the alternative is a feature list that lies:
 | Phase | Work |
 |---|---|
 | 1 | Book illustration rendering; author-supplied artwork for figures and covers |
-| 2 | API connections for Amazon Attribution, TikTok and Google Ads (Pinterest's read-only sync is written, awaiting an approved app) |
+| 2 | API connections for Amazon Attribution and Google Ads (the Pinterest and TikTok read-only syncs are written, awaiting approved apps) |
 | 3 | AI image and video rendering, automatic creative refresh, A/B testing |
 | 4 | Publisher and agency accounts, team invitations, white-label |
 | 5 | Cross-platform AI marketing agent |

@@ -222,36 +222,5 @@ export function statusFor(remoteStatus) {
   return "paused";
 }
 
-/**
- * Decide, for each Pinterest campaign, which BookPilot campaign it lands on.
- *
- *   match  — a BookPilot campaign already carries this Pinterest id
- *   link   — a BookPilot campaign (from a CSV import) has the same name and
- *            no Pinterest id yet, so it is claimed rather than duplicated
- *   create — nothing corresponds; a new one will be made
- *
- * A name is only used to link when it is unambiguous: two local campaigns
- * with the same name are left alone rather than guessed between.
- */
-export function planCampaigns(remote, local) {
-  const byExternal = new Map();
-  const byName = new Map();
-  for (const c of local) {
-    if (c.external_campaign_id) byExternal.set(String(c.external_campaign_id), c);
-    else {
-      const key = c.name.trim().toLowerCase();
-      byName.set(key, byName.has(key) ? null : c); // null marks an ambiguous name
-    }
-  }
-  const claimed = new Set();
-  return remote.map((r) => {
-    const matched = byExternal.get(r.id);
-    if (matched) return { remote: r, action: "match", local: matched };
-    const named = byName.get(r.name.trim().toLowerCase());
-    if (named && !claimed.has(named.id)) {
-      claimed.add(named.id);
-      return { remote: r, action: "link", local: named };
-    }
-    return { remote: r, action: "create", local: null };
-  });
-}
+// Which BookPilot campaign a Pinterest campaign lands on: shared with TikTok.
+export { planCampaigns } from "./sync-plan.js";
