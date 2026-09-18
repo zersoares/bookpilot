@@ -29,12 +29,13 @@
     # inline style attributes the views use; tightening that would need a
     # nonce, which a static host cannot mint per request.
     #
-    # `connect-src` is narrowed to the Supabase project: it is the only
-    # cross-origin call the browser makes (js/core/auth.js, the GoTrue
-    # REST API). js/core/api.js is same-origin, and track/bp.js runs on
+    # `connect-src` is narrowed to the Supabase project plus Netlify's own
+    # RUM beacon: those are the only cross-origin calls the browser makes
+    # (js/core/auth.js, the GoTrue REST API, and the platform-injected RUM
+    # script). js/core/api.js is same-origin, and track/bp.js runs on
     # authors' own sites under their own policy. No wss: entry is needed
     # because nothing here uses Supabase Realtime.
-    Content-Security-Policy = "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https://aobkishzgyclobeulvzh.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://www.facebook.com; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https://aobkishzgyclobeulvzh.supabase.co https://ingesteer.services-prod.nsvcs.net; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://www.facebook.com; object-src 'none'"
 
 # The workspace is a private application; keep it out of search results
 # even if someone links to it.
