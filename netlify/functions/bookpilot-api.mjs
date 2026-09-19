@@ -664,7 +664,7 @@ async function selectAll(db, table, options, cap = 20_000) {
 
 async function amazonTotals(ctx, since) {
   const rows = await selectAll(ctx.db, "amazon_attribution_metrics", {
-    select: "metric_date,clicks,detail_page_views,add_to_carts,purchases,units_sold,product_sales_cents,currency,imported_at,external_campaign",
+    select: "metric_date,clicks,detail_page_views,add_to_carts,purchases,units_sold,kindle_pages_read,product_sales_cents,kindle_royalties_cents,currency,imported_at,external_campaign",
     eq: { user_id: ctx.user.id },
     filters: { metric_date: `gte.${since}` },
   });

@@ -334,6 +334,7 @@ function demoAmazonTotals(state) {
   return {
     clicks: sum("clicks"), detailPageViews: sum("detail_page_views"), addToCarts: sum("add_to_carts"),
     purchases: sum("purchases"), unitsSold: sum("units_sold"), productSalesCents: sum("product_sales_cents"),
+    kindlePagesRead: sum("kindle_pages_read"), kindleRoyaltiesCents: sum("kindle_royalties_cents"),
     currency: summary.currencies.length === 1 ? summary.currencies[0] : null,
     mixedCurrencies: summary.currencies.length > 1,
     from: summary.from, to: summary.to, importedAt: summary.last_imported_at,
@@ -608,6 +609,7 @@ async function handle(method, path, body) {
             external_campaign: row.campaign, metric_date: row.date, currency,
             clicks: row.clicks, detail_page_views: row.detail_page_views, add_to_carts: row.add_to_carts,
             purchases: row.purchases, units_sold: row.units_sold, product_sales_cents: row.product_sales_cents,
+            kindle_pages_read: row.kindle_pages_read || 0, kindle_royalties_cents: row.kindle_royalties_cents || 0,
             campaign_id: links.get(row.campaign) || null, imported_at: new Date().toISOString(),
           });
         }

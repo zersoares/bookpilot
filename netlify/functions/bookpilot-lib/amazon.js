@@ -15,7 +15,11 @@ const MAX_COUNT = 1_000_000_000;
 const MAX_SALES_CENTS = 100_000_000_000; // 1bn in currency units
 const EARLIEST = "2015-01-01"; // Amazon Attribution launched in 2018; earlier is a typo
 
-const COUNT_FIELDS = ["clicks", "detail_page_views", "add_to_carts", "purchases", "units_sold"];
+// Kindle pages read are pages read by Kindle Unlimited readers within 14 days
+// of an ad click; their royalties are Amazon's estimate. Both are kept in
+// columns of their own and never added to product sales.
+const COUNT_FIELDS = ["clicks", "detail_page_views", "add_to_carts", "purchases", "units_sold", "kindle_pages_read"];
+const MONEY_FIELDS = [["product_sales_cents", "product sales"], ["kindle_royalties_cents", "Kindle royalties"]];
 
 function count(value, field, line) {
   const n = Number(value);
@@ -59,19 +63,23 @@ export function normaliseRows(input, today = new Date().toISOString().slice(0, 1
     }
     const campaign = (typeof raw.campaign === "string" ? raw.campaign.trim() : "").slice(0, 200) || UNNAMED;
 
-    const sales = Number(raw.product_sales_cents ?? 0);
-    if (!Number.isInteger(sales) || sales < 0 || sales > MAX_SALES_CENTS) {
-      throw Errors.invalid(`Row ${line}: product sales is not a valid amount.`);
+    const money = {};
+    for (const [field, label] of MONEY_FIELDS) {
+      const amount = Number(raw[field] ?? 0);
+      if (!Number.isInteger(amount) || amount < 0 || amount > MAX_SALES_CENTS) {
+        throw Errors.invalid(`Row ${line}: ${label} is not a valid amount.`);
+      }
+      money[field] = amount;
     }
 
     const key = `${campaign}|${raw.date}`;
     const row = merged.get(key) || {
       campaign, date: raw.date, clicks: 0, detail_page_views: 0, add_to_carts: 0,
-      purchases: 0, units_sold: 0, product_sales_cents: 0,
+      purchases: 0, units_sold: 0, kindle_pages_read: 0, product_sales_cents: 0, kindle_royalties_cents: 0,
     };
     for (const field of COUNT_FIELDS) row[field] += count(raw[field] ?? 0, field, line);
-    row.product_sales_cents += sales;
-    if (COUNT_FIELDS.some((f) => row[f] > MAX_COUNT) || row.product_sales_cents > MAX_SALES_CENTS) {
+    for (const [field] of MONEY_FIELDS) row[field] += money[field];
+    if (COUNT_FIELDS.some((f) => row[f] > MAX_COUNT) || MONEY_FIELDS.some(([f]) => row[f] > MAX_SALES_CENTS)) {
       throw Errors.invalid(`Row ${line}: the merged total for ${campaign} on ${raw.date} is implausibly large.`);
     }
     merged.set(key, row);
@@ -97,7 +105,9 @@ export function toDbRow(row, { userId, currency, campaignId = null, bookId = nul
     add_to_carts: row.add_to_carts,
     purchases: row.purchases,
     units_sold: row.units_sold,
+    kindle_pages_read: row.kindle_pages_read ?? 0,
     product_sales_cents: row.product_sales_cents,
+    kindle_royalties_cents: row.kindle_royalties_cents ?? 0,
     currency,
     campaign_id: campaignId,
     book_id: bookId,
@@ -132,6 +142,8 @@ export function totalsOf(dbRows) {
     addToCarts: sum("add_to_carts"),
     purchases: sum("purchases"),
     unitsSold: sum("units_sold"),
+    kindlePagesRead: sum("kindle_pages_read"),
+    kindleRoyaltiesCents: sum("kindle_royalties_cents"),
     productSalesCents: sum("product_sales_cents"),
     // Amazon reports each import in one currency; if a workspace mixes
     // them the panel must not present a single-currency sum as one.

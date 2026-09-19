@@ -71,6 +71,12 @@ export const METRICS = [
   { key: "purchases", name: "attributedPurchases14d" },
   { key: "units_sold", name: "unitsSold14d" },
   { key: "product_sales_cents", name: "attributedSales14d", money: true },
+  // For books: pages read by Kindle Unlimited readers within 14 days of an ad
+  // click, and Amazon's estimate of the royalties on them. Asked for
+  // separately because an account that has no Kindle books may not accept
+  // them (see reportWithKindle).
+  { key: "kindle_pages_read", name: "kindleEditionNormalizedPagesRead14d", kindle: true },
+  { key: "kindle_royalties_cents", name: "kindleEditionNormalizedPagesRoyalties14d", money: true, kindle: true },
 ];
 
 export function configured() {
@@ -152,6 +158,8 @@ export const refreshTokens = (region, refreshToken) =>
 
 function mapError(status, body) {
   console.error(`[bookpilot] Amazon Ads -> ${status}:`, String(body?.code ?? ""), String(body?.details ?? body?.message ?? "").slice(0, 200));
+  // Kept for the caller's decisions, never sent to the browser.
+  const answered = (error) => { error.detail = { upstream: status }; return error; };
 
   if (status === 429) {
     return new AppError("amazon_rate_limited", "Amazon is limiting requests right now. Try again in a few minutes.", 429);
@@ -167,7 +175,7 @@ function mapError(status, body) {
       502
     );
   }
-  return Errors.amazonAction();
+  return answered(Errors.amazonAction());
 }
 
 /**
@@ -255,7 +263,7 @@ export function dateRange(days, now = Date.now()) {
  * grouped by campaign the rows would carry only Amazon's campaign id.
  * A report too big to finish is an error, not a silently partial import.
  */
-export async function report(region, token, profileId, { startDate, endDate }) {
+export async function report(region, token, profileId, { startDate, endDate }, { kindle = true } = {}) {
   const out = [];
   let cursor = "";
   for (let page = 0; page < MAX_PAGES; page += 1) {
@@ -267,7 +275,7 @@ export async function report(region, token, profileId, { startDate, endDate }) {
         startDate,
         endDate,
         count: PAGE,
-        metrics: METRICS.map((m) => m.name).join(","),
+        metrics: METRICS.filter((m) => kindle || !m.kindle).map((m) => m.name).join(","),
         cursorId: cursor,
       },
     });
@@ -279,6 +287,22 @@ export async function report(region, token, profileId, { startDate, endDate }) {
   }
   console.error("[bookpilot] Amazon report exceeded", MAX_PAGES, "pages");
   throw Errors.invalid("That report is too large to pull in one go. Choose fewer days.");
+}
+
+/**
+ * The report with the Kindle metrics, or without them if Amazon refuses the
+ * request as invalid (an account with no Kindle books may not offer them).
+ * Only a 400 falls back, and the plain request then meets any other problem
+ * itself, so a real failure still surfaces.
+ */
+export async function reportWithKindle(region, token, profileId, range) {
+  try {
+    return { entries: await report(region, token, profileId, range, { kindle: true }), kindle: true };
+  } catch (err) {
+    if (err?.detail?.upstream !== 400) throw err;
+    console.warn("[bookpilot] Amazon refused the Kindle metrics; asking again without them");
+    return { entries: await report(region, token, profileId, range, { kindle: false }), kindle: false };
+  }
 }
 
 const norm = (text) => String(text).toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -323,11 +347,12 @@ export function campaignLabel(entry) {
  * back but none carried any of the metrics asked for, because storing that as
  * zeros would look like a real "no results".
  *
- * @returns {{ rows: object[], dropped: number }}
+ * @returns {{ rows: object[], dropped: number, kindle: boolean }}   kindle: any Kindle figure came back
  */
 export function rowsFromReport(entries) {
   const byKey = new Map();
   const seen = new Set();
+  let kindleSeen = false;
   let dropped = 0;
 
   for (const entry of entries) {
@@ -336,20 +361,21 @@ export function rowsFromReport(entries) {
 
     const fields = new Map(Object.keys(entry).map((k) => [norm(k), entry[k]]));
     const campaign = campaignLabel(entry);
-    const key = `${campaign} ${date}`;
-    const row = byKey.get(key) || {
-      campaign, date, clicks: 0, detail_page_views: 0, add_to_carts: 0, purchases: 0, units_sold: 0, product_sales_cents: 0,
-    };
+    const key = `${campaign}\u0000${date}`;
+    const row = byKey.get(key) || { campaign, date, ...Object.fromEntries(METRICS.map((m) => [m.key, 0])) };
     for (const m of METRICS) {
       const field = norm(m.name);
       if (!fields.has(field)) continue;
       seen.add(m.key);
+      if (m.kindle) kindleSeen = true;
       row[m.key] += m.money ? cents(fields.get(field)) : count(fields.get(field));
     }
     byKey.set(key, row);
   }
 
-  if (entries.length && !seen.size) {
+  // Only the core figures count as "the answer has what we asked for": Kindle
+  // fields alone would make an otherwise empty answer look real.
+  if (entries.length && ![...seen].some((key) => !METRICS.find((m) => m.key === key).kindle)) {
     console.error("[bookpilot] Amazon report had none of the requested metrics; keys:", Object.keys(entries[0] || {}).join(","));
     throw Errors.amazonAction();
   }
@@ -357,5 +383,5 @@ export function rowsFromReport(entries) {
     console.error("[bookpilot] Amazon report had no usable dates; first date:", String(entries[0]?.date));
     throw Errors.amazonAction();
   }
-  return { rows: [...byKey.values()], dropped };
+  return { rows: [...byKey.values()], dropped, kindle: kindleSeen };
 }

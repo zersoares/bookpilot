@@ -252,7 +252,10 @@ function amazonPanel(amazon, currency) {
         <div class="bp-stat"><div class="bp-stat__label">Purchases</div><div class="bp-stat__value">${fmt.number(amazon.purchases)}</div></div>
         <div class="bp-stat"><div class="bp-stat__label">Units sold</div><div class="bp-stat__value">${fmt.number(amazon.unitsSold)}</div></div>
         <div class="bp-stat"><div class="bp-stat__label">Product sales</div><div class="bp-stat__value">${amazon.mixedCurrencies ? "Mixed currencies" : fmt.money(amazon.productSalesCents, shownCurrency)}</div></div>
+        ${raw(amazon.kindlePagesRead ? html`<div class="bp-stat"><div class="bp-stat__label">Kindle pages read</div><div class="bp-stat__value">${fmt.number(amazon.kindlePagesRead)}</div></div>` : "")}
+        ${raw(amazon.kindleRoyaltiesCents ? html`<div class="bp-stat"><div class="bp-stat__label">Est. page-read royalties</div><div class="bp-stat__value">${amazon.mixedCurrencies ? "Mixed currencies" : fmt.money(amazon.kindleRoyaltiesCents, shownCurrency)}</div></div>` : "")}
       </div>
+      ${raw(amazon.kindlePagesRead || amazon.kindleRoyaltiesCents ? '<p class="bp-tiny bp-subtle" style="margin:var(--bp-3) 0 0">Kindle pages read are pages read by Kindle Unlimited readers within 14 days of an ad click. The royalties are Amazon\'s estimate for those pages and are not included in product sales.</p>' : "")}
     </section>
   `;
 }

@@ -181,14 +181,18 @@ async function sync(ctx, body) {
   if (!profile.currency) throw Errors.invalid("Amazon didn't say which currency that account uses, so its figures can't be imported safely.");
   const currency = v.currency(profile.currency);
 
-  const entries = await amazonAds.report(row.region, row.access_token, row.account_id, range);
-  const { rows: found, dropped } = amazonAds.rowsFromReport(entries);
+  const asked = await amazonAds.reportWithKindle(row.region, row.access_token, row.account_id, range);
+  const { rows: found, dropped, kindle } = amazonAds.rowsFromReport(asked.entries);
+  // Said out loud, so a missing Kindle figure is never mistaken for zero pages read.
+  const notes = [];
+  if (!asked.kindle) notes.push("Amazon didn't accept the Kindle pages-read figures for this account, so they were left out.");
+  else if (found.length && !kindle) notes.push("Amazon returned no Kindle pages-read figures for these days.");
   const service = dbAsService();
   const finish = { last_synced_at: new Date().toISOString(), last_error: null };
 
   if (!found.length) {
     await service.update("integrations", finish, { eq: { user_id: ctx.user.id, provider: PROVIDER } });
-    return json({ campaigns: 0, days: 0, since: range.since, until: range.until, currency, skipped: [] });
+    return json({ campaigns: 0, days: 0, since: range.since, until: range.until, currency, skipped: [], notes });
   }
 
   // The same validation an imported CSV gets.
@@ -203,7 +207,7 @@ async function sync(ctx, body) {
   // Replace, not add to: drop what this window held that the report no
   // longer contains (the console-named twin of a synced campaign, or a day
   // Amazon has since restated away).
-  const keep = new Set(dbRows.map((r) => `${r.external_campaign} ${r.metric_date}`));
+  const keep = new Set(dbRows.map((r) => `${r.external_campaign}\u0000${r.metric_date}`));
   // PostgREST caps a response at 1000 rows, so page through, in a fixed order
   // so the pages neither overlap nor skip.
   const existing = [];
@@ -217,7 +221,7 @@ async function sync(ctx, body) {
     existing.push(...page);
     if (page.length < 1000) break;
   }
-  const stale = existing.filter((r) => !keep.has(`${r.external_campaign} ${r.metric_date}`)).map((r) => r.id);
+  const stale = existing.filter((r) => !keep.has(`${r.external_campaign}\u0000${r.metric_date}`)).map((r) => r.id);
   for (let i = 0; i < stale.length; i += 200) {
     await service.remove(TABLE, { eq: { user_id: ctx.user.id }, in: { id: stale.slice(i, i + 200) } });
   }
@@ -229,7 +233,7 @@ async function sync(ctx, body) {
   });
   return json({
     campaigns: parsed.campaigns.length, days: dbRows.length, replaced: stale.length,
-    since: range.since, until: range.until, currency, skipped: [],
+    since: range.since, until: range.until, currency, skipped: [], notes,
   });
 }
 

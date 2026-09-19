@@ -149,6 +149,7 @@ test("an unreadable figure skips the row and says why", () => {
 
 const TODAY = "2026-09-18";
 const good = (over = {}) => ({ campaign: "A", date: "2026-09-01", clicks: 5, detail_page_views: 4, add_to_carts: 1, purchases: 1, units_sold: 1, product_sales_cents: 899, ...over });
+const kindle = (over = {}) => good({ kindle_pages_read: 1200, kindle_royalties_cents: 432, ...over });
 
 test("server: valid rows pass, duplicates merge, order is by date", () => {
   const out = normaliseRows([good({ date: "2026-09-02" }), good(), good({ clicks: 10 })], TODAY);
@@ -249,4 +250,59 @@ test("demo: import, replace on re-import, feed analytics, and remove", async () 
 
   await demoAdapter.request("DELETE", "/api/bp/amazon-import");
   assert.equal((await demoAdapter.request("GET", "/api/bp/analytics?days=30")).amazon, null);
+});
+
+// --- Kindle pages read ----------------------------------------------------------
+
+test("Kindle pages and royalties are validated like the other figures, and merged per campaign and day", () => {
+  const out = normaliseRows([kindle(), kindle({ kindle_pages_read: 300, kindle_royalties_cents: 108 })], TODAY);
+  assert.equal(out.rows.length, 1);
+  assert.equal(out.rows[0].kindle_pages_read, 1500);
+  assert.equal(out.rows[0].kindle_royalties_cents, 540);
+  assert.equal(out.rows[0].product_sales_cents, 899 * 2, "royalties stay out of product sales");
+
+  assert.equal(normaliseRows([good()], TODAY).rows[0].kindle_pages_read, 0, "a report without them reads as zero");
+  assert.throws(() => normaliseRows([kindle({ kindle_pages_read: -1 })], TODAY), /kindle_pages_read/);
+  assert.throws(() => normaliseRows([kindle({ kindle_pages_read: 1.5 })], TODAY), /kindle_pages_read/);
+  assert.throws(() => normaliseRows([kindle({ kindle_royalties_cents: -5 })], TODAY), /Kindle royalties/);
+  assert.throws(() => normaliseRows([kindle({ kindle_royalties_cents: "lots" })], TODAY), /Kindle royalties/);
+});
+
+test("Kindle figures are stored in their own columns and totalled apart from sales", () => {
+  const row = toDbRow(normaliseRows([kindle()], TODAY).rows[0], { userId: "u1", currency: "EUR" });
+  assert.equal(row.kindle_pages_read, 1200);
+  assert.equal(row.kindle_royalties_cents, 432);
+  assert.equal(row.product_sales_cents, 899);
+
+  const totals = totalsOf([
+    { metric_date: "2026-09-01", external_campaign: "A", currency: "EUR", clicks: 1, kindle_pages_read: 1200, kindle_royalties_cents: 432, product_sales_cents: 899 },
+    { metric_date: "2026-09-02", external_campaign: "A", currency: "EUR", clicks: 1 },
+  ]);
+  assert.equal(totals.kindlePagesRead, 1200);
+  assert.equal(totals.kindleRoyaltiesCents, 432);
+  assert.equal(totals.productSalesCents, 899);
+});
+
+test("a CSV with Kindle columns has them found, imported, and totalled; without them nothing changes", () => {
+  const csv = [
+    "Date,Campaign,Click-throughs,Purchases,Product sales,Kindle Edition Normalized Pages Read,Kindle Edition Normalized Page Royalties",
+    "2026-09-01,A,10,1,8.99,1200,4.32",
+    "2026-09-02,A,5,0,0,300,1.08",
+  ].join("\n");
+  const report = readReport(csv);
+  assert.ok(report.mapping.kindle_pages_read !== -1, "pages read column found");
+  assert.ok(report.mapping.kindle_royalties !== -1, "royalties column found");
+  assert.notEqual(report.mapping.kindle_pages_read, report.mapping.kindle_royalties);
+  assert.notEqual(report.mapping.product_sales, report.mapping.kindle_royalties, "royalties are not mistaken for sales");
+
+  const built = buildRows(report.data, report.mapping);
+  assert.equal(built.totals.kindle_pages_read, 1500);
+  assert.equal(built.totals.kindle_royalties_cents, 540);
+  assert.equal(built.totals.product_sales_cents, 899);
+  assert.equal(built.rows[0].kindle_pages_read, 1200);
+  assert.equal(normaliseRows(built.rows, TODAY).rows.length, 2, "and the server accepts what the browser built");
+
+  const plain = buildRows(readReport("Date,Campaign,Clicks\n2026-09-01,A,10").data, { date: 0, campaign: 1, clicks: 2, detail_page_views: -1, add_to_carts: -1, purchases: -1, units_sold: -1, product_sales: -1 });
+  assert.equal(plain.rows[0].kindle_pages_read, 0, "an older mapping without the Kindle keys still works");
+  assert.equal(plain.totals.kindle_royalties_cents, 0);
 });

@@ -479,7 +479,16 @@ Stated plainly, because the alternative is a feature list that lies:
   reports included. Amazon lets an app revoke nothing, so Disconnect clears BookPilot's
   copy and tells the author to remove access in their Amazon account. Needs migration
   `015_amazon_connection.sql` (a `region` column on `integrations`), applied **before**
-  deploying. Kindle pages-read metrics exist in the API and are not imported yet.
+  deploying.
+- **Kindle pages read** (`kindleEditionNormalizedPagesRead14d`) and Amazon's estimate of
+  the royalties on them (`...PagesRoyalties14d`) come through both the API sync and the
+  CSV import, into columns of their own (migration `016_kindle_pages.sql`, applied
+  **before** deploying). They are pages read by Kindle Unlimited readers within 14 days
+  of an ad click, and are never added to product sales; Analytics shows them only when
+  there are some. They are asked for separately: if Amazon rejects the request with a
+  400 (an account with no Kindle books may not offer them) the report is asked for again
+  without them and the author is told they were left out. The CSV column names are a
+  best guess, shown on the mapping screen for the author to correct.
 - **Meta persona targeting passes age and geography only.** Interest terms are
   carried as a note on the ad set for the operator to confirm in Ads Manager,
   rather than guessed at against Meta's interest IDs — a wrong ID spends money on

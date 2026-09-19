@@ -169,7 +169,7 @@ test("dateRange: n days ending yesterday, in Amazon's YYYYMMDD as well as ISO, c
   assert.equal(a.dateRange("nonsense", now).since, "2026-08-20", "30 by default");
 });
 
-test("report request: performance by ad group, the six metrics, a first empty cursor, the profile scope", async () => {
+test("report request: performance by ad group, the metrics, a first empty cursor, the profile scope", async () => {
   const calls = route(() => [200, { reports: [], size: 0 }]);
   await a.report("na", "tok", "2810876412345678", { startDate: "20260901", endDate: "20260918" });
   const [call] = calls;
@@ -179,9 +179,13 @@ test("report request: performance by ad group, the six metrics, a first empty cu
   assert.equal(call.init.headers["Content-Type"], "application/json");
   assert.deepEqual(call.body, {
     reportType: "PERFORMANCE", groupBy: "ADGROUP", startDate: "20260901", endDate: "20260918", count: 5000,
-    metrics: "Click-throughs,attributedDetailPageViewsClicks14d,attributedAddToCartClicks14d,attributedPurchases14d,unitsSold14d,attributedSales14d",
+    metrics: "Click-throughs,attributedDetailPageViewsClicks14d,attributedAddToCartClicks14d,attributedPurchases14d,unitsSold14d,attributedSales14d,kindleEditionNormalizedPagesRead14d,kindleEditionNormalizedPagesRoyalties14d",
     cursorId: "",
   });
+
+  const plain = route(() => [200, { reports: [] }]);
+  await a.report("na", "tok", "2810876412345678", { startDate: "20260901", endDate: "20260918" }, { kindle: false });
+  assert.equal(plain[0].body.metrics, "Click-throughs,attributedDetailPageViewsClicks14d,attributedAddToCartClicks14d,attributedPurchases14d,unitsSold14d,attributedSales14d");
   assert.ok(!("advertiserIds" in call.body), "all of the profile's advertisers");
   assert.ok(call.body.count >= 1 && call.body.count <= 5000, "the specification's range for count");
 });
@@ -225,7 +229,7 @@ test("rows: ad groups add up within a campaign and day; sales become exact cents
   const day = rows.find((r) => r.campaign === "Google Ads · 123" && r.date === "2026-09-10");
   assert.deepEqual(day, {
     campaign: "Google Ads · 123", date: "2026-09-10", clicks: 15, detail_page_views: 16, add_to_carts: 6,
-    purchases: 4, units_sold: 4, product_sales_cents: 1798 + 101,
+    purchases: 4, units_sold: 4, product_sales_cents: 1798 + 101, kindle_pages_read: 0, kindle_royalties_cents: 0,
   });
   assert.equal(a.cents("1.005"), 101, "not 100, which multiplying by 100 would give");
   assert.equal(a.cents(17.98), 1798);
@@ -244,7 +248,12 @@ test("rows: metric names are matched loosely, so a differently-cased or punctuat
 test("rows: an answer with none of the requested metrics, or no usable dates, is refused rather than stored as zeros", () => {
   assert.throws(() => a.rowsFromReport([{ campaignId: "1", date: "20260910", somethingElse: 5 }]), (e) => e.code === "amazon_action_failed");
   assert.throws(() => a.rowsFromReport([{ campaignId: "1", date: "soon", "Click-throughs": 5 }]), (e) => e.code === "amazon_action_failed");
-  assert.deepEqual(a.rowsFromReport([]), { rows: [], dropped: 0 }, "no entries is a real empty answer");
+  assert.deepEqual(a.rowsFromReport([]), { rows: [], dropped: 0, kindle: false }, "no entries is a real empty answer");
+  assert.throws(
+    () => a.rowsFromReport([{ campaignId: "1", date: "20260910", kindleEditionNormalizedPagesRead14d: 900 }]),
+    (e) => e.code === "amazon_action_failed",
+    "Kindle figures alone do not make an answer look like the one that was asked for"
+  );
   const mixed = a.rowsFromReport([entry(), entry({ date: "someday" })]);
   assert.equal(mixed.rows.length, 1);
   assert.equal(mixed.dropped, 1, "an undatable entry is counted, not silently lost");
@@ -307,4 +316,58 @@ test("regions: Attribution's API is offered in North America and Europe only", (
     assert.match(r.api, /^https:\/\/advertising-api(-eu)?\.amazon\.com$/);
   }
   assert.ok(a.isRegion("na") && a.isRegion("eu") && !a.isRegion("fe") && !a.isRegion("toString") && !a.isRegion(undefined));
+});
+
+// --- Kindle pages read ----------------------------------------------------------
+
+test("Kindle pages read and their estimated royalties are read, added up, and kept out of product sales", () => {
+  const { rows, kindle } = a.rowsFromReport([
+    entry({ kindleEditionNormalizedPagesRead14d: 1200, kindleEditionNormalizedPagesRoyalties14d: "4.32" }),
+    entry({ adGroupId: "10", kindleEditionNormalizedPagesRead14d: "300", kindleEditionNormalizedPagesRoyalties14d: 1.08 }),
+  ]);
+  assert.equal(kindle, true);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].kindle_pages_read, 1500);
+  assert.equal(rows[0].kindle_royalties_cents, 540);
+  assert.equal(rows[0].product_sales_cents, 1798 * 2, "royalties are not folded into sales");
+});
+
+test("no Kindle fields in the answer: zeros, and the caller is told none came back", () => {
+  const { rows, kindle } = a.rowsFromReport([entry()]);
+  assert.equal(kindle, false);
+  assert.equal(rows[0].kindle_pages_read, 0);
+  assert.equal(rows[0].kindle_royalties_cents, 0);
+});
+
+test("if Amazon rejects the Kindle metrics (400) the report is asked for again without them; nothing else falls back", async () => {
+  const calls = route((_u, body) =>
+    /kindle/i.test(body.metrics) ? [400, { code: "400", details: "Invalid metric for this advertiser" }] : [200, { reports: [{ n: 1 }] }]);
+  const out = await a.reportWithKindle("na", "t", "1234567", { startDate: "20260901", endDate: "20260918" });
+  assert.equal(out.kindle, false);
+  assert.equal(out.entries.length, 1);
+  assert.equal(calls.length, 2);
+  assert.match(calls[0].body.metrics, /kindle/i);
+  assert.doesNotMatch(calls[1].body.metrics, /kindle/i);
+
+  const ok = route(() => [200, { reports: [{ n: 1 }] }]);
+  assert.equal((await a.reportWithKindle("na", "t", "1234567", { startDate: "20260901", endDate: "20260918" })).kindle, true);
+  assert.equal(ok.length, 1, "no second request when the first works");
+
+  for (const status of [401, 403, 429, 500]) {
+    const seen = route(() => [status, { code: String(status) }]);
+    await assert.rejects(() => a.reportWithKindle("na", "t", "1234567", { startDate: "20260901", endDate: "20260918" }));
+    assert.equal(seen.length, 1, `a ${status} is reported, not retried`);
+  }
+
+  route(() => [400, { code: "400" }]);
+  await assert.rejects(
+    () => a.reportWithKindle("na", "t", "1234567", { startDate: "20260901", endDate: "20260918" }),
+    (e) => e.code === "amazon_action_failed",
+    "a 400 that persists without Kindle is a real failure"
+  );
+});
+
+test("the upstream status is kept for the caller but is not part of the message shown to the author", async () => {
+  route(() => [400, { code: "400", details: "SECRET-DETAIL" }]);
+  await assert.rejects(() => a.listProfiles("na", "t"), (e) => e.detail?.upstream === 400 && !/SECRET-DETAIL|400/.test(e.message));
 });

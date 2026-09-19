@@ -31,6 +31,14 @@ export const FIELDS = [
     synonyms: ["units sold", "units", "total units sold", "units ordered"] },
   { key: "product_sales", label: "Product sales", metric: true,
     synonyms: ["product sales", "sales", "total product sales", "total sales", "revenue", "ordered product sales"] },
+  // Books only. Amazon's names for these columns are a best guess; the screen
+  // shows the mapping for the author to correct.
+  { key: "kindle_pages_read", label: "Kindle pages read", metric: true,
+    synonyms: ["kindle edition normalized pages read", "kindle edition normalized pages read (kenp)", "kenp read",
+      "kenp", "kindle pages read", "normalized pages read", "kindle unlimited pages read", "pages read"] },
+  { key: "kindle_royalties", label: "Est. page-read royalties", metric: true,
+    synonyms: ["kindle edition normalized page royalties", "kindle edition normalized pages royalties",
+      "estimated kindle royalties", "kindle royalties", "kenp royalties", "estimated page read royalties", "kindle page royalties"] },
 ];
 
 import {
@@ -60,7 +68,8 @@ export function buildRows(dataRows, mapping, { dayFirst = true, undatedDate = nu
   const dated = mapping.date !== -1;
   const skipped = [];
   const byKey = new Map();
-  const totals = { clicks: 0, detail_page_views: 0, add_to_carts: 0, purchases: 0, units_sold: 0, product_sales_cents: 0 };
+  const totals = { clicks: 0, detail_page_views: 0, add_to_carts: 0, purchases: 0, units_sold: 0, kindle_pages_read: 0, product_sales_cents: 0, kindle_royalties_cents: 0 };
+  const mapped = (key) => mapping[key] !== undefined && mapping[key] !== -1;
 
   dataRows.forEach((cells, index) => {
     const line = index + 1; // the data row, counted from the one under the headings
@@ -74,24 +83,25 @@ export function buildRows(dataRows, mapping, { dayFirst = true, undatedDate = nu
     if (!date) { skipped.push({ line, reason: "no date to record it on" }); return; }
 
     const counts = {};
-    for (const key of ["clicks", "detail_page_views", "add_to_carts", "purchases", "units_sold"]) {
-      const n = mapping[key] === -1 ? 0 : parseNumber(cells[mapping[key]]);
+    for (const key of ["clicks", "detail_page_views", "add_to_carts", "purchases", "units_sold", "kindle_pages_read"]) {
+      const n = !mapped(key) ? 0 : parseNumber(cells[mapping[key]]);
       if (!Number.isFinite(n) || n < 0) { skipped.push({ line, reason: `"${cells[mapping[key]]}" is not a valid count` }); return; }
       counts[key] = Math.round(n);
     }
-    let salesCents = 0;
-    if (mapping.product_sales !== -1) {
-      const n = parseNumber(cells[mapping.product_sales]);
-      if (!Number.isFinite(n) || n < 0) { skipped.push({ line, reason: `"${cells[mapping.product_sales]}" is not a valid amount` }); return; }
-      salesCents = Math.round(n * 100);
+    const cents = {};
+    for (const [column, key] of [["product_sales", "product_sales_cents"], ["kindle_royalties", "kindle_royalties_cents"]]) {
+      cents[key] = 0;
+      if (!mapped(column)) continue;
+      const n = parseNumber(cells[mapping[column]]);
+      if (!Number.isFinite(n) || n < 0) { skipped.push({ line, reason: `"${cells[mapping[column]]}" is not a valid amount` }); return; }
+      cents[key] = Math.round(n * 100);
     }
 
     const campaign = (mapping.campaign !== -1 ? String(cells[mapping.campaign]).trim() : "") || UNNAMED_CAMPAIGN;
     const key = `${campaign}\u0000${date}`;
-    const row = byKey.get(key) || { campaign, date, clicks: 0, detail_page_views: 0, add_to_carts: 0, purchases: 0, units_sold: 0, product_sales_cents: 0 };
+    const row = byKey.get(key) || { campaign, date, clicks: 0, detail_page_views: 0, add_to_carts: 0, purchases: 0, units_sold: 0, kindle_pages_read: 0, product_sales_cents: 0, kindle_royalties_cents: 0 };
     for (const k of Object.keys(counts)) { row[k] += counts[k]; totals[k] += counts[k]; }
-    row.product_sales_cents += salesCents;
-    totals.product_sales_cents += salesCents;
+    for (const k of Object.keys(cents)) { row[k] += cents[k]; totals[k] += cents[k]; }
     byKey.set(key, row);
   });
 

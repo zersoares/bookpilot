@@ -189,6 +189,7 @@ export function wirePlatformConnect(root, platform, { done }) {
         const r = await API.connectSync(platform, { days: Number(field("days")?.value) || 30, book_id: field("book")?.value || undefined });
         if (!r.days) notify.info(`${copy.name} returned no figures for those days.`);
         else notify.success(`Synced ${fmt.number(r.days)} campaign-days from ${fmt.number(r.campaigns)} campaign${r.campaigns === 1 ? "" : "s"}.`);
+        for (const note of r.notes || []) notify.info(note);
         if (r.skipped?.length) {
           notify.info(`${r.skipped.length} campaign${r.skipped.length === 1 ? " was" : "s were"} skipped: ${r.skipped.slice(0, 2).map((s) => `${s.name} (${s.reason})`).join(" ")}`);
         }

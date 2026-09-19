@@ -190,6 +190,8 @@ export function wireAmazonImport(root, { campaigns = [], defaultCurrency = "EUR"
               ${raw(stat("Purchases", fmt.number(built.totals.purchases)))}
               ${raw(stat("Units sold", fmt.number(built.totals.units_sold)))}
               ${raw(stat("Product sales", fmt.money(built.totals.product_sales_cents, state.currency)))}
+              ${raw(built.totals.kindle_pages_read ? stat("Kindle pages read", fmt.number(built.totals.kindle_pages_read)) : "")}
+              ${raw(built.totals.kindle_royalties_cents ? stat("Est. page-read royalties", fmt.money(built.totals.kindle_royalties_cents, state.currency)) : "")}
             </div>
             <div class="bp-table-wrap" style="margin-top:var(--bp-3)">
               <table class="bp-table">
