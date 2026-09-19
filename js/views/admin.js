@@ -129,11 +129,46 @@ async function renderUsers(body) {
   `;
 }
 
+const CHECK_LABEL = { ok: "OK", warn: "Check", fail: "Fix", info: "Note" };
+const CHECK_TONE = { ok: "success", warn: "warning", fail: "danger", info: "" };
+
+function billingCheckResult(result) {
+  return html`
+    <p class="bp-small" style="margin:0 0 var(--bp-3)">
+      ${result.ready
+        ? raw("<strong>Ready to take payments.</strong>")
+        : raw("<strong>Not ready yet.</strong>")}
+      ${result.mode ? ` Stripe key mode: ${result.mode}.` : ""}
+    </p>
+    <ul style="list-style:none;margin:0;padding:0;display:grid;gap:var(--bp-3)">
+      ${raw(result.checks.map((c) => html`
+        <li class="bp-row" style="align-items:flex-start;gap:var(--bp-3)">
+          <span class="bp-badge ${CHECK_TONE[c.status] ? `bp-badge--${CHECK_TONE[c.status]}` : ""}" style="flex:none;min-width:3.4em;justify-content:center">${CHECK_LABEL[c.status]}</span>
+          <div class="bp-small"><strong>${c.label}.</strong> ${c.detail}</div>
+        </li>`).join(""))}
+    </ul>`;
+}
+
 async function renderPlans(body) {
   const { plans, creditCosts } = await API.adminSettings();
 
   body.innerHTML = html`
     <div class="bp-stack-lg">
+      <section>
+        <h2 style="font-size:1.05rem;margin-bottom:var(--bp-3)">Billing setup</h2>
+        <div class="bp-card">
+          <p class="bp-small bp-muted" style="margin:0 0 var(--bp-3)">
+            Asks Stripe, with the key this site is using, whether payments will work: the keys, the
+            webhook, each plan's price and the billing portal. It changes nothing.
+          </p>
+          <div class="bp-row bp-row--wrap">
+            <button type="button" class="bp-btn bp-btn--primary bp-btn--sm" id="billing-check">Check billing setup</button>
+            <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="billing-create" hidden>Create missing prices in Stripe</button>
+          </div>
+          <div id="billing-check-result" role="status" aria-live="polite" style="margin-top:var(--bp-4)"></div>
+        </div>
+      </section>
+
       <section>
         <h2 style="font-size:1.05rem;margin-bottom:var(--bp-3)">Plans</h2>
         <div class="bp-card bp-card--flush">
@@ -180,6 +215,46 @@ async function renderPlans(body) {
       </section>
     </div>
   `;
+
+  const checkButton = body.querySelector("#billing-check");
+  const createButton = body.querySelector("#billing-create");
+  const resultBox = body.querySelector("#billing-check-result");
+  let lastMode = null;
+
+  checkButton.addEventListener("click", async () => {
+    setBusy(checkButton, true, "Checking");
+    resultBox.innerHTML = "";
+    try {
+      const result = await API.adminBillingCheck();
+      lastMode = result.mode;
+      resultBox.innerHTML = billingCheckResult(result);
+      // Offered only when a plan is missing its price, which is what it fixes.
+      createButton.hidden = !result.checks.some((c) => c.id.startsWith("price:") && c.status === "fail" && /No Stripe price id/.test(c.detail));
+    } catch (err) {
+      notify.error(err.message);
+    }
+    setBusy(checkButton, false);
+  });
+
+  createButton.addEventListener("click", async () => {
+    const ok = await confirmDialog({
+      title: "Create prices in Stripe?",
+      message: `This creates a monthly price, with its product, in your ${lastMode || "Stripe"}${lastMode ? "-mode" : ""} account for every paid plan that has none, using the plan's price and currency, and saves the ids. ${lastMode === "live" ? "This is your live account. " : ""}Prices made earlier are found and reused, not duplicated.`,
+      confirmLabel: "Create prices",
+    });
+    if (!ok) return;
+    setBusy(createButton, true, "Creating");
+    try {
+      const { results } = await API.adminCreatePrices();
+      const summary = results.map((r) => `${r.plan}: ${r.detail}`).join(" ");
+      if (results.every((r) => r.status === "created" || r.status === "linked")) notify.success(summary || "Nothing to create.");
+      else notify.error(summary);
+      renderPlans(body);
+    } catch (err) {
+      notify.error(err.message);
+    }
+    setBusy(createButton, false);
+  });
 
   body.querySelectorAll("[data-save-plan]").forEach((button) => {
     button.addEventListener("click", async () => {

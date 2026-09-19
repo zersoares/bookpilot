@@ -181,6 +181,9 @@ export const API = {
   metaSync: (campaignId) => api.post("/api/bp-meta/sync", { campaign_id: campaignId }),
 
   // Admin
+  changePlan: (planId) => api.post("/api/bp-billing/change-plan", { plan_id: planId }),
+  adminBillingCheck: () => api.get("/api/bp-admin/billing-check"),
+  adminCreatePrices: () => api.post("/api/bp-admin/billing/create-prices", {}),
   adminOverview: () => api.get("/api/bp-admin/overview"),
   adminUsers: () => api.get("/api/bp-admin/users"),
   adminSettings: () => api.get("/api/bp-admin/settings"),

@@ -198,7 +198,8 @@ else degrades gracefully when absent.
 | `SUPABASE_SERVICE_ROLE_KEY` | Credits, webhooks, tracking, admin | **Secret.** Bypasses RLS |
 | `ANTHROPIC_API_KEY` | AI generation | **Secret** |
 | `STRIPE_SECRET_KEY` | Checkout and portal | **Secret** |
-| `STRIPE_WEBHOOK_SECRET` | Applying paid plans | **Secret** |
+| `STRIPE_WEBHOOK_SECRET` | Applying paid plans | **Secret.** The endpoint's signing secret, `whsec_…` |
+| `STRIPE_AUTOMATIC_TAX` | Collecting VAT | Optional. `1` makes checkout collect VAT with Stripe Tax. Leave unset until Stripe Tax is set up, or checkout fails |
 | `META_APP_ID` | Meta integration | |
 | `META_APP_SECRET` | Meta integration | **Secret** |
 | `META_REDIRECT_URI` | Meta integration | `https://yoursite/api/bp-meta/callback` |
@@ -223,11 +224,57 @@ Then set each plan's `stripe_price_id` in **Admin → Plans**, and enable the
 matching feature flags. A flag without its credentials leaves the UI showing
 "Connect integration" — it never enables a control that would fail.
 
-### 3. Stripe webhook
+### 3. Stripe
 
-Point a webhook at `https://yoursite/api/bp-stripe-webhook` for
-`checkout.session.completed`, `customer.subscription.updated`,
-`customer.subscription.deleted` and `invoice.payment_failed`.
+Do this in **test mode** first (`sk_test_…`), with Stripe's test cards, and repeat
+it in live mode once a test payment has worked end to end.
+
+1. **Key.** Set `STRIPE_SECRET_KEY`. A restricted key (`rk_…`) works if it can
+   write Checkout Sessions, Customer portal sessions, Subscriptions and Prices,
+   and read Webhook Endpoints and Customer portal configuration (the setup
+   check reads those two).
+2. **Webhook.** In Stripe, Developers, Webhooks, add
+   `https://yoursite/api/bp-stripe-webhook` for `checkout.session.completed`,
+   `customer.subscription.updated`, `customer.subscription.deleted` and
+   `invoice.payment_failed`. Set its signing secret as `STRIPE_WEBHOOK_SECRET`.
+3. **Customer portal.** Settings, Billing, Customer portal: turn it on and let
+   customers update their payment method, see invoices and cancel. Without it
+   "Manage billing" fails. (Plan changes do not go through the portal; the Billing
+   page changes the subscription itself.)
+4. **Prices.** In **Admin, Plans**, choose **Check billing setup**, then **Create
+   missing prices in Stripe**. That makes a monthly, tax-exclusive price for each
+   paid plan from the plan table and saves the ids. It is safe to repeat: prices
+   carry a lookup key (`bookpilot_<plan>_month`), and one that already exists is
+   found and reused. You can instead create prices by hand and paste the
+   `price_…` ids into the table.
+5. **VAT.** The terms say prices exclude VAT, "added where applicable". Checkout
+   adds none unless `STRIPE_AUTOMATIC_TAX=1`, which needs Stripe Tax set up in
+   the same account with your registrations, and collects a billing address and
+   an optional VAT number. If you are not VAT-registered, leave it off and change
+   the wording in the terms.
+6. **Check.** **Check billing setup** asks Stripe whether the key works, whether
+   the webhook is registered, enabled and sent all four events, whether each
+   plan's price exists in this mode with the same amount, currency and monthly
+   interval as the plan, and whether the portal is configured. It cannot prove the
+   signing secret is the right one: send a test event from Stripe and see it
+   accepted, then make a test payment.
+
+How plans change, so that nothing but a signed Stripe event can grant one:
+
+- **Buying.** Checkout starts a subscription. Someone who already has one is
+  refused a second checkout (it would bill twice) and changes plan instead.
+- **Changing plan.** The Billing page moves the existing subscription to the new
+  price; Stripe prorates the difference onto the next invoice. This call changes
+  only Stripe. The plan and credits change when the webhook reports it.
+- **Which plan.** The webhook reads the plan from the subscription's **price**
+  (the plan whose `stripe_price_id` matches), not from checkout metadata, which
+  goes stale on a plan change. A subscription whose plan can't be told is left
+  alone and logged, never guessed.
+- **Stripe's API versions.** The renewal date and the invoice's subscription
+  metadata moved in the 2025-03-31 API version; both places are read.
+- **Not handled yet:** a failed payment puts the account back on Free straight
+  away rather than after Stripe's retries, and events aren't de-duplicated (a
+  retried delivery sends the notification twice).
 
 ---
 

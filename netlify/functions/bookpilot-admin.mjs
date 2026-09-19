@@ -14,6 +14,8 @@ import { bundledPrompts, clearPromptCache } from "./bookpilot-lib/ai.js";
 import { promptKeys } from "./bookpilot-lib/prompts.js";
 import * as v from "./bookpilot-lib/validate.js";
 import * as audit from "./bookpilot-lib/audit.js";
+import * as stripe from "./bookpilot-lib/stripe.js";
+import { checkBilling, createMissingPrices } from "./bookpilot-lib/billing-check.js";
 
 const PREFIX = "/api/bp-admin";
 
@@ -143,6 +145,22 @@ async function updateSetting(service, ctx, key, body) {
   return json({ setting });
 }
 
+/** Ask Stripe whether billing is set up right (see billing-check.js). */
+async function billingCheck(service) {
+  const plans = await service.select("plans", { select: "*", order: "sort_order" });
+  return json(await checkBilling({ plans }));
+}
+
+async function createPrices(service, ctx) {
+  if (!stripe.configured()) throw Errors.notConfigured("Billing");
+  const plans = await service.select("plans", { select: "*", order: "sort_order" });
+  const results = await createMissingPrices({ plans, service });
+  await audit.record(ctx.user.id, "admin.stripe_prices_created", {
+    entity: "plan", detail: { results: results.map((r) => ({ plan: r.plan, status: r.status })) },
+  });
+  return json({ results });
+}
+
 async function settings(service) {
   const [flags, plans, costs, appSettings] = await Promise.all([
     service.select("feature_flags", { select: "*" }),
@@ -168,6 +186,10 @@ export default withGuards(async (req) => {
     if (resource === "users") return listUsers(service, url);
     if (resource === "prompts") return listPrompts(service);
     if (resource === "settings") return settings(service);
+    if (resource === "billing-check") return billingCheck(service);
+  }
+  if (req.method === "POST" && resource === "billing" && id === "create-prices") {
+    return createPrices(service, ctx);
   }
   if (req.method === "POST" && resource === "prompts" && id === "publish-defaults") {
     return publishDefaults(service, ctx);

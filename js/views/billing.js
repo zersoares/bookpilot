@@ -3,7 +3,7 @@
 import { html, raw, $, setBusy } from "../core/dom.js";
 import { API, isDemo } from "../core/api.js";
 import * as store from "../core/store.js";
-import { notify } from "../core/toast.js";
+import { notify, confirmDialog } from "../core/toast.js";
 import { pageHead, fmt, demoBadge } from "./shared.js";
 
 const OPERATION_LABELS = {
@@ -138,6 +138,29 @@ export async function render(container, params, query) {
 
   container.querySelectorAll("[data-plan]").forEach((button) => {
     button.addEventListener("click", async () => {
+      const plan = billing.plans.find((p) => p.id === button.dataset.plan);
+      // Someone who already pays changes their subscription; sending them to
+      // checkout again would start a second one and bill for both.
+      const subscribed = ["active", "trialing"].includes(billing.subscription?.status) && billing.subscription?.stripe_subscription_id;
+      if (subscribed) {
+        const ok = await confirmDialog({
+          title: `Switch to ${plan?.name || "this plan"}?`,
+          message: `Your plan changes to ${plan?.name || "the new plan"} at ${plan ? fmt.money(plan.price_cents, plan.currency) : "its price"} a month. Stripe works out the difference for the rest of this billing period and adds or credits it on your next invoice.`,
+          confirmLabel: "Switch plan",
+        });
+        if (!ok) return;
+        setBusy(button, true, "Switching…");
+        try {
+          await API.changePlan(button.dataset.plan);
+          notify.success("Plan change sent. Your plan updates in a moment.");
+          // The plan itself is applied when Stripe confirms, a moment later.
+          setTimeout(() => render(container, params, query), 3000);
+        } catch (err) {
+          notify.error(err.message);
+          setBusy(button, false);
+        }
+        return;
+      }
       setBusy(button, true, "Opening checkout…");
       try {
         const { url } = await API.checkout(button.dataset.plan);

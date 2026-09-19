@@ -34,11 +34,11 @@ function encode(params, prefix = "", out = new URLSearchParams()) {
   return out;
 }
 
-async function call(path, { method = "POST", params } = {}) {
+async function call(path, { method = "POST", params, query } = {}) {
   if (!configured()) throw Errors.notConfigured("Billing");
   let res;
   try {
-    res = await fetch(`${API}${path}`, {
+    res = await fetch(`${API}${path}${query ? `?${encode(query)}` : ""}`, {
       method,
       headers: {
         Authorization: `Bearer ${env.stripeSecret}`,
@@ -68,6 +68,47 @@ export function createPortalSession(params) {
 
 export function getSubscription(id) {
   return call(`/subscriptions/${encodeURIComponent(id)}`, { method: "GET" });
+}
+
+/**
+ * Move a subscription to another price. Stripe prorates the difference onto
+ * the next invoice. The plan itself is applied only by the webhook that
+ * follows, like every other plan change.
+ */
+export function changeSubscriptionPrice(id, itemId, priceId, metadata = {}) {
+  return call(`/subscriptions/${encodeURIComponent(id)}`, {
+    params: { items: [{ id: itemId, price: priceId }], proration_behavior: "create_prorations", metadata },
+  });
+}
+
+/**
+ * A read for the admin's setup check. Unlike `call` it never throws on a
+ * Stripe error and hands back what Stripe said, because the point is to tell
+ * the operator exactly what is wrong. It is for the operator's own screen and
+ * is never sent to an author.
+ *
+ * @returns {Promise<{ ok: boolean, status: number, body: any, error: string|null }>}
+ */
+export async function probe(path, query) {
+  if (!configured()) return { ok: false, status: 0, body: null, error: "No Stripe key is set." };
+  try {
+    const res = await fetch(`${API}${path}${query ? `?${encode(query)}` : ""}`, {
+      headers: { Authorization: `Bearer ${env.stripeSecret}` },
+    });
+    const body = await res.json().catch(() => null);
+    return { ok: res.ok, status: res.status, body, error: res.ok ? null : String(body?.error?.message || `HTTP ${res.status}`).slice(0, 300) };
+  } catch {
+    return { ok: false, status: 0, body: null, error: "Stripe could not be reached." };
+  }
+}
+
+export const getPrice = (id) => probe(`/prices/${encodeURIComponent(id)}`);
+export const findPriceByLookupKey = (key) => probe("/prices", { lookup_keys: [key], limit: 1 });
+export const listWebhookEndpoints = () => probe("/webhook_endpoints", { limit: 100 });
+export const listPortalConfigurations = () => probe("/billing_portal/configurations", { limit: 10 });
+
+export function createPrice(params) {
+  return call("/prices", { params });
 }
 
 /**

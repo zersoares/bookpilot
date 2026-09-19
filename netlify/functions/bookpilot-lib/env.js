@@ -41,6 +41,9 @@ export const env = {
   // --- Stripe ---------------------------------------------------------
   stripeSecret: read("STRIPE_SECRET_KEY"),
   stripeWebhookSecret: read("STRIPE_WEBHOOK_SECRET"),
+  // Collect VAT at checkout with Stripe Tax. Off by default: Stripe refuses to
+  // create a checkout session until Stripe Tax is set up in the account.
+  stripeAutomaticTax: /^(1|true|yes|on)$/i.test(read("STRIPE_AUTOMATIC_TAX") || ""),
 
   // --- Meta Marketing API ---------------------------------------------
   metaAppId: read("META_APP_ID"),
