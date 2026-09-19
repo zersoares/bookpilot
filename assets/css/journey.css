@@ -1,0 +1,260 @@
+/* =====================================================================
+   BookPilot AI — landing page: creative photo cards, languages,
+   three steps and the price call-to-action.
+
+   The languages and steps cards are dark in both themes, like the
+   relationship map (.bp-dark, series.css); .bp3d (3D book image) comes
+   from shelf.css.
+   ===================================================================== */
+
+/* ---- Creative factory: finished creatives as cards ------------------ */
+
+.bp-sample--photo {
+  border: 0;
+  border-radius: 18px;
+  background: none;
+  box-shadow: var(--bp-shadow-lg);
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.3s;
+}
+.bp-sample--photo img { display: block; width: 100%; height: auto; aspect-ratio: 484 / 718; }
+.bp-sample--photo:hover { transform: translateY(-6px); }
+@media (prefers-reduced-motion: reduce) {
+  .bp-sample--photo { transition: none; }
+  .bp-sample--photo:hover { transform: none; }
+}
+
+/* ---- Languages ------------------------------------------------------ */
+
+.bp-lang__feats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--bp-3);
+  list-style: none;
+  margin: 0 0 var(--bp-10);
+  padding: 0;
+}
+.bp-lang__feat {
+  max-width: 250px;
+  padding: 12px 18px;
+  border: 1px solid var(--dk-line);
+  border-radius: var(--bp-radius-lg);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.82rem;
+  color: var(--dk-muted);
+}
+.bp-lang__feat strong { display: block; margin-bottom: 2px; font-size: 0.95rem; color: var(--dk-accent); }
+
+.bp-lang__rows {
+  display: grid;
+  gap: 14px;
+  margin-inline: calc(var(--dk-pad) * -1);   /* bleed to the card edges */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+}
+.bp-lang__row { overflow: hidden; }
+.bp-lang__track {
+  display: flex;
+  width: max-content;
+  animation: bp-lang-drift var(--lang-speed, 60s) linear infinite;
+}
+.bp-lang__track--reverse { animation-direction: reverse; }
+/* Four identical groups: moving by exactly one group is a seamless loop. */
+@keyframes bp-lang-drift { to { transform: translateX(-25%); } }
+.bp-lang__row:hover .bp-lang__track,
+.is-paused .bp-lang__track { animation-play-state: paused; }
+.bp-lang__group { display: flex; gap: 14px; list-style: none; margin: 0; padding: 0 14px 0 0; }
+.bp-lang__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 20px;
+  border: 1px solid var(--dk-line);
+  border-radius: var(--bp-radius-pill);
+  background: rgba(255, 255, 255, 0.045);
+  font-size: 0.98rem;
+  color: #eceef3;
+  white-space: nowrap;
+}
+.bp-lang__code { font-weight: 800; letter-spacing: 0.04em; color: var(--dk-accent); }
+
+.bp-lang__tagline { margin: var(--bp-8) 0 0; text-align: center; font-size: 1.05rem; color: var(--dk-muted); }
+.bp-lang__tagline strong { color: #fff; font-weight: 600; }
+.bp-lang__fine { margin: var(--bp-2) 0 0; text-align: center; font-size: 0.8rem; color: var(--dk-faint); }
+
+.bp-lang__globe { display: block; width: min(600px, 88%); height: auto; margin: var(--bp-6) auto 0; }
+.bp-lang__dot { fill: var(--dk-accent); }
+@keyframes bp-twinkle { 50% { opacity: 0.25; } }
+.bp-lang__dot--tw { animation: bp-twinkle 4.5s ease-in-out infinite; }
+.bp-lang__dot--tw:nth-child(3n) { animation-delay: -1.5s; }
+.bp-lang__dot--tw:nth-child(3n + 1) { animation-delay: -3s; }
+
+.bp-lang__pill {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 10px;
+  margin: calc(var(--bp-4) * -1) auto 0;
+  padding: 10px 22px;
+  border: 1px solid rgba(184, 180, 248, 0.4);
+  border-radius: var(--bp-radius-pill);
+  background: rgba(184, 180, 248, 0.1);
+  color: var(--dk-accent);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.bp-lang__pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+.bp-lang__toggle {
+  display: block;
+  margin: var(--bp-6) auto 0;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--bp-radius-pill);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e6e7ec;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.bp-lang__toggle:hover { background: rgba(255, 255, 255, 0.12); }
+.bp-lang__toggle:focus-visible { outline: 2px solid var(--dk-accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bp-lang__track { animation: none; width: auto; flex-wrap: wrap; justify-content: center; }
+  .bp-lang__group[aria-hidden='true'] { display: none; }
+  .bp-lang__group { flex-wrap: wrap; justify-content: center; padding: 0; }
+  .bp-lang__rows { -webkit-mask-image: none; mask-image: none; }
+  .bp-lang__dot--tw { animation: none; }
+  .bp-lang__toggle { display: none; }
+}
+
+/* ---- Three steps ---------------------------------------------------- */
+
+.bp-steps3__list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--bp-8);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: step;
+}
+@media (max-width: 860px) { .bp-steps3__list { grid-template-columns: 1fr; gap: var(--bp-8); } }
+
+.bp-steps3__item { position: relative; }
+.bp-steps3__num {
+  display: block;
+  font-family: var(--bp-font-serif);
+  font-size: clamp(3.4rem, 2.6rem + 3vw, 4.8rem);
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(184, 180, 248, 0.6);
+}
+/* Dashed connector from one numeral to the next. */
+@media (min-width: 861px) {
+  .bp-steps3__item:not(:last-child) .bp-steps3__num::after {
+    content: '';
+    position: absolute;
+    top: 0.45em;
+    left: calc(1em + 20px);
+    right: calc(var(--bp-8) * -1 + 8px);
+    border-top: 1.5px dashed rgba(184, 180, 248, 0.4);
+  }
+  .bp-steps3__num { font-size: clamp(3.4rem, 2.6rem + 3vw, 4.8rem); }
+}
+.bp-steps3__num { position: static; }
+.bp-steps3__item { --n-w: 2.1em; }
+.bp-steps3__badge {
+  display: inline-block;
+  margin: var(--bp-3) 0 var(--bp-3);
+  padding: 4px 12px;
+  border: 1px solid rgba(184, 180, 248, 0.35);
+  border-radius: var(--bp-radius-pill);
+  background: rgba(184, 180, 248, 0.1);
+  color: var(--dk-accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.bp-steps3__item h3 { margin: 0 0 var(--bp-2); font-size: 1.2rem; color: #fff; font-weight: 600; }
+.bp-steps3__item p { margin: 0; color: var(--dk-muted); line-height: 1.6; font-size: 0.95rem; }
+
+/* ---- Price call-to-action ------------------------------------------- */
+
+.bp-cta3 {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--bp-8);
+  align-items: center;
+  margin-top: var(--bp-16);
+  padding: var(--bp-10);
+  border-radius: var(--bp-radius-xl);
+  color: #14122b;
+  background: linear-gradient(135deg, #c9c5fb 0%, #a9a3f4 55%, #b9b3f8 100%);
+  box-shadow: 0 30px 80px -30px rgba(120, 112, 255, 0.55);
+}
+@media (max-width: 860px) {
+  .bp-cta3 { grid-template-columns: 1fr; padding: var(--bp-8) var(--bp-5); margin-top: var(--bp-10); }
+}
+.bp-cta3__title {
+  margin: 0 0 var(--bp-2);
+  font-family: var(--bp-font-serif);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.4rem);
+  line-height: 1.12;
+  color: #14122b;
+}
+.bp-cta3__sub { margin: 0 0 var(--bp-6); max-width: 54ch; line-height: 1.55; color: #2a2760; }
+.bp-cta3__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--bp-4); }
+.bp-cta3__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 26px;
+  border-radius: var(--bp-radius-pill);
+  background: #14122b;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.05rem;
+  box-shadow: 0 14px 30px -12px rgba(20, 18, 43, 0.6);
+  transition: transform 0.2s;
+}
+.bp-cta3__btn:hover { text-decoration: none; transform: translateY(-2px); }
+.bp-cta3__btn:focus-visible { outline: 3px solid #14122b; outline-offset: 3px; }
+.bp-cta3__arrow {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #c9c5fb;
+  color: #14122b;
+}
+.bp-cta3__plans { color: #14122b; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.bp-cta3__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px var(--bp-5);
+  list-style: none;
+  margin: var(--bp-5) 0 0;
+  padding: 0;
+  font-size: 0.84rem;
+  color: #2a2760;
+}
+.bp-cta3__facts li::before { content: '✓'; margin-right: 6px; font-weight: 700; }
+/* The rendered 3D book (background removed) stands on the card and rises above it. */
+.bp-cta3__art { justify-self: center; display: block; height: 400px; width: auto; margin: -104px var(--bp-4) -34px 0; }
+@media (max-width: 860px) { .bp-cta3__art { height: 330px; margin: -84px auto 0; order: -1; } }
+@media (prefers-reduced-motion: reduce) { .bp-cta3__btn { transition: none; } .bp-cta3__btn:hover { transform: none; } }
+
+/* ---- How it works: a picture at the top of each step ---------------- */
+
+.bp-step--photo { padding: 0; overflow: hidden; }
+/* One shape for all six pictures, so the boxes line up. */
+.bp-step--photo .bp-step__img { display: block; width: 100%; height: auto; aspect-ratio: 7 / 5; object-fit: cover; }
+.bp-step--photo .bp-step__body { padding: var(--bp-5); }

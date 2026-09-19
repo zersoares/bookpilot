@@ -1,0 +1,360 @@
+/* =====================================================================
+   BookPilot AI — landing page: series shelf and relationship map
+
+   Both are roadmap previews and both sit on a dark card, whatever the
+   page theme: the covers and the map are designed against a dark
+   ground, the same way the carousel above is. Book styling (.bp3d)
+   comes from shelf.css.
+   ===================================================================== */
+
+.bp-dark {
+  --dk-ink: #f2f1ee;
+  --dk-muted: #a9adb9;
+  --dk-faint: #8a8f9c;
+  --dk-line: rgba(255, 255, 255, 0.1);
+  --dk-accent: #b8b4f8;
+  --dk-bond: #62d6a3;
+  --dk-threat: #f47f72;
+  --dk-secret: #a99cff;
+  --dk-pad: var(--bp-8);
+  position: relative;
+  padding: var(--bp-8) var(--dk-pad);
+  border: 1px solid var(--dk-line);
+  border-radius: var(--bp-radius-xl);
+  color: var(--dk-ink);
+  background:
+    radial-gradient(70% 60% at 15% 0%, rgba(120, 112, 255, 0.13), transparent 70%),
+    radial-gradient(60% 50% at 100% 100%, rgba(60, 120, 160, 0.12), transparent 70%),
+    #0c111b;
+}
+@media (max-width: 700px) { .bp-dark { --dk-pad: var(--bp-4); padding-block: var(--bp-5); } }
+
+.bp-dark__eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dk-accent);
+}
+.bp-dark__title {
+  margin: 0;
+  font-family: var(--bp-font-serif);
+  font-weight: 400;
+  font-size: clamp(1.35rem, 1.1rem + 1vw, 1.75rem);
+  line-height: 1.15;
+  color: #fff;
+}
+.bp-dark__note { margin: var(--bp-6) 0 0; font-size: 0.78rem; color: var(--dk-faint); max-width: 70ch; }
+
+.bp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border: 1px solid var(--dk-line);
+  border-radius: var(--bp-radius-pill);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--dk-muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+.bp-pill__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dk-accent); }
+
+.bp-tag {
+  align-self: start;
+  padding: 3px 9px;
+  border-radius: var(--bp-radius-pill);
+  background: rgba(184, 180, 248, 0.14);
+  border: 1px solid rgba(184, 180, 248, 0.3);
+  color: var(--dk-accent);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ---- Series shelf -------------------------------------------------- */
+
+.bp-series {
+  --shelf-h: clamp(190px, 17.5vw, 250px);
+  --series-gap: clamp(8px, 1.6vw, 22px);
+}
+.bp-series__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--bp-4);
+  flex-wrap: wrap;
+}
+
+.bp-series__viewport { position: relative; margin-top: var(--bp-4); }
+.bp-series__row {
+  display: flex;
+  gap: var(--series-gap);
+  list-style: none;
+  margin: 0;
+  padding: 28px var(--bp-4) 6px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  border-radius: var(--bp-radius);
+}
+.bp-series__row::-webkit-scrollbar { display: none; }
+.bp-series__row:focus-visible { outline: 2px solid var(--dk-accent); outline-offset: 2px; }
+/* margin:auto (not justify-content:center) so an overflowing row
+   still starts at its first book instead of being clipped. */
+.bp-series__item:first-child { margin-left: auto; }
+.bp-series__item:last-child { margin-right: auto; }
+
+.bp-series__item {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  scroll-snap-align: center;
+}
+/* One length of ledge under each slot; they meet in the gaps and
+   read as a single shelf. The book images carry a little floor below
+   the base, so the ledge tucks up under it. */
+.bp-series__seg {
+  width: calc(100% + var(--series-gap));
+  height: 12px;
+  margin-top: calc(var(--shelf-h) * -0.05);
+  border-top: 1px solid rgba(184, 180, 248, 0.7);
+  background: linear-gradient(#1b2540, rgba(12, 17, 27, 0));
+  box-shadow: 0 -2px 14px rgba(120, 112, 255, 0.28);
+}
+.bp-series__label {
+  align-self: flex-start;
+  width: 0;               /* never widens the slot; the image sets it */
+  min-width: 64%;
+  margin: var(--bp-3) 0 0 30%;   /* the front board spans 30%..94% of the image */
+  text-align: center;
+  display: grid;
+  gap: 2px;
+  font-size: 0.82rem;
+  color: var(--dk-muted);
+}
+.bp-series__label strong { color: #fff; font-size: 0.9rem; }
+
+.bp-series__nav {
+  position: absolute;
+  top: 40%;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 0 0 3px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: rgba(12, 17, 27, 0.85);
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.bp-series__nav[hidden] { display: none; }
+.bp-series__nav:hover:not(:disabled) { background: rgba(184, 180, 248, 0.25); }
+.bp-series__nav:disabled { opacity: 0.35; cursor: default; }
+.bp-series__nav:focus-visible { outline: 2px solid var(--dk-accent); outline-offset: 2px; }
+.bp-series__nav--prev { left: 0; }
+.bp-series__nav--next { right: 0; }
+
+/* The empty slot for the next volume: a rendered glass book with its label
+   laid over the front board, skewed to follow the board's perspective. */
+.bp3d__label {
+  position: absolute;
+  transform: translate(-50%, -50%) skewY(-4.5deg);
+  display: grid;
+  gap: 4px;
+  text-align: center;
+  font-size: calc(var(--shelf-h) * 0.048);
+  line-height: 1.25;
+  color: var(--dk-muted);
+}
+.bp3d__label strong { color: #fff; font-size: 1.25em; }
+
+.bp-series__dna {
+  margin-top: var(--bp-6);
+  padding-top: var(--bp-5);
+  border-top: 1px solid var(--dk-line);
+}
+.bp-chips-dark { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: var(--bp-3) 0 0; padding: 0; }
+.bp-chips-dark li {
+  padding: 7px 14px;
+  border: 1px solid var(--dk-line);
+  border-radius: var(--bp-radius-pill);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.86rem;
+  color: #e4e5ea;
+}
+.bp-chips-dark .bp-chips-dark__hot { background: var(--dk-accent); border-color: var(--dk-accent); color: #14122b; font-weight: 600; }
+
+/* ---- Relationship map --------------------------------------------- */
+
+.bp-map__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--bp-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--bp-4);
+}
+.bp-map__top .bp-dark__eyebrow { margin: 0; }
+.bp-map__legend { display: flex; gap: var(--bp-4); list-style: none; margin: 0; padding: 0; font-size: 0.82rem; color: var(--dk-muted); }
+.bp-map__legend li { display: inline-flex; align-items: center; gap: 8px; }
+.bp-map__legend li::before { content: ''; width: 22px; border-top: 2px solid currentColor; }
+.bp-map__legend--bond { --c: var(--dk-bond); }
+.bp-map__legend--threat { --c: var(--dk-threat); }
+.bp-map__legend--secret { --c: var(--dk-secret); }
+.bp-map__legend li::before { border-color: var(--c); }
+.bp-map__legend--secret::before { border-top-style: dashed !important; }
+
+.bp-map__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--bp-5);
+  align-items: start;
+}
+@media (max-width: 900px) { .bp-map__grid { grid-template-columns: 1fr; } }
+
+.bp-map__canvas {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 100 / 88;
+  border: 1px solid var(--dk-line);
+  border-radius: var(--bp-radius-lg);
+  overflow: hidden;
+  background:
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 7.6%, rgba(255, 255, 255, 0.035) 7.6% 7.8%),
+    radial-gradient(circle at 50% 50%, rgba(120, 112, 255, 0.1), transparent 60%),
+    #070b13;
+}
+.bp-map__svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bp-map__edge { fill: none; stroke-width: 0.5; stroke-linecap: round; }
+.bp-map__edge--bond { stroke: var(--dk-bond); }
+.bp-map__edge--threat { stroke: var(--dk-threat); }
+.bp-map__edge--secret { stroke: var(--dk-secret); }
+.bp-map__arrow--bond { fill: var(--dk-bond); }
+.bp-map__arrow--threat { fill: var(--dk-threat); }
+.bp-map__arrow--secret { fill: var(--dk-secret); }
+
+.bp-map__edge-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0.15em 0.7em;
+  border: 1px solid;
+  border-radius: var(--bp-radius-pill);
+  background: rgba(8, 12, 20, 0.92);
+  font-size: clamp(0.56rem, 2.1cqw, 0.8rem);
+  color: #e9eaf0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.bp-map__edge-label--bond { border-color: var(--dk-bond); }
+.bp-map__edge-label--threat { border-color: var(--dk-threat); }
+.bp-map__edge-label--secret { border-color: var(--dk-secret); }
+
+.bp-map__node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+.bp-map__avatar {
+  display: block;
+  width: max(34px, 9.6cqw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: max(2px, 0.5cqw) solid var(--dk-accent);
+  box-shadow: 0 0 0 max(3px, 0.9cqw) rgba(184, 180, 248, 0.12);
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+}
+.bp-map__avatar svg { display: block; width: 100%; height: 100%; }
+.bp-map__node--lead .bp-map__avatar { width: max(44px, 12.4cqw); }
+.bp-map__name {
+  font-weight: 600;
+  font-size: clamp(0.66rem, 2.4cqw, 0.95rem);
+  text-shadow: 0 1px 6px #000, 0 0 3px #000;
+}
+.bp-map__node:hover .bp-map__avatar { transform: scale(1.06); }
+.bp-map__node[aria-pressed='true'] .bp-map__avatar {
+  border-color: #fff;
+  box-shadow: 0 0 0 max(3px, 0.9cqw) rgba(184, 180, 248, 0.4), 0 0 24px rgba(140, 132, 255, 0.5);
+}
+.bp-map__node:focus-visible { outline: none; }
+.bp-map__node:focus-visible .bp-map__avatar { outline: 2px solid #fff; outline-offset: 3px; }
+
+.bp-map__detail {
+  padding: var(--bp-5);
+  border: 1px solid var(--dk-line);
+  border-radius: var(--bp-radius-lg);
+  background: rgba(255, 255, 255, 0.03);
+}
+.bp-map__panel[hidden] { display: none; }
+.bp-map__who { display: grid; grid-template-columns: auto 1fr auto; gap: var(--bp-3); align-items: center; }
+.bp-map__who h4 { margin: 0; font-size: 1.05rem; color: #fff; }
+.bp-map__who p { margin: 2px 0 0; font-size: 0.82rem; color: var(--dk-muted); }
+.bp-map__avatar--sm { width: 52px; border-width: 2px; box-shadow: none; }
+.bp-map__facts {
+  display: grid;
+  grid-template-columns: 6.2rem 1fr;
+  gap: 8px var(--bp-4);
+  margin: var(--bp-4) 0;
+  padding: var(--bp-4) 0;
+  border-block: 1px solid var(--dk-line);
+  font-size: 0.9rem;
+}
+.bp-map__facts dt { color: var(--dk-faint); }
+.bp-map__facts dd { margin: 0; color: #eceef3; }
+.bp-map__arcs { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.bp-map__arc {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--bp-3);
+  padding: 9px 12px;
+  border: 1px solid var(--dk-line);
+  border-radius: var(--bp-radius);
+  font-size: 0.88rem;
+  color: #dfe1e8;
+  background: rgba(255, 255, 255, 0.02);
+}
+.bp-map__arc b {
+  flex: none;
+  padding: 2px 9px;
+  border-radius: var(--bp-radius-pill);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--dk-muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.bp-map__arc--now { border-color: rgba(184, 180, 248, 0.6); }
+.bp-map__arc--now b { background: var(--dk-accent); color: #14122b; }
+.bp-map__arc--planned b { background: rgba(169, 156, 255, 0.18); color: var(--dk-secret); }
+.bp-map__rule { margin: var(--bp-4) 0 0; font-size: 0.84rem; color: var(--dk-muted); line-height: 1.55; }
+
+@media (max-width: 520px) {
+  .bp-map__facts { grid-template-columns: 1fr; gap: 0; }
+  .bp-map__facts dt { margin-top: 8px; font-size: 0.78rem; }
+  .bp-map__who { grid-template-columns: auto 1fr; }
+  .bp-map__who .bp-tag { grid-column: 1 / -1; justify-self: start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bp-map__avatar { transition: none; }
+  .bp-map__node:hover .bp-map__avatar { transform: none; }
+}

@@ -1,0 +1,118 @@
+/* =====================================================================
+   BookPilot AI — landing page book carousel
+
+   Two rows of covers drifting in opposite directions. Each cover is
+   a rendered 3D book — hinge groove, thickness, a page block on the
+   fore-edge, a floor shadow — rather than a flat picture, so the
+   shelf reads as books. The stage is deliberately dark in both themes:
+   covers are designed against dark and light grounds alike, and a
+   fixed ground keeps the shadows honest.
+   ===================================================================== */
+
+.bp-shelf {
+  --shelf-h: clamp(200px, 19vw, 272px);
+  --shelf-gap: 0px;
+  overflow: hidden;
+}
+
+.bp-shelf__stage {
+  display: grid;
+  gap: calc(var(--shelf-gap) * 0.7);
+  margin-inline: calc(var(--dk-pad) * -1);   /* bleed to the card edges */
+  /* Covers slide in and out of the edges instead of being cut. */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+}
+.bp-shelf__row { overflow: hidden; padding: 18px 0 30px; }
+
+.bp-shelf__track {
+  display: flex;
+  width: max-content;
+  animation: bp-shelf-drift var(--shelf-speed, 90s) linear infinite;
+}
+.bp-shelf__track--reverse { animation-direction: reverse; }
+@keyframes bp-shelf-drift {
+  to { transform: translateX(-50%); }
+}
+.bp-shelf__row:hover .bp-shelf__track,
+.bp-shelf.is-paused .bp-shelf__track { animation-play-state: paused; }
+
+.bp-shelf__group {
+  display: flex;
+  gap: var(--shelf-gap);
+  list-style: none;
+  margin: 0;
+  /* The trailing gap keeps both halves equal, so the loop has no seam. */
+  padding: 0 var(--shelf-gap) 0 0;
+}
+
+/* ---- One book -------------------------------------------------------
+   Each book is a rendered image: a hardcover turned so the fore-edge shows,
+   with the board overhang, page block and floor shadow already in the
+   picture. --k is the image height in units of --shelf-h (the cover height),
+   so every book is drawn at the same scale whatever its proportions.       */
+
+.bp3d { position: relative; flex: none; display: flex; align-items: flex-end; }
+/* The picture carries a wide floor shadow on its left; let neighbours overlap it. */
+.bp-shelf__group .bp3d { margin-left: calc(var(--shelf-h) * -0.15); }
+.bp3d img {
+  display: block;
+  height: calc(var(--shelf-h) * var(--k, 1.15));
+  width: auto;
+  transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.bp3d:hover img { transform: translateY(-8px); }
+
+/* ---- Controls and caption ----------------------------------------- */
+
+.bp-shelf__foot {
+  max-width: var(--bp-content-max);
+  margin: var(--bp-2) auto 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--bp-4);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.bp-shelf__note { font-size: 0.78rem; color: #8a8f9c; margin: 0; max-width: 64ch; text-align: center; }
+.bp-shelf__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--bp-radius-pill);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e6e7ec;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.bp-shelf__toggle:hover { background: rgba(255, 255, 255, 0.12); }
+.bp-shelf__toggle:focus-visible { outline: 2px solid #b8b4f8; outline-offset: 2px; }
+.bp-shelf__toggle-icon {
+  width: 10px;
+  height: 11px;
+  border-inline: 3px solid currentColor;          /* pause bars */
+}
+.bp-shelf.is-paused .bp-shelf__toggle-icon {
+  width: 0;
+  height: 0;
+  border: 0;
+  border-block: 6px solid transparent;
+  border-left: 10px solid currentColor;           /* play triangle */
+}
+
+/* Motion off: no drift, no hover lift. The rows become ordinary
+   scrollable strips so every cover is still reachable, and the
+   duplicate half (there only to make the loop seamless) is dropped. */
+@media (prefers-reduced-motion: reduce) {
+  .bp-shelf__track { animation: none; width: auto; }
+  .bp-shelf__group[aria-hidden='true'] { display: none; }
+  .bp-shelf__row { overflow-x: auto; padding-inline: var(--bp-6); }
+  .bp-shelf__stage { -webkit-mask-image: none; mask-image: none; }
+  .bp3d img { transition: none; }
+  .bp3d:hover img { transform: none; }
+  .bp-shelf__toggle { display: none; }
+}
