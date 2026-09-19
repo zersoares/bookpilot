@@ -58,6 +58,11 @@ export async function render(container, params, query) {
   if (tiktokResult === "connected") notify.success("TikTok connected. Choose your ad account and sync.");
   if (tiktokResult === "failed") notify.error("We couldn't connect your TikTok account. Please try again.");
 
+  const amazonResult = query?.get("amazon") || new URLSearchParams(location.search).get("amazon");
+  if (amazonResult === "connected") notify.success("Amazon Ads connected. Choose your account and sync.");
+  if (amazonResult === "failed") notify.error("We couldn't connect your Amazon Ads account. Please try again.");
+  if (amazonResult === "declined") notify.info("Amazon Ads connection cancelled.");
+
   const googleResult = query?.get("google") || new URLSearchParams(location.search).get("google");
   if (googleResult === "connected") notify.success("Google Ads connected. Choose your account and sync.");
   if (googleResult === "failed") notify.error("We couldn't connect your Google Ads account. Please try again.");
@@ -85,7 +90,7 @@ export async function render(container, params, query) {
         books,
         connect: platformConnectBlock("pinterest", integrations.find((i) => i.provider === "pinterest"), capabilities, { books }),
       }))}
-      ${raw(amazonCard(amazonSummary))}
+      ${raw(amazonCard(amazonSummary, platformConnectBlock("amazon", integrations.find((i) => i.provider === "amazon_attribution"), capabilities, { books })))}
     </div>
   `;
 
@@ -98,7 +103,7 @@ export async function render(container, params, query) {
       done: () => render(container, params, query),
     });
   }
-  for (const platform of ["tiktok", "google", "pinterest"]) {
+  for (const platform of ["tiktok", "google", "pinterest", "amazon"]) {
     wirePlatformConnect(container, platform, { done: () => render(container, params, query) });
   }
   wireAmazonImport(container, {
@@ -316,10 +321,10 @@ function trackingCard(sites, statuses = {}) {
   `;
 }
 
-function amazonCard(summary) {
+function amazonCard(summary, connect = "") {
   const has = summary && summary.rows > 0;
   return html`
-    <section class="bp-card">
+    <section class="bp-card" data-platform-card data-platform="amazon">
       <div class="bp-card__header">
         <div class="bp-card__title">Amazon Attribution</div>
         <span class="bp-badge ${has ? "bp-badge--success" : ""}">${has ? "Imported" : "No data yet"}</span>
@@ -329,12 +334,15 @@ function amazonCard(summary) {
         <div class="bp-small">
           <strong>What this can and can't do.</strong> Amazon does not report your KDP sales to
           third-party tools, and no advertising platform can change that. What it does offer is
-          Amazon Attribution: if you have an eligible account, you can download its reports (clicks,
-          detail-page views, add-to-carts and purchases) and import them here, next to your ad spend.
+          Amazon Attribution: if you have an eligible account, you can connect it, or download its
+          reports (clicks, detail-page views, add-to-carts and purchases) and import them here, next
+          to your ad spend.
           Those figures stay labelled as Amazon-attributed and are never merged with sales tracked on
           your own website or reported by Meta.
         </div>
       </div>
+      ${raw(connect)}
+      ${raw(connect ? '<h3 class="bp-small" style="margin:var(--bp-5) 0 var(--bp-2)"><strong>Or import a report</strong></h3>' : "")}
       ${raw(amazonImportBlock(summary))}
     </section>
   `;

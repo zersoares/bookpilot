@@ -1,12 +1,12 @@
 // Automatic sync for platforms with a read-only API connection (Pinterest,
-// TikTok, Google Ads), shown on each platform's card.
+// TikTok, Google Ads, Amazon Attribution), shown on each platform's card.
 //
 // BookPilot only ever reads, and the screen says so before it asks for
 // anything. For Pinterest and TikTok that is also what the permission
 // enforces: they offer read-only scopes and BookPilot asks for nothing more.
-// Google offers no read-only scope for its Ads API, only one that also allows
-// changes, so for Google the panel does not claim the permission is
-// read-only. It says what Google's consent screen will say, and states the
+// Google and Amazon offer no read-only scope for their Ads APIs, only one that
+// also allows changes, so for them the panel does not claim the permission is
+// read-only. It says what the consent screen will say, and states the
 // promise as BookPilot's own behaviour, which a test enforces in code. The
 // CSV import below the panel stays as the way in when this is not set up, or
 // as a fallback.
@@ -23,6 +23,7 @@ import { fmt } from "./shared.js";
 const COPY = {
   pinterest: {
     name: "Pinterest",
+    pulls: "campaign spend, clicks and purchases",
     permission: html`<strong>one read-only permission</strong> (<code>ads:read</code>)`,
     promise: html`It can see your campaign figures and can't create, change, pause or spend on anything.`,
     billing: "Pinterest bills you directly, and BookPilot never sees your password.",
@@ -33,6 +34,7 @@ const COPY = {
   },
   google: {
     name: "Google Ads",
+    pulls: "campaign spend, clicks and purchases",
     // Google's API has one permission and it allows changes. So the promise
     // is stated as BookPilot's own behaviour, and the consent screen's
     // stronger wording is disclosed before the author reaches it.
@@ -44,8 +46,24 @@ const COPY = {
     expiry: () => "Renews automatically; stops if you remove access in your Google Account",
     disconnect: "BookPilot revokes its access at Google and forgets the connection. Figures already imported stay. If the revoke can't be completed (the token may already be dead), the connection is forgotten here regardless.",
   },
+  amazon: {
+    name: "Amazon",
+    pulls: "your Amazon Attribution figures (clicks, detail-page views, add-to-carts, purchases, units and sales)",
+    // Amazon's Ads API has one permission and it is named for managing
+    // campaigns. Stated as BookPilot's own behaviour, like Google's.
+    regions: { na: "North America (Amazon.com, Amazon.ca)", eu: "Europe (Amazon.co.uk, .de, .fr, .it, .es)" },
+    noBook: true, // nothing is created in BookPilot, so no book is needed
+    permission: html`<strong>the one permission Amazon has for its Ads API</strong>`,
+    promise: html`Amazon doesn't offer a read-only version, so its consent screen will describe it as managing your advertising campaigns. <strong>BookPilot only reads:</strong> it never creates, changes or spends on anything, and you can remove its access at any time in your Amazon account.`,
+    billing: "BookPilot never sees your Amazon password.",
+    windowNote: "Up to 90 days.",
+    footnote: "These are <strong>Amazon-attributed</strong> figures, not your KDP sales: purchases on Amazon within 14 days of an ad click, for the books your campaign promotes (not other books by you), counted on the day they happened, in your account's currency. They stay separate from Meta and website numbers. Amazon's API names each campaign only by an ID, so campaigns appear as the publisher and that ID. Amazon restates recent days, so <strong>a sync replaces the Amazon figures already stored for the same days in the same currency</strong>, imported reports included.",
+    expiry: () => "Renews automatically; stops if you remove access in your Amazon account",
+    disconnect: "BookPilot forgets the connection and stops syncing. Figures already imported stay. Amazon doesn't let an app revoke its own access, so to remove it there too, do so in your Amazon account's Login with Amazon settings.",
+  },
   tiktok: {
     name: "TikTok",
+    pulls: "campaign spend, clicks and purchases",
     permission: html`<strong>two read-only permissions</strong>, Reporting and Ad Account Information`,
     promise: html`It can see your campaign figures and your account's currency and time zone, and can't create, change, pause or spend on anything.`,
     billing: "TikTok bills you directly, and BookPilot never sees your password.",
@@ -78,11 +96,15 @@ export function platformConnectBlock(platform, integration, capabilities, { book
       <div data-pc>
         ${raw(head)}
         <p class="bp-small bp-muted" style="margin:0 0 var(--bp-3)">
-          Connect your ${copy.name} ad account and BookPilot pulls campaign spend, clicks and purchases by
+          Connect your ${copy.name} ad account and BookPilot pulls ${copy.pulls} by
           day, so you don't have to download reports. It uses ${raw(copy.permission)}. ${raw(copy.promise)}
           ${copy.billing}
         </p>
         ${raw(integration?.status === "expired" ? html`<div class="bp-alert bp-alert--warning" style="margin-bottom:var(--bp-3)"><span class="bp-alert__icon">!</span><div class="bp-small">${integration.last_error || `Your ${copy.name} connection expired.`} Connect again to keep syncing.</div></div>` : "")}
+        ${raw(copy.regions ? html`
+          <label class="bp-field" style="margin:0 0 var(--bp-3)"><span class="bp-label">Your Amazon marketplace</span>
+            <select class="bp-select" data-pc-field="region">${raw(Object.entries(copy.regions).map(([key, label]) => html`<option value="${key}">${label}</option>`).join(""))}</select>
+            <span class="bp-tiny bp-subtle">Amazon keeps a separate login for each region. Choose the one your Amazon Attribution account is in.</span></label>` : "")}
         <button type="button" class="bp-btn bp-btn--primary bp-btn--sm" data-pc-action="connect">Connect ${copy.name}</button>
       </div>`;
   }
@@ -103,9 +125,9 @@ export function platformConnectBlock(platform, integration, capabilities, { book
               <option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option>
             </select>
             <span class="bp-tiny bp-subtle">${copy.windowNote}</span></label>
-          <label class="bp-field" style="margin:0"><span class="bp-label">Book for new campaigns</span>
+          ${raw(copy.noBook ? "" : html`<label class="bp-field" style="margin:0"><span class="bp-label">Book for new campaigns</span>
             <select class="bp-select" data-pc-field="book">${raw(books.map((b) => html`<option value="${b.id}">${b.title}</option>`).join(""))}</select>
-            <span class="bp-tiny bp-subtle">Only used for ${copy.name} campaigns BookPilot hasn't seen before.</span></label>
+            <span class="bp-tiny bp-subtle">Only used for ${copy.name} campaigns BookPilot hasn't seen before.</span></label>`)}
         </div>` : "")}
       <div class="bp-row bp-row--wrap" style="margin-top:var(--bp-3)">
         ${raw(integration.account_id ? '<button type="button" class="bp-btn bp-btn--primary bp-btn--sm" data-pc-action="sync">Sync now</button>' : "")}
@@ -132,7 +154,7 @@ export function wirePlatformConnect(root, platform, { done }) {
     if (action === "connect") {
       button.disabled = true;
       try {
-        const { url } = await API.connectAuthorizeUrl(platform);
+        const { url } = await API.connectAuthorizeUrl(platform, copy.regions ? { region: field("region")?.value } : undefined);
         location.href = url;
       } catch (err) { notify.error(err.message); button.disabled = false; }
     } else if (action === "accounts") {
@@ -165,7 +187,8 @@ export function wirePlatformConnect(root, platform, { done }) {
       result.innerHTML = `<span class="bp-small bp-muted">Syncing from ${copy.name}…</span>`;
       try {
         const r = await API.connectSync(platform, { days: Number(field("days")?.value) || 30, book_id: field("book")?.value || undefined });
-        notify.success(`Synced ${fmt.number(r.days)} campaign-days from ${fmt.number(r.campaigns)} campaign${r.campaigns === 1 ? "" : "s"}.`);
+        if (!r.days) notify.info(`${copy.name} returned no figures for those days.`);
+        else notify.success(`Synced ${fmt.number(r.days)} campaign-days from ${fmt.number(r.campaigns)} campaign${r.campaigns === 1 ? "" : "s"}.`);
         if (r.skipped?.length) {
           notify.info(`${r.skipped.length} campaign${r.skipped.length === 1 ? " was" : "s were"} skipped: ${r.skipped.slice(0, 2).map((s) => `${s.name} (${s.reason})`).join(" ")}`);
         }

@@ -164,8 +164,9 @@ export const API = {
   checkout: (planId) => api.post("/api/bp-billing/checkout", { plan_id: planId }),
   portal: () => api.post("/api/bp-billing/portal"),
 
-  // Platforms with a read-only API connection (pinterest, tiktok)
-  connectAuthorizeUrl: (platform) => api.get(`/api/bp-${platform}/authorize-url`),
+  // Platforms with a read-only API connection (pinterest, tiktok, google, amazon)
+  connectAuthorizeUrl: (platform, params) =>
+    api.get(`/api/bp-${platform}/authorize-url${params ? `?${new URLSearchParams(params)}` : ""}`),
   connectAccounts: (platform) => api.get(`/api/bp-${platform}/accounts`),
   connectSelectAccount: (platform, payload) => api.post(`/api/bp-${platform}/select-account`, payload),
   connectSync: (platform, payload) => api.post(`/api/bp-${platform}/sync`, payload),

@@ -96,6 +96,18 @@ export const Errors = {
       "Google Ads didn't return that data. Check that the account is still active and that you can open it in Google Ads, then try again.",
       502
     ),
+  amazonConnect: () =>
+    new AppError(
+      "amazon_connection_failed",
+      "We couldn't reach your Amazon Ads account. Please reconnect it and try again.",
+      502
+    ),
+  amazonAction: () =>
+    new AppError(
+      "amazon_action_failed",
+      "Amazon didn't return that data. Check that the account still has Amazon Attribution and that you can open it in the Amazon Attribution console, then try again.",
+      502
+    ),
   integrationMissing: (name) =>
     new AppError(
       "integration_missing",

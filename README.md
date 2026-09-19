@@ -212,7 +212,10 @@ else degrades gracefully when absent.
 | `GOOGLE_ADS_CLIENT_SECRET` | Google Ads sync | **Secret** |
 | `GOOGLE_ADS_DEVELOPER_TOKEN` | Google Ads sync | **Secret.** Must be approved for production or every live account is refused |
 | `GOOGLE_ADS_REDIRECT_URI` | Google Ads sync | `https://yoursite/api/bp-google/callback` |
-| `BOOKPILOT_OAUTH_STATE_SECRET` | Meta, Pinterest, TikTok and Google Ads | **Secret.** Random string; signs the OAuth `state` |
+| `AMAZON_ADS_CLIENT_ID` | Amazon Attribution sync | Login with Amazon security profile whose client has been granted Amazon Ads API access |
+| `AMAZON_ADS_CLIENT_SECRET` | Amazon Attribution sync | **Secret** |
+| `AMAZON_ADS_REDIRECT_URI` | Amazon Attribution sync | `https://yoursite/api/bp-amazon/callback`, also listed under the security profile's Allowed Return URLs |
+| `BOOKPILOT_OAUTH_STATE_SECRET` | Meta, Pinterest, TikTok, Google Ads and Amazon | **Secret.** Random string; signs the OAuth `state` |
 | `BOOKPILOT_SITE_URL` | Redirects | Defaults to Netlify's `URL` |
 | `BOOKPILOT_ALLOWED_ORIGINS` | Extra origins | Comma-separated, optional |
 
@@ -457,6 +460,26 @@ Stated plainly, because the alternative is a feature list that lies:
   directly are listed, not ones reached only through a manager (MCC) account. API
   versions are retired about a year after release (v25: August 2027), so
   `API_VERSION` needs bumping yearly. No migration.
+- **Amazon Attribution has a sync too, with the same caveat as Google.** Amazon's Ads
+  API has one OAuth scope, `advertising::campaign_management`, so "reads only" is
+  enforced by a test (`bookpilot-lib/amazon-ads.js` calls `GET /v2/profiles`,
+  `GET /attribution/advertisers` and `POST /attribution/report`, nothing else) and
+  disclosed on the connect panel. Built from Amazon's published OpenAPI specification
+  for the Attribution API; never run against a live account, and the specification does
+  not define a report entry's metric fields, so they are matched loosely and an answer
+  with none of them is refused, not stored as zeros. Needs the **Login with Amazon
+  client to have Amazon Ads API access**, which Amazon grants on application, and an
+  author whose account has Amazon Attribution (offered to sellers, vendors and authors
+  in the US, CA, UK, DE, FR, IT and ES: the North America and Europe regions, chosen on
+  the panel because tokens, profiles and hosts are regional). The report names
+  campaigns by ID only, so rows appear as "publisher · campaign ID". They are
+  Amazon-attributed (14-day last-click, promoted products only, not KDP sales) and stay
+  apart from Meta and website numbers. Amazon restates recent days, so a sync
+  **replaces** stored Amazon figures for the same days in the same currency, imported
+  reports included. Amazon lets an app revoke nothing, so Disconnect clears BookPilot's
+  copy and tells the author to remove access in their Amazon account. Needs migration
+  `015_amazon_connection.sql` (a `region` column on `integrations`), applied **before**
+  deploying. Kindle pages-read metrics exist in the API and are not imported yet.
 - **Meta persona targeting passes age and geography only.** Interest terms are
   carried as a note on the ad set for the operator to confirm in Ads Manager,
   rather than guessed at against Meta's interest IDs — a wrong ID spends money on
@@ -490,7 +513,7 @@ Stated plainly, because the alternative is a feature list that lies:
 | Phase | Work |
 |---|---|
 | 1 | Book illustration rendering; author-supplied artwork for figures and covers |
-| 2 | Amazon Attribution API connection (the Pinterest, TikTok and Google Ads syncs are written, awaiting approved apps and tokens) |
+| 2 | Live verification of the Pinterest, TikTok, Google Ads and Amazon Attribution syncs (all written and tested against stubs, awaiting approved apps and tokens) |
 | 3 | AI image and video rendering, automatic creative refresh, A/B testing |
 | 4 | Publisher and agency accounts, team invitations, white-label |
 | 5 | Cross-platform AI marketing agent |
