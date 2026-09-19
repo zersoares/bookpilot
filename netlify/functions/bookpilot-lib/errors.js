@@ -84,6 +84,18 @@ export const Errors = {
       "TikTok didn't return that data. Check that the ad account is still active and that you can see it in TikTok Ads Manager, then try again.",
       502
     ),
+  googleConnect: () =>
+    new AppError(
+      "google_connection_failed",
+      "We couldn't reach your Google Ads account. Please reconnect it and try again.",
+      502
+    ),
+  googleAction: () =>
+    new AppError(
+      "google_action_failed",
+      "Google Ads didn't return that data. Check that the account is still active and that you can open it in Google Ads, then try again.",
+      502
+    ),
   integrationMissing: (name) =>
     new AppError(
       "integration_missing",

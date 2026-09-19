@@ -208,7 +208,11 @@ else degrades gracefully when absent.
 | `TIKTOK_APP_ID` | TikTok sync | |
 | `TIKTOK_APP_SECRET` | TikTok sync | **Secret** |
 | `TIKTOK_AUTH_URL` | TikTok sync | The app's "Advertiser authorization URL" from the TikTok developer portal (My Apps, the app, Basic Information). It carries the app id and redirect address; only `state` is set at run time |
-| `BOOKPILOT_OAUTH_STATE_SECRET` | Meta, Pinterest and TikTok | **Secret.** Random string; signs the OAuth `state` |
+| `GOOGLE_ADS_CLIENT_ID` | Google Ads sync | OAuth client from Google Cloud (not the "Sign in with Google" one, which lives on Supabase) |
+| `GOOGLE_ADS_CLIENT_SECRET` | Google Ads sync | **Secret** |
+| `GOOGLE_ADS_DEVELOPER_TOKEN` | Google Ads sync | **Secret.** Must be approved for production or every live account is refused |
+| `GOOGLE_ADS_REDIRECT_URI` | Google Ads sync | `https://yoursite/api/bp-google/callback` |
+| `BOOKPILOT_OAUTH_STATE_SECRET` | Meta, Pinterest, TikTok and Google Ads | **Secret.** Random string; signs the OAuth `state` |
 | `BOOKPILOT_SITE_URL` | Redirects | Defaults to Netlify's `URL` |
 | `BOOKPILOT_ALLOWED_ORIGINS` | Extra origins | Comma-separated, optional |
 
@@ -434,6 +438,25 @@ Stated plainly, because the alternative is a feature list that lies:
   Purchases are `complete_payment` and their value is `total_complete_payment_rate`
   (TikTok's name for "Purchase value (website)"). Campaign matching is shared with
   Pinterest (`sync-plan.js`).
+- **Google Ads has a sync as well, and it cannot be read-only at the permission
+  level.** Google's Ads API has exactly one OAuth scope (`.../auth/adwords`, described
+  as "See, edit, create, and delete your Google Ads accounts and data"), so unlike
+  Pinterest and TikTok there is no read-only permission to ask for. The guarantee is
+  BookPilot's own: `bookpilot-lib/google-ads.js` calls two endpoints
+  (`customers:listAccessibleCustomers` and `googleAds:search`), a test fails if any
+  mutate endpoint appears, and the connect panel tells authors that Google's consent
+  screen will say "view and manage" before they reach it. Built from Google's v25
+  discovery document; never run against a live account. Needs a **developer token
+  approved for production** (otherwise Google answers DEVELOPER_TOKEN_NOT_APPROVED,
+  which the app reports as "on our side") and an OAuth app whose consent screen is
+  **In production**: in "Testing" Google expires refresh tokens after 7 days, and the
+  Ads scope is sensitive, so an unverified app is capped at 100 users behind a
+  warning screen. Unlike the CSV path, purchases come from a second query filtered to
+  the **Purchase** conversion category, so sign-ups and add-to-carts are not counted
+  as sales, and campaign status is Google's own. Only accounts the login can open
+  directly are listed, not ones reached only through a manager (MCC) account. API
+  versions are retired about a year after release (v25: August 2027), so
+  `API_VERSION` needs bumping yearly. No migration.
 - **Meta persona targeting passes age and geography only.** Interest terms are
   carried as a note on the ad set for the operator to confirm in Ads Manager,
   rather than guessed at against Meta's interest IDs — a wrong ID spends money on
@@ -467,7 +490,7 @@ Stated plainly, because the alternative is a feature list that lies:
 | Phase | Work |
 |---|---|
 | 1 | Book illustration rendering; author-supplied artwork for figures and covers |
-| 2 | API connections for Amazon Attribution and Google Ads (the Pinterest and TikTok read-only syncs are written, awaiting approved apps) |
+| 2 | Amazon Attribution API connection (the Pinterest, TikTok and Google Ads syncs are written, awaiting approved apps and tokens) |
 | 3 | AI image and video rendering, automatic creative refresh, A/B testing |
 | 4 | Publisher and agency accounts, team invitations, white-label |
 | 5 | Cross-platform AI marketing agent |

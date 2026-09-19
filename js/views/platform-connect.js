@@ -1,10 +1,15 @@
 // Automatic sync for platforms with a read-only API connection (Pinterest,
-// TikTok), shown on each platform's card.
+// TikTok, Google Ads), shown on each platform's card.
 //
-// Read-only, and the screen says so before it asks for anything: BookPilot
-// requests only the permissions it needs to see campaign figures, and can't
-// create, change, pause or spend on anything. The CSV import below the panel
-// stays as the way in when this is not set up, or as a fallback.
+// BookPilot only ever reads, and the screen says so before it asks for
+// anything. For Pinterest and TikTok that is also what the permission
+// enforces: they offer read-only scopes and BookPilot asks for nothing more.
+// Google offers no read-only scope for its Ads API, only one that also allows
+// changes, so for Google the panel does not claim the permission is
+// read-only. It says what Google's consent screen will say, and states the
+// promise as BookPilot's own behaviour, which a test enforces in code. The
+// CSV import below the panel stays as the way in when this is not set up, or
+// as a fallback.
 //
 // Honest about its own state: when the deployment has no app credentials for
 // the platform, this says so rather than offering a button that fails.
@@ -19,17 +24,30 @@ const COPY = {
   pinterest: {
     name: "Pinterest",
     permission: html`<strong>one read-only permission</strong> (<code>ads:read</code>)`,
-    sees: "campaign figures",
+    promise: html`It can see your campaign figures and can't create, change, pause or spend on anything.`,
     billing: "Pinterest bills you directly, and BookPilot never sees your password.",
     windowNote: "Pinterest allows up to 90 days.",
     footnote: "Figures use Pinterest's default conversion windows (30 days after a click) and count <strong>checkouts</strong> as purchases. Importing a report for the same days replaces them.",
     expiry: (i) => (i.expires_at ? fmt.date(i.expires_at) : "—"),
     disconnect: "BookPilot forgets the connection and stops syncing. Figures already imported stay. Pinterest keeps a record that BookPilot was allowed access, so to remove it there too, do so in your Pinterest account's connected-apps settings.",
   },
+  google: {
+    name: "Google Ads",
+    // Google's API has one permission and it allows changes. So the promise
+    // is stated as BookPilot's own behaviour, and the consent screen's
+    // stronger wording is disclosed before the author reaches it.
+    permission: html`<strong>the one permission Google has for its Ads API</strong>`,
+    promise: html`Google doesn't offer a read-only version, so its consent screen will say BookPilot can view <em>and manage</em> your Google Ads accounts. <strong>BookPilot only reads:</strong> it never creates, changes, pauses or spends on anything, and you can remove its access at any time in your Google Account's security settings.`,
+    billing: "Google bills you directly, and BookPilot never sees your password.",
+    windowNote: "Up to 90 days.",
+    footnote: "Figures are cost, impressions and clicks by day in your account's time zone, up to yesterday, with each campaign's real status. <strong>Purchases</strong> are conversions in the Purchase category only, so sign-ups and add-to-carts aren't counted as sales: check that your sale conversion action is categorised as Purchase in Google Ads. Only accounts you can open directly are listed, not ones reached only through a manager (MCC) account. Importing a report for the same days replaces them.",
+    expiry: () => "Renews automatically; stops if you remove access in your Google Account",
+    disconnect: "BookPilot revokes its access at Google and forgets the connection. Figures already imported stay. If the revoke can't be completed (the token may already be dead), the connection is forgotten here regardless.",
+  },
   tiktok: {
     name: "TikTok",
     permission: html`<strong>two read-only permissions</strong>, Reporting and Ad Account Information`,
-    sees: "campaign figures and your account's currency and time zone",
+    promise: html`It can see your campaign figures and your account's currency and time zone, and can't create, change, pause or spend on anything.`,
     billing: "TikTok bills you directly, and BookPilot never sees your password.",
     windowNote: "TikTok reports at most 30 days at a time, so 90 days takes three requests.",
     footnote: "Figures are your <strong>website purchases</strong> (Complete payment) and Clicks (destination), by day in your ad account's time zone, up to yesterday. TikTok isn't asked for campaign status, so it's inferred from recent spend. Importing a report for the same days replaces them.",
@@ -61,8 +79,8 @@ export function platformConnectBlock(platform, integration, capabilities, { book
         ${raw(head)}
         <p class="bp-small bp-muted" style="margin:0 0 var(--bp-3)">
           Connect your ${copy.name} ad account and BookPilot pulls campaign spend, clicks and purchases by
-          day, so you don't have to download reports. It uses ${raw(copy.permission)}: it can see your
-          ${copy.sees} and can't create, change, pause or spend on anything. ${copy.billing}
+          day, so you don't have to download reports. It uses ${raw(copy.permission)}. ${raw(copy.promise)}
+          ${copy.billing}
         </p>
         ${raw(integration?.status === "expired" ? html`<div class="bp-alert bp-alert--warning" style="margin-bottom:var(--bp-3)"><span class="bp-alert__icon">!</span><div class="bp-small">${integration.last_error || `Your ${copy.name} connection expired.`} Connect again to keep syncing.</div></div>` : "")}
         <button type="button" class="bp-btn bp-btn--primary bp-btn--sm" data-pc-action="connect">Connect ${copy.name}</button>

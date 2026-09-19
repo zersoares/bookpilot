@@ -58,6 +58,11 @@ export async function render(container, params, query) {
   if (tiktokResult === "connected") notify.success("TikTok connected. Choose your ad account and sync.");
   if (tiktokResult === "failed") notify.error("We couldn't connect your TikTok account. Please try again.");
 
+  const googleResult = query?.get("google") || new URLSearchParams(location.search).get("google");
+  if (googleResult === "connected") notify.success("Google Ads connected. Choose your account and sync.");
+  if (googleResult === "failed") notify.error("We couldn't connect your Google Ads account. Please try again.");
+  if (googleResult === "declined") notify.info("Google Ads connection cancelled.");
+
   container.innerHTML = html`
     ${raw(pageHead({
       title: "Attribution & integrations",
@@ -72,7 +77,10 @@ export async function render(container, params, query) {
         books,
         connect: platformConnectBlock("tiktok", integrations.find((i) => i.provider === "tiktok"), capabilities, { books }),
       }))}
-      ${raw(platformCard("google", google.summary, google.campaigns, { books }))}
+      ${raw(platformCard("google", google.summary, google.campaigns, {
+        books,
+        connect: platformConnectBlock("google", integrations.find((i) => i.provider === "google"), capabilities, { books }),
+      }))}
       ${raw(platformCard("pinterest", pinterest.summary, pinterest.campaigns, {
         books,
         connect: platformConnectBlock("pinterest", integrations.find((i) => i.provider === "pinterest"), capabilities, { books }),
@@ -90,7 +98,7 @@ export async function render(container, params, query) {
       done: () => render(container, params, query),
     });
   }
-  for (const platform of ["tiktok", "pinterest"]) {
+  for (const platform of ["tiktok", "google", "pinterest"]) {
     wirePlatformConnect(container, platform, { done: () => render(container, params, query) });
   }
   wireAmazonImport(container, {

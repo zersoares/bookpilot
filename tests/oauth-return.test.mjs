@@ -43,7 +43,7 @@ test("the page carries nothing from the request and asks not to be remembered or
 });
 
 test("every result the callbacks use yields a working page", async () => {
-  for (const provider of ["meta", "pinterest", "tiktok"]) {
+  for (const provider of ["meta", "pinterest", "tiktok", "google"]) {
     for (const result of ["connected", "declined", "failed"]) {
       const body = await backToApp(provider, result).text();
       assert.ok(body.includes(`#/attribution?${provider}=${result}`), `${provider}/${result}`);
@@ -52,9 +52,9 @@ test("every result the callbacks use yields a working page", async () => {
 });
 
 test("the callbacks no longer use HTTP redirects", () => {
-  for (const file of ["bookpilot-meta.mjs", "bookpilot-pinterest.mjs", "bookpilot-tiktok.mjs"]) {
+  for (const file of ["bookpilot-meta.mjs", "bookpilot-pinterest.mjs", "bookpilot-tiktok.mjs", "bookpilot-google.mjs"]) {
     const source = readFileSync(new URL(`../netlify/functions/${file}`, import.meta.url), "utf8");
     assert.doesNotMatch(source, /Response\.redirect\(/, `${file} must return through backToApp`);
-    assert.match(source, /backToApp\("(meta|pinterest|tiktok)", "connected"\)/, `${file} reports success through backToApp`);
+    assert.match(source, /backToApp\("(meta|pinterest|tiktok|google)", "connected"\)/, `${file} reports success through backToApp`);
   }
 });
