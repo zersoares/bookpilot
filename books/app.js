@@ -139,6 +139,19 @@
     if (trigger) openBook(trigger.dataset.open);
   });
 
+  // ------------------------------------------------------- back to top
+  const toTop = document.getElementById('to-top');
+  if (toTop) {
+    toTop.hidden = false;
+    const sync = () => toTop.classList.toggle('is-visible', window.scrollY > 700);
+    window.addEventListener('scroll', sync, { passive: true });
+    toTop.addEventListener('click', () => {
+      const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
+    });
+    sync();
+  }
+
   // ---------------------------------------------------------- start-up
   const params = new URLSearchParams(location.search);
   const c = params.get('c');

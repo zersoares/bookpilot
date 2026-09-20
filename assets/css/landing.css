@@ -384,3 +384,31 @@ ol.bp-steps { list-style: none; padding: 0; margin: 0; counter-reset: none; }
   margin-bottom: var(--bp-2);
 }
 .bp-compare__note { font-size: 0.87rem; color: var(--bp-text-muted); margin: 0; }
+
+/* Back to top — uses the design-system tokens, so it follows light/dark. */
+.bp-totop {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 40;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--bp-border-strong);
+  border-radius: 50%;
+  background: var(--bp-surface);
+  color: var(--bp-primary-text);
+  box-shadow: var(--bp-shadow-lg);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s, background-color 0.15s;
+}
+.bp-totop:not([hidden]) { display: grid; }
+.bp-totop.is-visible { opacity: 1; transform: none; pointer-events: auto; }
+.bp-totop:hover { background: var(--bp-primary-soft); }
+.bp-totop:focus-visible { outline: 3px solid var(--bp-primary); outline-offset: 2px; }
+.bp-totop svg { width: 20px; height: 20px; }
+@media (prefers-reduced-motion: reduce) { .bp-totop { transition: none; } }
