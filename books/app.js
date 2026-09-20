@@ -24,7 +24,7 @@
 
   function matches(card) {
     if (state.cat === 'free' && card.dataset.free !== '1') return false;
-    if (state.cat !== 'all' && state.cat !== 'free' && card.dataset.cat !== state.cat) return false;
+    if (state.cat !== 'all' && state.cat !== 'free' && card.dataset.cat !== state.cat && card.dataset.set !== state.cat) return false;
     if (!state.text) return true;
     const hay = card.dataset.search;
     return state.text.split(/\s+/).every((word) => hay.includes(word));
