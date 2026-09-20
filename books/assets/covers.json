@@ -7,6 +7,10 @@
   525,
   840
  ],
+ "articulation": [
+  560,
+  840
+ ],
  "chatgpt-web": [
   525,
   840
@@ -25,6 +29,10 @@
  ],
  "claude-teachers": [
   525,
+  840
+ ],
+ "emergency-guide": [
+  560,
   840
  ],
  "field-kit": [
@@ -73,6 +81,34 @@
  ],
  "guide-cybersecurity": [
   594,
+  840
+ ],
+ "guide-digital-omnibus": [
+  600,
+  840
+ ],
+ "guide-dsar": [
+  600,
+  840
+ ],
+ "guide-eu-ai-act": [
+  600,
+  840
+ ],
+ "guide-gdpr-myths": [
+  600,
+  840
+ ],
+ "guide-shadow-ai": [
+  600,
+  840
+ ],
+ "guide-solopreneur-stack": [
+  600,
+  840
+ ],
+ "guide-vendor-vetting": [
+  600,
   840
  ],
  "invisible-effect": [
