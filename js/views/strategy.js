@@ -137,7 +137,7 @@ function renderAnalysis({ state, reload, paint, body }) {
         "out how the book should be sold — and shows its reasoning, so you can disagree with it.",
       action: '<button type="button" class="bp-btn bp-btn--primary" id="run-analysis">Run analysis · 10 credits</button>',
     });
-    onGenerate($("#run-analysis"), "Reading your book…", async () => {
+    onGenerate($("#run-analysis"), "Reading your book, up to a minute…", async () => {
       body.innerHTML = loading(4);
       await API.analyzeBook(book.id);
       await reload();
@@ -243,7 +243,7 @@ function renderPersonas({ state, reload, paint, body }) {
         "into targeting on an ad platform.",
       action: '<button type="button" class="bp-btn bp-btn--primary" id="run-personas">Generate personas · 10 credits</button>',
     });
-    onGenerate($("#run-personas"), "Finding your readers…", async () => {
+    onGenerate($("#run-personas"), "Finding your readers, up to a minute…", async () => {
       body.innerHTML = loading(3);
       await API.generatePersonas(book.id, 4);
       await reload();
@@ -271,7 +271,7 @@ function renderPersonas({ state, reload, paint, body }) {
     </div>
   `;
 
-  onGenerate($("#regen-personas"), "Regenerating…", async () => {
+  onGenerate($("#regen-personas"), "Regenerating, up to a minute…", async () => {
     await API.generatePersonas(book.id, 4);
     await reload();
     paint();
@@ -330,7 +330,7 @@ function renderAngles({ state, reload, paint, body }) {
         "curiosity, transformation, practical and other categories.",
       action: '<button type="button" class="bp-btn bp-btn--primary" id="run-angles">Generate angles · 5 credits</button>',
     });
-    onGenerate($("#run-angles"), "Writing angles…", async () => {
+    onGenerate($("#run-angles"), "Writing angles, up to a minute…", async () => {
       body.innerHTML = loading(4);
       await API.generateAngles(book.id, 10);
       await reload();
@@ -369,7 +369,7 @@ function renderAngles({ state, reload, paint, body }) {
     });
   });
 
-  onGenerate($("#regen-angles"), "Regenerating…", async () => {
+  onGenerate($("#regen-angles"), "Regenerating, up to a minute…", async () => {
     await API.generateAngles(book.id, 10);
     await reload();
     paint();

@@ -17,6 +17,7 @@ import { generate } from "./bookpilot-lib/ai.js";
 import { deriveMetrics, confidenceLevel, budgetRecommendation } from "./bookpilot-lib/metrics.js";
 import * as v from "./bookpilot-lib/validate.js";
 import * as audit from "./bookpilot-lib/audit.js";
+import { createJob, getJob } from "./bookpilot-lib/ai-jobs.js";
 
 const PREFIX = "/api/bp-ai";
 const AI_CALLS_PER_HOUR = 60;
@@ -623,10 +624,39 @@ const ROUTES = {
   patterns: findPatterns,
 };
 
+// What the background function may run. The AI Strategy steps only: they are
+// the ones that outlast a web request (see lib/ai-jobs.js), and each is the
+// very handler its synchronous route uses.
+export const JOB_RUNNERS = {
+  analyze: analyzeBook,
+  personas: generatePersonas,
+  angles: generateAngles,
+};
+
+// POST /api/bp-ai/jobs       create a job (returns at once)
+// GET  /api/bp-ai/jobs/:id   read its progress
+async function jobsEndpoint(req, jobId) {
+  const ctx = await authenticate(req);
+
+  if (req.method === "GET" && jobId) return json({ job: await getJob(ctx, jobId) });
+
+  if (req.method === "POST" && !jobId) {
+    // Same ceilings as any other AI call. Polling (GET) is deliberately not
+    // counted: a page waiting on a job asks every couple of seconds.
+    memoryLimit(`ai:${ctx.user.id}`, 20, 60_000);
+    await aiHourlyLimit(dbAsService(), ctx.user.id, AI_CALLS_PER_HOUR);
+    return json({ job: await createJob(ctx, await readJson(req)) }, 201);
+  }
+
+  throw Errors.notFound("endpoint");
+}
+
 export default withGuards(async (req) => {
+  const [operation, jobId] = pathSegments(req, PREFIX);
+  if (operation === "jobs") return jobsEndpoint(req, jobId);
+
   if (req.method !== "POST") throw Errors.notFound("endpoint");
 
-  const [operation] = pathSegments(req, PREFIX);
   const handler = ROUTES[operation];
   if (!handler) throw Errors.notFound("endpoint");
 

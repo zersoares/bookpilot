@@ -5,6 +5,7 @@
 // the demo workspace instead of the network when demo mode is on.
 
 import { accessToken, signOut } from "./auth.js";
+import { pollJob } from "./ai-job.js";
 
 export class ApiError extends Error {
   constructor(code, message, status, detail) {
@@ -86,6 +87,57 @@ export const api = {
   delete: (path) => request("DELETE", path),
 };
 
+// --- Background AI jobs ------------------------------------------------
+//
+// The AI Strategy steps take 30 to 40 seconds or more, longer than the
+// platform lets a web request run, so they used to time out every time. They
+// run in a background function instead: create a job, start the runner, poll.
+// The result lands in the same tables it always did; callers re-read it.
+
+const BACKGROUND_RUNNER = "/.netlify/functions/bookpilot-ai-background";
+
+async function startBackgroundRunner(jobId) {
+  const token = await accessToken();
+  let res;
+  try {
+    res = await fetch(BACKGROUND_RUNNER, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify({ job_id: jobId }),
+    });
+  } catch {
+    throw new ApiError("offline", "We couldn't reach BookPilot. Check your connection and try again.", 0);
+  }
+  // A background function answers 202 straight away; anything else means it did not start.
+  if (!res.ok) {
+    throw new ApiError("job_start_failed", "We couldn't start that. Nothing was charged. Please try again.", res.status);
+  }
+}
+
+async function runAiJob(route, body) {
+  // The demo answers instantly from memory; there is nothing to wait for.
+  if (demoAdapter) return api.post(`/api/bp-ai/${route}`, body);
+
+  const { job } = await api.post("/api/bp-ai/jobs", { route, ...body });
+  // A second click while one is already running comes back with that one:
+  // start the runner only for a job that has not started (starting twice is
+  // harmless, the server lets exactly one run).
+  if (job.status === "queued") await startBackgroundRunner(job.id);
+
+  const { job: finished, timedOut } = await pollJob(() => api.get(`/api/bp-ai/jobs/${job.id}`).then((r) => r.job));
+  if (timedOut) {
+    throw new ApiError(
+      "job_pending",
+      "This is taking longer than usual, but it's still running. Check back in a minute; the result will be here when it's done, and you're not charged if it fails.",
+      202,
+    );
+  }
+  if (finished.status === "failed") {
+    throw new ApiError(finished.error?.code || "error", finished.error?.message || "Something went wrong. Please try again.", 503);
+  }
+  return { creditsUsed: finished.credits_used };
+}
+
 // --- Endpoints --------------------------------------------------------
 // Named wrappers so a route change touches one line, and so the demo
 // adapter has a single vocabulary to implement.
@@ -147,9 +199,10 @@ export const API = {
   simulateTestVisit: (id) => api.post(`/api/bp/tracking-sites/${id}/simulate-test`, {}),
 
   // AI
-  analyzeBook: (bookId) => api.post("/api/bp-ai/analyze", { book_id: bookId }),
-  generatePersonas: (bookId, count) => api.post("/api/bp-ai/personas", { book_id: bookId, count }),
-  generateAngles: (bookId, count) => api.post("/api/bp-ai/angles", { book_id: bookId, count }),
+  // The three AI Strategy steps run as background jobs (see runAiJob above).
+  analyzeBook: (bookId) => runAiJob("analyze", { book_id: bookId }),
+  generatePersonas: (bookId, count) => runAiJob("personas", { book_id: bookId, count }),
+  generateAngles: (bookId, count) => runAiJob("angles", { book_id: bookId, count }),
   generateCopy: (payload) => api.post("/api/bp-ai/copy", payload),
   generateCreatives: (payload) => api.post("/api/bp-ai/creatives", payload),
   generateVideoScript: (payload) => api.post("/api/bp-ai/video-script", payload),

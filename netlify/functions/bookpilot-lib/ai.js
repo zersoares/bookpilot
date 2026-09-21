@@ -8,6 +8,7 @@
 // Everything is server-side: the API key, the prompts and the model
 // choice never reach the browser.
 
+import { AsyncLocalStorage } from "node:async_hooks";
 import { env } from "./env.js";
 import { Errors } from "./errors.js";
 import { dbAsService } from "./db.js";
@@ -133,6 +134,27 @@ export function schemaForApi(node) {
 // user paid for every generation that ran long and got nothing back.
 const PLATFORM_LIMIT_MS = 30_000;
 const REQUEST_TIMEOUT_MS = 25_000;
+
+// A background function is not held to that limit (Netlify allows it 15
+// minutes), so the same call may be given far longer there. The slowest
+// measured generation is about 35 seconds; this leaves room for a slow day
+// without letting a stuck request hold a job open indefinitely.
+export const BACKGROUND_TIMEOUT_MS = 240_000;
+
+// The time limit for the generate() calls made inside `withAiTimeout`. Carried
+// in async context so the many handlers that call generate() do not each need
+// a new argument, and so a limit can never leak from one request to another.
+const timeoutContext = new AsyncLocalStorage();
+
+/** Run `fn` with every generate() inside it allowed `ms` instead of the default. */
+export function withAiTimeout(ms, fn) {
+  return timeoutContext.run(ms, fn);
+}
+
+/** The limit generate() will use right now. */
+export function currentAiTimeout() {
+  return timeoutContext.getStore() ?? REQUEST_TIMEOUT_MS;
+}
 
 let settingsCache = null;
 let settingsExpires = 0;
@@ -314,8 +336,10 @@ export async function generate(key, variables = {}) {
     },
   };
 
+  const limitMs = currentAiTimeout();
+  const startedAt = Date.now();
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), limitMs);
 
   let res;
   try {
@@ -340,6 +364,9 @@ export async function generate(key, variables = {}) {
   clearTimeout(timer);
 
   const raw = await res.text();
+  // How long the model took is the number every tuning decision here needs, and
+  // until now it was only ever inferred from a refund's timestamp.
+  console.log(`[bookpilot] AI ${key} ${model} effort=${EFFORT_MODELS.has(model) ? effort : "n/a"} -> ${res.status} in ${Date.now() - startedAt}ms (limit ${limitMs}ms)`);
   if (!res.ok) {
     // The upstream body can contain the request echo; keep it in the log
     // and give the user the plain-language version.
