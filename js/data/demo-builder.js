@@ -21,6 +21,7 @@ import {
   DEMO_VISUALS, DEMO_COVERS, DEMO_SOURCES, DEMO_QUALITY, DEMO_MARKETING,
   DEMO_EXPORTS, DEMO_VERSIONS, DEMO_BRAND_KIT,
 } from "./demo-book.js";
+import { BOOK_TEMPLATES } from "./book-templates.js";
 import { themeList, TRIM_SIZES, trimSize } from "../doc/themes.js";
 import { assembleBook } from "../doc/assemble.js";
 import { layoutBook } from "../doc/layout.js";
@@ -154,9 +155,8 @@ function handleData(method, { resource, id, child, childId }, body, state, accou
       };
 
     case "templates":
-      // Templates are reference data the demo has no copy of; saying so
-      // is better than inventing a marketplace that does not exist here.
-      return { templates: [] };
+      // The same starting set the database seeds (see js/data/book-templates.js).
+      return { templates: clone(BOOK_TEMPLATES) };
 
     case "brand-kits": {
       if (method === "GET") return { kits: state.brandKits };
@@ -218,16 +218,29 @@ function handleProjects(method, { id, child, childId }, body, state, account) {
       };
     }
     if (method === "POST") {
+      // As the server does: a template fills in what the author left blank,
+      // and an unknown template id is dropped rather than kept.
+      const template = BOOK_TEMPLATES.find((t) => t.id === body.template_id);
+      const fromTemplate = template
+        ? {
+            theme_id: body.theme_id || template.theme_id,
+            purpose: body.purpose || template.purpose,
+            writing_style: body.writing_style || template.writing_style,
+            target_pages: body.target_pages || template.target_pages,
+          }
+        : { template_id: null };
       const project = {
         ...clone(DEMO_PROJECT),
         ...body,
+        ...fromTemplate,
         id: uid(),
         title: body.title || "Untitled book",
         status: "draft",
         stages: {},
         is_demo: true,
         book_id: null,
-        target_words: body.target_pages ? Math.round(Number(body.target_pages) * 260) : 40000,
+        target_words: (fromTemplate.target_pages || body.target_pages)
+          ? Math.round(Number(fromTemplate.target_pages || body.target_pages) * 260) : 40000,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
