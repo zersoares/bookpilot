@@ -333,7 +333,7 @@ export async function renderWizard(container, params, query) {
         <div class="bp-grid bp-grid--cards">
           ${raw(state.creatives.map((creative) => html`
             <label class="bp-card bp-card--flush bp-creative" style="cursor:pointer;${state.creativeIds.includes(creative.id) ? "border-color:var(--bp-primary)" : ""}">
-              ${raw(creativePreview(creative, { label: fmt.titleCase(creative.format) }))}
+              ${raw(creativePreview(creative, { label: fmt.titleCase(creative.format), book: books.find((b) => b.id === state.bookId) }))}
               <div class="bp-creative__body">
                 <div class="bp-row bp-row--between">
                   ${raw(scoreBadge(creative.score))}

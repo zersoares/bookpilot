@@ -14,8 +14,10 @@
 //      A demo that lies about its own arithmetic teaches the wrong
 //      thing about the product.
 //
-// The book is invented for this demo. It has not been published and has
-// not sold anything.
+// The campaign, the creatives' performance and every number in this file are
+// invented for the demo; none of it has sold anything. The cover is the real
+// cover of the author's own published book, so the boxes show a real picture
+// of the thing being advertised rather than a stand-in.
 
 const BOOK_ID = "d0000000-0000-4000-8000-000000000001";
 const CAMPAIGN_ID = "d0000000-0000-4000-8000-000000000002";
@@ -43,7 +45,7 @@ export const DEMO_BOOK = {
   price_cents: 899,
   currency: "EUR",
   sales_url: "https://example.com/starting-over",
-  cover_url: null,
+  cover_url: "/assets/covers/modern-womans-guide.jpg",
   sample_text: null,
   author_bio: "Demo Author writes about work, money and second chapters.",
   reviews_text: null,

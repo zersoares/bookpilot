@@ -3,6 +3,7 @@
 import { html, raw, safeUrl, safeImageUrl } from "../core/dom.js";
 import * as fmt from "../core/format.js";
 import { isDemo } from "../core/api.js";
+import { isSampleImage, sampleAltFor } from "./creative-templates.js";
 
 export function pageHead({ title, description, actions = "" }) {
   return html`
@@ -59,31 +60,60 @@ export function cover(book, { className = "" } = {}) {
 }
 
 /**
- * The picture box at the top of a creative card. A creative only has an
- * image when one was really produced for it (`media_url`), and the box says
- * so: the pictures are AI-generated concept images from the art direction,
- * not finished ad artwork. Without an image it stays the plain gradient —
- * never a stand-in dressed up as artwork.
+ * The picture box at the top of a creative card. What it shows, in order:
+ *
+ *   1. The creative's own picture (`media_url`). A demo creative's is an
+ *      AI-generated concept image; a template draft's is that template's
+ *      sample. The box says which, and neither is finished ad artwork.
+ *      The book's cover is drawn on top: small in a corner, or large and
+ *      centred when the cover is the subject of the ad (mockup, promo).
+ *   2. Failing that, the book itself: its cover, large, over a soft blur of
+ *      the same cover. That is a real picture of the real thing.
+ *   3. Failing that, the plain gradient, and, when we know the book, a
+ *      link to add its cover. Never a stand-in dressed up as artwork.
  */
-export function creativePreview(creative, { label = "", tall = false } = {}) {
+export function creativePreview(creative, { label = "", tall = false, book = null } = {}) {
   // media_url is a free URL column; only show it when it looks like a picture.
   const mediaUrl = safeUrl(creative.media_url);
-  const url = /\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(mediaUrl) ? "" : mediaUrl;
-  const tallClass = tall ? "bp-creative__preview--reel" : "";
+  const image = /\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(mediaUrl) ? "" : mediaUrl;
+  const coverUrl = safeImageUrl(book?.cover_url);
+  const tallClass = tall ? " bp-creative__preview--reel" : "";
   const headline = creative.headline || "Untitled creative";
-  if (!url) {
+  const heading = raw(html`
+      <span class="bp-badge bp-badge--accent" style="align-self:flex-start">${label}</span>
+      <div class="bp-creative__headline">${headline}</div>`);
+  const cover = (position) => coverUrl
+    ? raw(html`<img class="bp-creative__cover bp-creative__cover--${position}" src="${coverUrl}"
+        alt="Cover of ${book?.title || "the book"}" loading="lazy" decoding="async">`)
+    : "";
+
+  if (image) {
+    const sample = isSampleImage(image);
+    const subject = creative.format === "mockup" || creative.format === "promo";
     return html`
-      <div class="bp-creative__preview ${tallClass}">
-        <span class="bp-badge bp-badge--accent" style="align-self:flex-start">${label}</span>
-        <div class="bp-creative__headline">${headline}</div>
+      <div class="bp-creative__preview bp-creative__preview--image${tallClass}">
+        <img class="bp-creative__img" src="${image}" alt="${sample ? sampleAltFor(image) : creative.body?.image_alt || ""}" loading="lazy" decoding="async">
+        ${cover(subject ? "hero" : "thumb")}
+        <span class="bp-creative__concept" title="${sample
+          ? "A sample of the look, not artwork for your book."
+          : "Generated from the art direction. Not finished ad artwork."}">${sample ? "Sample image" : "AI concept image"}</span>
+        ${heading}
       </div>`;
   }
+
+  if (coverUrl) {
+    return html`
+      <div class="bp-creative__preview bp-creative__preview--image${tallClass}">
+        <img class="bp-creative__img bp-creative__img--blur" src="${coverUrl}" alt="" loading="lazy" decoding="async">
+        ${cover("hero")}
+        ${heading}
+      </div>`;
+  }
+
   return html`
-    <div class="bp-creative__preview bp-creative__preview--image ${tallClass}">
-      <img class="bp-creative__img" src="${url}" alt="${creative.body?.image_alt || ""}" loading="lazy" decoding="async">
-      <span class="bp-creative__concept" title="Generated from the art direction. Not finished ad artwork.">AI concept image</span>
-      <span class="bp-badge bp-badge--accent" style="align-self:flex-start">${label}</span>
-      <div class="bp-creative__headline">${headline}</div>
+    <div class="bp-creative__preview${tallClass}">
+      ${book?.id ? raw(html`<a class="bp-creative__nocover" href="#/books/${book.id}/edit">Add your book cover</a>`) : ""}
+      ${heading}
     </div>`;
 }
 

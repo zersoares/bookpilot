@@ -7,7 +7,7 @@ import { notify, confirmDialog, openModal } from "../core/toast.js";
 import { navigate } from "../core/router.js";
 import { refreshAccount } from "../core/session.js";
 import { FORMATS, PLATFORMS } from "./options.js";
-import { CREATIVE_TEMPLATES, creativeFromTemplate } from "./creative-templates.js";
+import { CREATIVE_TEMPLATES, creativeFromTemplate, sampleImagePath } from "./creative-templates.js";
 import { pageHead, emptyState, scoreBadge, fmt, demoBadge, loading, bullets, creativePreview } from "./shared.js";
 
 const FORMAT_LABEL = Object.fromEntries(FORMATS.map((f) => [f.value, f.label]));
@@ -19,6 +19,7 @@ const FORMAT_LABEL = Object.fromEntries(FORMATS.map((f) => [f.value, f.label]));
 export async function renderLibrary(container, params, query) {
   const [{ creatives }, { books }] = await Promise.all([API.creatives(), API.books()]);
   store.set({ creatives, books });
+  const bookById = new Map(books.map((b) => [b.id, b]));
 
   if (!creatives.length) {
     container.innerHTML =
@@ -87,7 +88,7 @@ export async function renderLibrary(container, params, query) {
       : [...list].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
 
     $("#creative-grid").innerHTML = list.length
-      ? list.map(creativeCard).join("")
+      ? list.map((c) => creativeCard(c, bookById.get(c.book_id))).join("")
       : `<div style="grid-column:1/-1">${emptyState({
           icon: "◇",
           title: "Nothing matches those filters",
@@ -102,10 +103,10 @@ export async function renderLibrary(container, params, query) {
   paint();
 }
 
-function creativeCard(creative) {
+function creativeCard(creative, book) {
   return html`
     <article class="bp-card bp-card--flush bp-card--interactive bp-creative">
-      ${raw(creativePreview(creative, { label: FORMAT_LABEL[creative.format] || creative.format }))}
+      ${raw(creativePreview(creative, { label: FORMAT_LABEL[creative.format] || creative.format, book }))}
       <div class="bp-creative__body">
         <p class="bp-small bp-muted bp-clamp-3" style="margin:0">${creative.primary_text || ""}</p>
         <div class="bp-row bp-row--between">
@@ -256,7 +257,7 @@ export async function renderFactory(container, params, query) {
           <h2 style="font-size:1.05rem">${created.length} new ${created.length === 1 ? "creative" : "creatives"}</h2>
           <a class="bp-small" href="#/creatives">Creative library →</a>
         </div>
-        <div class="bp-grid bp-grid--cards">${raw(created.map(creativeCard).join(""))}</div>
+        <div class="bp-grid bp-grid--cards">${raw(created.map((c) => creativeCard(c, books.find((b) => b.id === c.book_id))).join(""))}</div>
       `;
       notify.success("Creatives ready.");
     } catch (err) {
@@ -294,6 +295,7 @@ export async function renderDetail(container, params) {
           ${raw(creativePreview(creative, {
             label: FORMAT_LABEL[creative.format] || creative.format,
             tall: creative.format === "reel" || creative.format === "story",
+            book,
           }))}
         </div>
         <div class="bp-card">
@@ -593,6 +595,20 @@ function downloadCreative(creative, book) {
  * generation, no credits: the draft opens in the editor pre-filled from
  * the book, with bracketed gaps where only the author can decide.
  */
+/** A template's sample image, with this book's cover and headline on it. */
+function templatePreview(template, book) {
+  const headline = template.build(book || {}).headline || "";
+  return creativePreview(
+    {
+      format: template.format,
+      media_url: sampleImagePath(template.id),
+      // Some templates open with a bracketed gap for the author to fill; show the name instead.
+      headline: headline.startsWith("[") ? template.name : headline,
+    },
+    { label: FORMAT_LABEL[template.format] || template.format, book },
+  );
+}
+
 export async function renderTemplates(container, params, query) {
   const { books } = await API.books();
   store.set({ books });
@@ -627,18 +643,33 @@ export async function renderTemplates(container, params, query) {
 
     <div class="bp-grid bp-grid--cards">
       ${raw(CREATIVE_TEMPLATES.map((t) => html`
-        <article class="bp-card">
-          <div class="bp-row" style="justify-content:space-between;align-items:flex-start;gap:var(--bp-2)">
-            <h3 style="margin:0;font-size:1.02rem">${t.name}</h3>
-            <span class="bp-badge">${FORMAT_LABEL[t.format] || t.format}</span>
+        <article class="bp-card bp-card--flush bp-creative">
+          <div data-preview="${t.id}">${raw(templatePreview(t, books.find((b) => b.id === preselected)))}</div>
+          <div class="bp-creative__body">
+            <div class="bp-row" style="justify-content:space-between;align-items:flex-start;gap:var(--bp-2)">
+              <h3 style="margin:0;font-size:1.02rem">${t.name}</h3>
+              <span class="bp-badge">${FORMAT_LABEL[t.format] || t.format}</span>
+            </div>
+            <p class="bp-small bp-subtle" style="margin:0">${t.blurb}</p>
+            <div class="bp-creative__footer">
+              <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" data-template="${t.id}">
+                Use this template
+              </button>
+            </div>
           </div>
-          <p class="bp-small bp-subtle" style="margin:var(--bp-2) 0 var(--bp-4)">${t.blurb}</p>
-          <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" data-template="${t.id}">
-            Use this template
-          </button>
         </article>`).join(""))}
     </div>
   `;
+
+  // The sample images are generic; the book's own cover and headline go on top,
+  // so picking a different book shows what that book's ad would look like.
+  $("#template-book").addEventListener("change", () => {
+    const book = books.find((b) => b.id === $("#template-book").value);
+    container.querySelectorAll("[data-preview]").forEach((slot) => {
+      const t = CREATIVE_TEMPLATES.find((x) => x.id === slot.dataset.preview);
+      if (t) slot.innerHTML = templatePreview(t, book);
+    });
+  });
 
   container.querySelectorAll("[data-template]").forEach((button) => {
     button.addEventListener("click", async (event) => {

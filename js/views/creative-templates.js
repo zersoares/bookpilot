@@ -211,8 +211,49 @@ export const CREATIVE_TEMPLATES = [
   },
 ];
 
-/** Build the POST body for `API.createCreative` from a template + book. */
-export function creativeFromTemplate(template, book) {
+// ---------------------------------------------------------------------
+// Sample images
+//
+// One AI-generated picture per template, made from that template's own art
+// direction (no people, no text) so a template can be seen before it is used,
+// and a draft made from it does not start as a blank box. They are samples of
+// the look, not artwork for anyone's book: the box says "Sample image", and the
+// book's own cover is drawn on top by creativePreview().
+// ---------------------------------------------------------------------
+
+const SAMPLE_ALT = {
+  "problem-promise-proof": "A cluttered grey desk on one side and a tidy, sunlit desk on the other.",
+  "hook-stakes-call": "A phone on a small tripod facing an empty armchair in warm morning light.",
+  "quote-card": "Off-white handmade paper with a single pencil and plenty of empty space.",
+  "myth-truth-book": "Three blank cream cards laid in a row on a warm grey surface.",
+  "cover-reveal": "An empty stone surface in soft window light, ready for a book.",
+  "reader-review": "A calm cream background with a small plant and a cup of tea.",
+  "launch-offer": "A deep indigo studio backdrop with a few small golden confetti pieces.",
+  "first-page": "A close-up of an open paperback page in warm light.",
+};
+
+export const sampleImagePath = (templateId) => `/assets/creatives/sample-${templateId}.webp`;
+
+/** Is this URL one of the template samples? (Matches the path, whatever the origin.) */
+export const isSampleImage = (url) => /\/assets\/creatives\/sample-([a-z-]+)\.webp(\?|#|$)/.test(String(url || ""));
+
+/** Alt text for a sample image URL, or "" for anything else. */
+export function sampleAltFor(url) {
+  const id = String(url || "").match(/\/assets\/creatives\/sample-([a-z-]+)\.webp/)?.[1];
+  return (id && SAMPLE_ALT[id]) || "";
+}
+
+/** Every template has a sample and an alt text for it. */
+export const SAMPLE_TEMPLATE_IDS = Object.keys(SAMPLE_ALT);
+
+/**
+ * Build the POST body for `API.createCreative` from a template + book.
+ *
+ * The draft starts with the template's sample image so its box is not blank.
+ * The server wants a full web address, so the path is made absolute against the
+ * page's own origin; outside a browser (tests) there is none and it is left out.
+ */
+export function creativeFromTemplate(template, book, { origin = globalThis.location?.origin } = {}) {
   const built = template.build(book || {});
   return {
     book_id: book.id,
@@ -220,6 +261,7 @@ export function creativeFromTemplate(template, book) {
     format: template.format,
     cta: template.cta,
     status: "draft",
+    ...(origin ? { media_url: new URL(sampleImagePath(template.id), origin).href } : {}),
     ...built,
   };
 }

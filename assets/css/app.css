@@ -403,6 +403,35 @@
   background: linear-gradient(to top, rgba(18, 14, 12, 0.84) 0%, rgba(18, 14, 12, 0.5) 34%, rgba(18, 14, 12, 0) 64%);
 }
 .bp-creative__preview--image .bp-creative__headline { text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45); }
+/* The book itself in the box: over the creative's picture, or on its own over a
+   soft blur of the same cover. */
+.bp-creative__img--blur { filter: blur(22px) saturate(1.15); transform: scale(1.35); }
+.bp-creative__cover {
+  position: absolute;
+  z-index: 0;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+.bp-creative__cover--thumb { top: 12px; left: 12px; width: 21%; }
+.bp-creative__cover--hero { top: 8%; left: 50%; width: 44%; transform: translateX(-50%); }
+.bp-creative__preview { position: relative; }
+.bp-creative__nocover {
+  position: absolute;
+  top: 34%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 7px 14px;
+  border: 1px dashed var(--bp-border-strong, var(--bp-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bp-surface) 70%, transparent);
+  color: var(--bp-text-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.bp-creative__nocover:hover { color: var(--bp-primary); border-color: var(--bp-primary); text-decoration: none; }
 .bp-creative__concept {
   position: absolute;
   top: 10px;
