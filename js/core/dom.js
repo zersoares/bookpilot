@@ -51,6 +51,18 @@ export function safeUrl(value) {
   return "";
 }
 
+/**
+ * For an <img src> only. Everything safeUrl allows, plus an inline PNG, JPEG
+ * or WebP: the demo has no storage, so a picture uploaded there is kept as a
+ * data URL. Never use this for an href, and never widen the list — SVG can
+ * carry script.
+ */
+export function safeImageUrl(value) {
+  const text = String(value ?? "").trim();
+  if (/^data:image\/(png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(text)) return text;
+  return safeUrl(text);
+}
+
 export function $(selector, scope = document) {
   return scope.querySelector(selector);
 }

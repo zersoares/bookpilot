@@ -9,6 +9,8 @@ import { html, raw, $, delegate, formData, setBusy } from "../../core/dom.js";
 import { BB } from "../../core/builder-api.js";
 import { notify, confirmDialog } from "../../core/toast.js";
 import { pageHead, emptyState, demoBadge } from "../shared.js";
+import { imageField, bindImageFields } from "../image-field.js";
+import { normaliseUrl } from "../../core/image-plan.js";
 
 export async function render(container) {
   const [{ kits }, { projects }] = await Promise.all([
@@ -150,16 +152,9 @@ function openEditor(container, kit) {
         </div>
 
         <div class="bp-field-row">
-          <div class="bp-field">
-            <label class="bp-label" for="logo_url">Logo URL</label>
-            <input class="bp-input" id="logo_url" name="logo_url" value="${kit?.logo_url || ""}"
-                   placeholder="https://">
-          </div>
-          <div class="bp-field">
-            <label class="bp-label" for="author_photo_url">Author photo URL</label>
-            <input class="bp-input" id="author_photo_url" name="author_photo_url"
-                   value="${kit?.author_photo_url || ""}" placeholder="https://">
-          </div>
+          ${raw(imageField({ id: "logo_url", label: "Logo URL", kind: "logo", value: kit?.logo_url || "" }))}
+          ${raw(imageField({ id: "author_photo_url", label: "Author photo URL", kind: "photo",
+            value: kit?.author_photo_url || "" }))}
         </div>
 
         <div class="bp-field">
@@ -181,6 +176,8 @@ function openEditor(container, kit) {
     </section>
   `;
 
+  bindImageFields(mount);
+
   mount.querySelector('[data-action="cancel"]').addEventListener("click", () => {
     mount.innerHTML = "";
   });
@@ -194,8 +191,8 @@ function openEditor(container, kit) {
       company_name: values.company_name || null,
       author_bio: values.author_bio || null,
       company_details: values.company_details || null,
-      logo_url: values.logo_url || null,
-      author_photo_url: values.author_photo_url || null,
+      logo_url: normaliseUrl(values.logo_url),
+      author_photo_url: normaliseUrl(values.author_photo_url),
       is_default: Boolean(event.target.querySelector('[name="is_default"]').checked),
       colors: String(values.colors || "")
         .split(",")

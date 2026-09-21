@@ -336,6 +336,34 @@
   border-radius: 0 var(--bp-radius) var(--bp-radius) 0;
 }
 
+/* ---- Image upload field ------------------------------------------- */
+
+.bp-imgfield__row { display: flex; gap: var(--bp-2); align-items: stretch; }
+.bp-imgfield__row .bp-input { flex: 1; min-width: 0; }
+.bp-imgfield__row .bp-btn { flex: none; white-space: nowrap; }
+.bp-imgfield__preview {
+  display: flex;
+  align-items: center;
+  gap: var(--bp-3);
+  margin-top: var(--bp-3);
+}
+.bp-imgfield__preview[hidden] { display: none; }
+.bp-imgfield__preview img {
+  max-width: 96px;
+  max-height: 96px;
+  object-fit: contain;
+  border-radius: var(--bp-radius-sm);
+  border: 1px solid var(--bp-border);
+  background: var(--bp-surface);
+}
+.bp-imgfield__status:empty { display: none; }
+.bp-imgfield__status[data-tone="ok"] { color: var(--bp-success); }
+.bp-imgfield__status[data-tone="error"] { color: var(--bp-danger); }
+@media (max-width: 520px) {
+  .bp-imgfield__row { flex-wrap: wrap; }
+  .bp-imgfield__row .bp-input { flex-basis: 100%; }
+}
+
 /* ---- Creatives ----------------------------------------------------- */
 
 .bp-creative { display: flex; flex-direction: column; overflow: hidden; }

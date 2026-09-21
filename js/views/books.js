@@ -8,6 +8,8 @@ import { navigate } from "../core/router.js";
 import { refreshAccount } from "../core/session.js";
 import { GENRE_OPTIONS, CURRENCIES } from "./options.js";
 import { pageHead, emptyState, cover, statusBadge, statGrid, fmt, demoBadge, paragraphs } from "./shared.js";
+import { imageField, bindImageFields } from "./image-field.js";
+import { normaliseUrl } from "../core/image-plan.js";
 
 // ---------------------------------------------------------------------
 // Library
@@ -274,11 +276,7 @@ export async function renderForm(container, params) {
         <label class="bp-label" for="sales_url">Sales URL</label>
         <input class="bp-input" id="sales_url" name="sales_url" type="url" value="${value("sales_url")}" placeholder="https://">
       </div>
-      <div class="bp-field">
-        <label class="bp-label" for="cover_url">Cover image URL</label>
-        <input class="bp-input" id="cover_url" name="cover_url" type="url" value="${value("cover_url")}" placeholder="https://">
-        <div class="bp-hint">A direct link to the image file.</div>
-      </div>
+      ${raw(imageField({ id: "cover_url", label: "Cover image URL", kind: "cover", value: value("cover_url") }))}
       <div class="bp-field">
         <label class="bp-label" for="sample_text">Sample text</label>
         <textarea class="bp-textarea" id="sample_text" name="sample_text" rows="5" maxlength="40000"
@@ -304,6 +302,7 @@ export async function renderForm(container, params) {
 
   if (book?.genre) $("#genre").value = book.genre;
   $("#currency").value = book?.currency || store.get("profile")?.currency || "EUR";
+  bindImageFields(container);
 
   $("#book-form").addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -320,7 +319,7 @@ export async function renderForm(container, params) {
         description: values.description || null,
         currency: values.currency,
         sales_url: values.sales_url || null,
-        cover_url: values.cover_url || null,
+        cover_url: normaliseUrl(values.cover_url),
         sample_text: values.sample_text || null,
         author_bio: values.author_bio || null,
         reviews_text: values.reviews_text || null,

@@ -58,6 +58,11 @@ export function isConfigured() {
   return Boolean(config.url && config.anonKey);
 }
 
+/** Where Supabase lives, for the one call that goes straight to Storage. */
+export function storageConfig() {
+  return { url: config.url, anonKey: config.anonKey };
+}
+
 export function onChange(listener) {
   listeners.add(listener);
   return () => listeners.delete(listener);

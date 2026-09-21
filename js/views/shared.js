@@ -1,6 +1,6 @@
 // Partials shared by the views.
 
-import { html, raw, safeUrl } from "../core/dom.js";
+import { html, raw, safeUrl, safeImageUrl } from "../core/dom.js";
 import * as fmt from "../core/format.js";
 import { isDemo } from "../core/api.js";
 
@@ -51,7 +51,7 @@ export function errorBox(message, retryAction = "") {
 }
 
 export function cover(book, { className = "" } = {}) {
-  const url = safeUrl(book?.cover_url);
+  const url = safeImageUrl(book?.cover_url);
   if (url) {
     return html`<img class="bp-cover ${className}" src="${url}" alt="Cover of ${book.title}" loading="lazy">`;
   }

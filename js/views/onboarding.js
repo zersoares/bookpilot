@@ -12,6 +12,8 @@ import * as store from "../core/store.js";
 import { notify } from "../core/toast.js";
 import { GENRE_OPTIONS, CURRENCIES } from "./options.js";
 import { fmt, paragraphs, bullets } from "./shared.js";
+import { imageField, bindImageFields } from "./image-field.js";
+import { normaliseUrl } from "../core/image-plan.js";
 
 const TOTAL_STEPS = 6;
 let draft = { promoting: "book", bookId: null };
@@ -150,11 +152,7 @@ function stepBook(container) {
          <input class="bp-input" id="sales_url" name="sales_url" type="url" placeholder="https://">
          <div class="bp-hint">Your own site, Amazon, Kobo — wherever the ads should send people.</div>
        </div>
-       <div class="bp-field">
-         <label class="bp-label" for="cover_url">Cover image URL <span class="bp-subtle">(optional)</span></label>
-         <input class="bp-input" id="cover_url" name="cover_url" type="url" placeholder="https://">
-         <div class="bp-hint">A direct link to the image. Uploads are coming; a URL works for now.</div>
-       </div>
+       ${raw(imageField({ id: "cover_url", label: "Cover image URL", kind: "cover", optional: true }))}
        <details style="margin-top:var(--bp-4)">
          <summary class="bp-small" style="cursor:pointer">Add a sample chapter, bio or reviews (optional)</summary>
          <div class="bp-field" style="margin-top:var(--bp-4)">
@@ -181,6 +179,7 @@ function stepBook(container) {
   );
 
   $("#back").addEventListener("click", () => renderStep(container, 2));
+  bindImageFields(container);
   $("#book-form").addEventListener("submit", async (event) => {
     event.preventDefault();
     const values = formData(event.target);
@@ -195,7 +194,7 @@ function stepBook(container) {
         description: values.description || null,
         currency: values.currency || "EUR",
         sales_url: values.sales_url || null,
-        cover_url: values.cover_url || null,
+        cover_url: normaliseUrl(values.cover_url),
         sample_text: values.sample_text || null,
         author_bio: values.author_bio || null,
         reviews_text: values.reviews_text || null,
