@@ -58,6 +58,35 @@ export function cover(book, { className = "" } = {}) {
   return html`<div class="bp-cover bp-cover--placeholder ${className}" aria-hidden="true">${book?.title || "No cover"}</div>`;
 }
 
+/**
+ * The picture box at the top of a creative card. A creative only has an
+ * image when one was really produced for it (`media_url`), and the box says
+ * so: the pictures are AI-generated concept images from the art direction,
+ * not finished ad artwork. Without an image it stays the plain gradient —
+ * never a stand-in dressed up as artwork.
+ */
+export function creativePreview(creative, { label = "", tall = false } = {}) {
+  // media_url is a free URL column; only show it when it looks like a picture.
+  const mediaUrl = safeUrl(creative.media_url);
+  const url = /\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(mediaUrl) ? "" : mediaUrl;
+  const tallClass = tall ? "bp-creative__preview--reel" : "";
+  const headline = creative.headline || "Untitled creative";
+  if (!url) {
+    return html`
+      <div class="bp-creative__preview ${tallClass}">
+        <span class="bp-badge bp-badge--accent" style="align-self:flex-start">${label}</span>
+        <div class="bp-creative__headline">${headline}</div>
+      </div>`;
+  }
+  return html`
+    <div class="bp-creative__preview bp-creative__preview--image ${tallClass}">
+      <img class="bp-creative__img" src="${url}" alt="${creative.body?.image_alt || ""}" loading="lazy" decoding="async">
+      <span class="bp-creative__concept" title="Generated from the art direction. Not finished ad artwork.">AI concept image</span>
+      <span class="bp-badge bp-badge--accent" style="align-self:flex-start">${label}</span>
+      <div class="bp-creative__headline">${headline}</div>
+    </div>`;
+}
+
 export function statusBadge(status) {
   const tone = fmt.statusTone(status);
   return html`<span class="bp-badge ${tone ? `bp-badge--${tone}` : ""}">${fmt.titleCase(status)}</span>`;

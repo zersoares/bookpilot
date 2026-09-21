@@ -8,7 +8,7 @@ import { navigate } from "../core/router.js";
 import { refreshAccount } from "../core/session.js";
 import { FORMATS, PLATFORMS } from "./options.js";
 import { CREATIVE_TEMPLATES, creativeFromTemplate } from "./creative-templates.js";
-import { pageHead, emptyState, scoreBadge, fmt, demoBadge, loading, bullets } from "./shared.js";
+import { pageHead, emptyState, scoreBadge, fmt, demoBadge, loading, bullets, creativePreview } from "./shared.js";
 
 const FORMAT_LABEL = Object.fromEntries(FORMATS.map((f) => [f.value, f.label]));
 
@@ -105,10 +105,7 @@ export async function renderLibrary(container, params, query) {
 function creativeCard(creative) {
   return html`
     <article class="bp-card bp-card--flush bp-card--interactive bp-creative">
-      <div class="bp-creative__preview">
-        <span class="bp-badge bp-badge--accent" style="align-self:flex-start">${FORMAT_LABEL[creative.format] || creative.format}</span>
-        <div class="bp-creative__headline">${creative.headline || "Untitled creative"}</div>
-      </div>
+      ${raw(creativePreview(creative, { label: FORMAT_LABEL[creative.format] || creative.format }))}
       <div class="bp-creative__body">
         <p class="bp-small bp-muted bp-clamp-3" style="margin:0">${creative.primary_text || ""}</p>
         <div class="bp-row bp-row--between">
@@ -294,10 +291,10 @@ export async function renderDetail(container, params) {
     <div class="bp-grid" style="grid-template-columns:minmax(0,320px) minmax(0,1fr);align-items:start;gap:var(--bp-8)">
       <div class="bp-stack">
         <div class="bp-card bp-card--flush bp-creative">
-          <div class="bp-creative__preview ${creative.format === "reel" || creative.format === "story" ? "bp-creative__preview--reel" : ""}">
-            <span class="bp-badge bp-badge--accent" style="align-self:flex-start">${FORMAT_LABEL[creative.format] || creative.format}</span>
-            <div class="bp-creative__headline">${creative.headline || ""}</div>
-          </div>
+          ${raw(creativePreview(creative, {
+            label: FORMAT_LABEL[creative.format] || creative.format,
+            tall: creative.format === "reel" || creative.format === "story",
+          }))}
         </div>
         <div class="bp-card">
           <div class="bp-card__header">

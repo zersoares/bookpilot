@@ -14,7 +14,7 @@ import { navigate } from "../core/router.js";
 import { OBJECTIVES, DESTINATIONS, PLATFORMS } from "./options.js";
 import {
   pageHead, emptyState, statusBadge, statGrid, fmt, demoBadge, loading,
-  confidenceBadge, scoreBadge,
+  confidenceBadge, scoreBadge, creativePreview,
 } from "./shared.js";
 
 // ---------------------------------------------------------------------
@@ -333,10 +333,7 @@ export async function renderWizard(container, params, query) {
         <div class="bp-grid bp-grid--cards">
           ${raw(state.creatives.map((creative) => html`
             <label class="bp-card bp-card--flush bp-creative" style="cursor:pointer;${state.creativeIds.includes(creative.id) ? "border-color:var(--bp-primary)" : ""}">
-              <div class="bp-creative__preview">
-                <span class="bp-badge bp-badge--accent" style="align-self:flex-start">${fmt.titleCase(creative.format)}</span>
-                <div class="bp-creative__headline">${creative.headline || "Untitled"}</div>
-              </div>
+              ${raw(creativePreview(creative, { label: fmt.titleCase(creative.format) }))}
               <div class="bp-creative__body">
                 <div class="bp-row bp-row--between">
                   ${raw(scoreBadge(creative.score))}

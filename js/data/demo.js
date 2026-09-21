@@ -234,6 +234,22 @@ export const DEMO_ANGLES = [
     message: "Rebuilding is a practice, not an event.", cta: "Read a sample", format_hint: "Feed ad" },
 ].map((angle) => ({ ...angle, book_id: BOOK_ID, score: null, created_at: "2026-01-09T10:00:00.000Z" }));
 
+// AI-generated concept images (SDXL, run locally in ComfyUI), one per demo
+// creative, written from that creative's own visual_prompt. They show the
+// scene and the light; they are not finished ad artwork, and the card says so.
+const DEMO_CREATIVE_IMAGES = {
+  [cid(1)]: { url: "/assets/creatives/demo-1.webp",
+    alt: "A sunlit kitchen table with an open laptop, a stoneware mug and a plant by the window." },
+  [cid(2)]: { url: "/assets/creatives/demo-2.webp",
+    alt: "Blank cream cards fanned out on a terracotta-toned surface beside small bowls and dried grasses." },
+  [cid(3)]: { url: "/assets/creatives/demo-3.webp",
+    alt: "An open lined notebook and a small sand-coloured book on rumpled linen." },
+  [cid(4)]: { url: "/assets/creatives/demo-4.webp",
+    alt: "A kitchen table in soft morning light with an open diary, a pen, a mug and a notebook." },
+  [cid(5)]: { url: "/assets/creatives/demo-5.webp",
+    alt: "A tidy desk seen from above with an open laptop, a notebook and a printed page." },
+};
+
 export const DEMO_CREATIVES = [
   {
     id: cid(1), angle_id: aid(1), persona_id: pid(1), platform: "instagram", format: "reel",
@@ -364,8 +380,8 @@ export const DEMO_CREATIVES = [
   ...creative,
   user_id: "demo",
   book_id: BOOK_ID,
-  body: creative.body || {},
-  media_url: null,
+  body: { ...creative.body, ...(DEMO_CREATIVE_IMAGES[creative.id] && { image_alt: DEMO_CREATIVE_IMAGES[creative.id].alt }) },
+  media_url: DEMO_CREATIVE_IMAGES[creative.id]?.url ?? null,
   status: "in_campaign",
   is_demo: true,
   created_at: "2026-01-12T09:00:00.000Z",

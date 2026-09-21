@@ -350,6 +350,46 @@
   border-bottom: 1px solid var(--bp-border);
 }
 .bp-creative__preview--reel { aspect-ratio: 9 / 16; }
+/* With a picture: the image fills the box, a scrim keeps the headline
+   readable whatever the photo, and the text is always light on dark. */
+.bp-creative__preview--image {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #2a2420;
+  color: #fff;
+}
+.bp-creative__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+.bp-creative__preview--image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, rgba(18, 14, 12, 0.84) 0%, rgba(18, 14, 12, 0.5) 34%, rgba(18, 14, 12, 0) 64%);
+}
+.bp-creative__preview--image .bp-creative__headline { text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45); }
+.bp-creative__concept {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(20, 16, 14, 0.5);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
 .bp-creative__headline { font-family: var(--bp-font-serif); font-size: 1.04rem; line-height: 1.28; }
 .bp-creative__body { padding: var(--bp-4); display: flex; flex-direction: column; gap: var(--bp-3); flex: 1; }
 .bp-creative__footer { margin-top: auto; display: flex; gap: var(--bp-2); flex-wrap: wrap; }
