@@ -122,6 +122,7 @@ export async function render(container) {
           <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="export-btn">Export my data</button>
           <a class="bp-btn bp-btn--ghost bp-btn--sm" href="/privacy.html">Privacy policy</a>
           <a class="bp-btn bp-btn--ghost bp-btn--sm" href="/cookies.html">Cookie policy</a>
+          <button type="button" class="bp-btn bp-btn--ghost bp-btn--sm" data-cookie-settings>Cookie settings</button>
           <a class="bp-btn bp-btn--ghost bp-btn--sm" href="/terms.html">Terms</a>
         </div>
       </section>

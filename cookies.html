@@ -50,7 +50,7 @@
   <p class="bp-eyebrow">Legal</p>
   <h1 class="bp-display" style="font-size:2.1rem;margin:var(--bp-2) 0 var(--bp-3)">Cookie policy</h1>
   <p class="bp-lead">No advertising cookies, no tracking cookies. Here is everything that is stored, and where.</p>
-  <p class="bp-small bp-subtle">Version 1.0 · Last updated January 2026</p>
+  <p class="bp-small bp-subtle">Version 1.1 · Last updated September 2026</p>
 
   <div class="bp-alert bp-alert--warning" style="margin:var(--bp-6) 0">
     <span class="bp-alert__icon">!</span>
@@ -69,7 +69,7 @@
   <h2>The short version</h2>
   <p>
     BookPilot AI sets no advertising cookies and no tracking cookies. What it stores in your browser
-    is what an application needs to work: your session, and your theme choice.
+    is what an application needs to work: your session, and your display choices.
   </p>
 
   <h2>What BookPilot stores on your device</h2>
@@ -88,17 +88,30 @@
         <td>Remembers whether you chose light or dark. Only written if you use the toggle.</td>
         <td>Until you clear site data</td>
       </tr>
+      <tr>
+        <td><code class="bp-mono">bookpilot.mockup.palette</code></td>
+        <td>localStorage</td>
+        <td>Remembers the backdrop you chose in the Book Builder's mockups. Only written when you choose one.</td>
+        <td>Until you clear site data</td>
+      </tr>
+      <tr>
+        <td><code class="bp-mono">bookpilot.consent</code></td>
+        <td>localStorage</td>
+        <td>Remembers that you have seen the cookie notice, so you are not asked on every page.</td>
+        <td>12 months</td>
+      </tr>
     </tbody>
   </table>
   <p>
-    Both are strictly necessary or set on your own action, which is why the app does not show a
-    consent banner for them. Neither is readable by any other site, and neither is sent to us for
-    analysis.
+    Each of these is either strictly necessary or written only because you used a control. BookPilot
+    shows a short notice about this the first time you visit, and you can reopen it whenever you
+    like from "Cookie settings" in the footer, or in Settings once you are signed in. None of it is
+    readable by any other site, and none of it is sent to us for analysis.
   </p>
   <p>
-    We do not currently load a third-party product analytics tool. If that changes, it will appear in
-    this table, it will be gated behind the analytics toggle in Settings, and it will be off unless
-    you switch it on.
+    We do not currently load a third-party product analytics tool, and BookPilot sets no cookies. If
+    that changes, it will appear in this table and in the cookie notice, the notice will become a
+    choice between accepting and refusing it, and it will not run unless you accept.
   </p>
 
   <h2>The tracking script on your own website</h2>
@@ -149,11 +162,13 @@
       <span>
         <a href="/privacy.html">Privacy</a> ·
         <a href="/terms.html">Terms</a> ·
-        <a href="/cookies.html">Cookies</a>
+        <a href="/cookies.html">Cookies</a> ·
+        <a href="/cookies.html" data-cookie-settings>Cookie settings</a>
       </span>
     </div>
   </div>
 </footer>
 <script>document.getElementById('year').textContent = String(new Date().getFullYear());</script>
+<script type="module" src="/js/cookie-notice.js"></script>
 </body>
 </html>
