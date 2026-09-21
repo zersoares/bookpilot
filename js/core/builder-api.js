@@ -50,6 +50,8 @@ export const BB = {
     api.patch(`/api/bb/projects/${id}/sources/${sourceId}`, patch),
   deleteSource: (id, sourceId) => api.delete(`/api/bb/projects/${id}/sources/${sourceId}`),
   covers: (id) => api.get(`/api/bb/projects/${id}/covers`),
+  // A cover made from a ready-made template (see js/core/cover-templates.js).
+  createCoverFromTemplate: (id, templateId) => api.post(`/api/bb/projects/${id}/covers`, { template_id: templateId }),
   updateCover: (id, coverId, patch) => api.patch(`/api/bb/projects/${id}/covers/${coverId}`, patch),
   deleteCover: (id, coverId) => api.delete(`/api/bb/projects/${id}/covers/${coverId}`),
   marketing: (id) => api.get(`/api/bb/projects/${id}/marketing`),

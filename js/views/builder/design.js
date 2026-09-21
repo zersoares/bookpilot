@@ -216,7 +216,38 @@ function paintThemeSamples(container, data) {
 // =====================================================================
 
 export async function renderCover(container, params) {
-  const data = await BB.project(params.id);
+  let data = await BB.project(params.id);
+
+  // The author picked a cover template on the Create page. Their title and name
+  // exist now, so this is the moment to turn it into a real cover. It is made
+  // once (the pointer on the project is cleared after) and never selected for
+  // them: choosing the cover is theirs to do.
+  const picked = data.project.design?.cover_template;
+  if (picked) {
+    try {
+      await BB.createCoverFromTemplate(data.project.id, picked);
+      const { cover_template: _done, ...rest } = data.project.design;
+      await BB.updateProject(data.project.id, { design: rest });
+      data = await BB.project(params.id);
+    } catch (err) {
+      // Not fatal: the pointer stays, and the next visit tries again.
+      console.error("[bookpilot] could not create the template cover:", err);
+    }
+  }
+
+  // A template cover made before the title was chosen has no title on it yet.
+  // Fill it in from the project, so the cover shows the book it belongs to.
+  const realTitle = data.project.title && data.project.title !== "Untitled book";
+  const unlettered = (data.covers || []).filter((c) => c.title_text == null && realTitle);
+  if (unlettered.length) {
+    await Promise.all(unlettered.map((c) => BB.updateCover(data.project.id, c.id, {
+      title_text: data.project.title,
+      ...(data.project.subtitle ? { subtitle_text: data.project.subtitle } : {}),
+      ...(data.project.author_name ? { author_text: data.project.author_name } : {}),
+    }).catch(() => null)));
+    data = await BB.project(params.id);
+  }
+
   const { project, covers = [] } = data;
   const trim = trimSize(project.trim_size);
   const pageCount = Math.max(24, project.progress?.estimatedPages || 120);

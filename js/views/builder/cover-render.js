@@ -58,6 +58,22 @@ const TYPE_STACK = {
   display: "'DM Serif Display', Georgia, serif",
 };
 
+// A soft wash behind the type where artwork is too busy or too mixed for the
+// text to be read on its own. Chosen per cover (the templates measure their own
+// art), never applied by default, and drawn only from these fixed values.
+const SCRIM_COLOR = { dark: "10, 10, 22", light: "255, 255, 255" };
+
+function scrimStyle(tone, zone) {
+  const rgb = SCRIM_COLOR[tone];
+  if (!rgb) return "";
+  const on = `rgba(${rgb}, 0.66)`;
+  const off = `rgba(${rgb}, 0)`;
+  if (zone === "top") return `top:0;height:60%;background:linear-gradient(to bottom, ${on}, ${off})`;
+  if (zone === "bottom") return `bottom:0;height:60%;background:linear-gradient(to top, ${on}, ${off})`;
+  if (zone === "author") return `bottom:0;height:30%;background:linear-gradient(to top, ${on}, ${off})`;
+  return `top:12%;height:76%;background:linear-gradient(to bottom, ${off}, ${on} 28%, ${on} 72%, ${off})`;
+}
+
 const POSITION = {
   top: "flex-start",
   upper: "flex-start",
@@ -98,18 +114,25 @@ export function coverPreview(cover, { width = 220, className = "" } = {}) {
       background:${palette.background};
       color:${palette.title};
       font-family:${stack};
-      justify-content:${justify};
       text-align:${align};
       align-items:${align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start"};
       --bb-cover-accent:${palette.accent};
     ">
-      ${image ? raw(html`<img class="bb-cover__art" src="${image}" alt="">`) : ""}
-      <div class="bb-cover__type">
-        <div class="bb-cover__title" style="font-size:${titleSize}px;color:${palette.title}">${displayTitle}</div>
-        ${layout.rule ? raw(html`<div class="bb-cover__rule" style="background:${palette.accent}"></div>`) : ""}
-        ${cover?.subtitle_text
-          ? raw(html`<div class="bb-cover__subtitle" style="font-size:${Math.max(7, Math.round(10 * scale))}px;color:${palette.subtitle}">${cover.subtitle_text}</div>`)
-          : ""}
+      ${image ? raw(html`<img class="bb-cover__art" src="${image}" alt="" loading="lazy" decoding="async">`) : ""}
+      ${image && SCRIM_COLOR[layout.scrim]
+        ? raw(html`<div class="bb-cover__scrim" style="${scrimStyle(layout.scrim, layout.title_position === "upper" ? "top" : layout.title_position === "lower" ? "bottom" : layout.title_position || "middle")}"></div>`)
+        : ""}
+      ${image && SCRIM_COLOR[layout.author_scrim]
+        ? raw(html`<div class="bb-cover__scrim" style="${scrimStyle(layout.author_scrim, "author")}"></div>`)
+        : ""}
+      <div class="bb-cover__zone" style="justify-content:${justify};align-items:${align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start"}">
+        <div class="bb-cover__type">
+          <div class="bb-cover__title" style="font-size:${titleSize}px;color:${palette.title}">${displayTitle}</div>
+          ${layout.rule ? raw(html`<div class="bb-cover__rule" style="background:${palette.accent}"></div>`) : ""}
+          ${cover?.subtitle_text
+            ? raw(html`<div class="bb-cover__subtitle" style="font-size:${Math.max(7, Math.round(10 * scale))}px;color:${palette.subtitle}">${cover.subtitle_text}</div>`)
+            : ""}
+        </div>
       </div>
       <div class="bb-cover__author" style="font-size:${Math.max(8, Math.round(11 * scale))}px;color:${palette.author}">
         ${cover?.author_text || ""}

@@ -94,4 +94,4 @@
 # the functions directory. Naming it here means the bundle carries it
 # whether or not the bundler follows the relative import on its own.
 [functions]
-  included_files = ["js/doc/**"]
+  included_files = ["js/doc/**", "js/core/cover-templates.js", "js/data/cover-templates.js"]

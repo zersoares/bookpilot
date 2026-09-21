@@ -9,6 +9,8 @@ import { refreshAccount } from "../../core/session.js";
 import { pageHead, emptyState, demoBadge } from "../shared.js";
 import { statusBadge, fmt, readingTime } from "./shared.js";
 import { coverPreview } from "./cover-render.js";
+import { coverGallery, bindCoverGallery } from "./cover-gallery.js";
+import { coverTemplateById } from "../../core/cover-templates.js";
 import { GENRE_OPTIONS } from "../options.js";  // a prebuilt <option> list, not an array
 
 const FILTERS = [
@@ -263,8 +265,11 @@ export async function renderWizard(container, params, query) {
 
   const preselected = query?.get("template") || "";
 
+  // A cover template can be preselected from a link (?cover=sunrise-doorway).
+  const preselectedCover = coverTemplateById(query?.get("cover"))?.id || "";
+
   container.innerHTML = html`
-    <div class="bb-wizard">
+    <div class="bb-wizard bb-wizard--wide">
       <div class="bb-wizard__head">
         <a class="bp-small bp-muted" href="#/studio">← All books</a>
         <h1 class="bb-wizard__title">Create a book</h1>
@@ -273,6 +278,9 @@ export async function renderWizard(container, params, query) {
           the chapters, the design — is something you approve rather than something you invent.
         </p>
       </div>
+
+      <div class="bb-wizard__layout">
+      ${raw(coverGallery({ selected: preselectedCover }))}
 
       <form id="new-book" class="bb-wizard__form" novalidate>
         <section class="bp-card bb-wizard__card">
@@ -408,8 +416,11 @@ export async function renderWizard(container, params, query) {
           tells you what it costs before it runs.
         </p>
       </form>
+      </div>
     </div>
   `;
+
+  bindCoverGallery(container);
 
   // Radio cards highlight their selection.
   $$('input[type="radio"]', container).forEach((input) => {
@@ -433,9 +444,12 @@ export async function renderWizard(container, params, query) {
 
     setBusy(button, true, "Creating…");
     try {
+      const { cover_template: coverTemplate, ...fields } = data;
       const { project } = await BB.createProject({
-        ...data,
-        target_pages: Number(data.target_pages) || 160,
+        ...fields,
+        target_pages: Number(fields.target_pages) || 160,
+        // Only sent when one was picked; the server checks it is a real template.
+        ...(coverTemplate ? { cover_template: coverTemplate } : {}),
       });
       await refreshAccount().catch(() => {});
       notify.success("Your book exists. Now let's work out what it is.");

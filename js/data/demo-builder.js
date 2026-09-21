@@ -22,6 +22,7 @@ import {
   DEMO_EXPORTS, DEMO_VERSIONS, DEMO_BRAND_KIT,
 } from "./demo-book.js";
 import { BOOK_TEMPLATES } from "./book-templates.js";
+import { coverTemplateById, coverFromTemplate } from "../core/cover-templates.js";
 import { themeList, TRIM_SIZES, trimSize } from "../doc/themes.js";
 import { assembleBook } from "../doc/assemble.js";
 import { layoutBook } from "../doc/layout.js";
@@ -229,10 +230,14 @@ function handleProjects(method, { id, child, childId }, body, state, account) {
             target_pages: body.target_pages || template.target_pages,
           }
         : { template_id: null };
+      // A cover template picked on the Create page is remembered on the project
+      // (the Cover step turns it into a cover), exactly as the server does.
+      const { cover_template: coverPick, ...rest } = body;
       const project = {
         ...clone(DEMO_PROJECT),
-        ...body,
+        ...rest,
         ...fromTemplate,
+        design: coverTemplateById(coverPick) ? { cover_template: coverPick } : {},
         id: uid(),
         title: body.title || "Untitled book",
         status: "draft",
@@ -384,6 +389,22 @@ function handleProjects(method, { id, child, childId }, body, state, account) {
 
     case "covers": {
       if (method === "GET") return { covers: forProject(state.covers, id) };
+      if (method === "POST" && !childId) {
+        const template = coverTemplateById(body.template_id);
+        if (!template) throw new DemoError("invalid_input", "That cover template doesn't exist.", 400);
+        const already = state.covers.find((c) => c.project_id === id && c.concept_name === template.name);
+        if (already) return { cover: already };
+        const cover = {
+          ...coverFromTemplate(template, {
+            title: project.title, subtitle: project.subtitle, author: project.author_name,
+            origin: globalThis.location?.origin || "",
+          }),
+          id: uid(), project_id: id, spine_text: null, back_blurb: null, image_id: null, check_report: null,
+          created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+        };
+        state.covers.push(cover);
+        return { cover };
+      }
       if (method === "PATCH") {
         const cover = state.covers.find((c) => c.id === childId);
         if (!cover) throw new DemoError("not_found", "We couldn't find that cover.", 404);

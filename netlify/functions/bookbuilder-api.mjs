@@ -20,6 +20,8 @@ import * as v from "./bookpilot-lib/validate.js";
 import * as audit from "./bookpilot-lib/audit.js";
 import { saveChapterVersion } from "./bookpilot-lib/book-assembly.js";
 import { themeList, TRIM_SIZES } from "../../js/doc/themes.js";
+import { coverTemplateById, coverFromTemplate } from "../../js/core/cover-templates.js";
+import { env } from "./bookpilot-lib/env.js";
 
 
 const PREFIX = "/api/bb";
@@ -307,6 +309,10 @@ async function createProject(ctx, body) {
     brand_kit_id: body.brand_kit_id ? v.uuid(body.brand_kit_id, "Brand kit") : null,
     status: "draft",
     stages: {},
+    // A cover template picked on the Create page. Remembered on the project and
+    // turned into a real cover when the author reaches the Cover step, once
+    // their title exists. An id that is not a real template is simply dropped.
+    design: coverTemplateById(body.cover_template) ? { cover_template: body.cover_template } : {},
   };
 
   // A page target implies a word target. 260 words to the page is the
@@ -849,6 +855,25 @@ async function handleCovers(ctx, projectId, method, segments, body) {
       eq: { project_id: projectId }, order: "created_at.desc", limit: 40,
     });
     return json({ covers });
+  }
+  if (method === "POST" && !coverId) {
+    // A cover from a ready-made template. The server builds it from the template
+    // it knows, using this project's own title and author, rather than storing
+    // whatever design the browser describes.
+    const template = coverTemplateById(body.template_id);
+    if (!template) throw Errors.invalid("That cover template doesn't exist.");
+
+    // Asking twice must not stack duplicates.
+    const already = await ctx.db.selectOne("book_covers", {
+      eq: { project_id: projectId, concept_name: template.name },
+    });
+    if (already) return json({ cover: already });
+
+    const row = coverFromTemplate(template, {
+      title: project.title, subtitle: project.subtitle, author: project.author_name, origin: env.siteUrl,
+    });
+    const cover = await ctx.db.insert("book_covers", { project_id: projectId, ...row });
+    return json({ cover }, 201);
   }
   if (method === "PATCH" && coverId) {
     v.uuid(coverId, "Cover");

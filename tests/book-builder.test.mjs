@@ -307,7 +307,7 @@ test("the deployment does not serve the functions directory as static files", ()
 test("the shared document engine is bundled with the functions", () => {
   const netlifyToml = read("netlify.toml");
   assert.ok(
-    /included_files = \["js\/doc\/\*\*"\]/.test(netlifyToml),
+    /included_files = \[[^\]]*"js\/doc\/\*\*"/.test(netlifyToml),
     "the exporter imports js/doc from outside the functions directory"
   );
 });
