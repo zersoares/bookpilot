@@ -37,17 +37,38 @@ create policy "brand_assets_own_select" on storage.objects
     and (storage.foldername(name))[1] = (select auth.uid())::text
   );
 
+-- How many files the caller already has here. This has to be a function:
+-- a policy on storage.objects that counts rows in storage.objects itself
+-- makes Postgres refuse to evaluate it ("infinite recursion detected in
+-- policy for relation objects", surfaced by Storage as a 400/503 on every
+-- upload). SECURITY DEFINER reads the table without going back through the
+-- policies. It takes no argument and uses the caller's own id, so it can only
+-- ever count the caller's own folder.
+create or replace function public.brand_asset_count()
+returns integer
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select count(*)::integer
+  from storage.objects o
+  where o.bucket_id = 'brand-assets'
+    and (storage.foldername(o.name))[1] = (select auth.uid())::text;
+$$;
+
+-- Supabase grants new functions to anon and authenticated by name, and to
+-- everyone via PUBLIC; take both away, then give back only what is needed.
+revoke all on function public.brand_asset_count() from public, anon;
+grant execute on function public.brand_asset_count() to authenticated;
+
 drop policy if exists "brand_assets_own_insert" on storage.objects;
 create policy "brand_assets_own_insert" on storage.objects
   for insert to authenticated
   with check (
     bucket_id = 'brand-assets'
     and (storage.foldername(name))[1] = (select auth.uid())::text
-    and (
-      select count(*) from storage.objects o
-      where o.bucket_id = 'brand-assets'
-        and (storage.foldername(o.name))[1] = (select auth.uid())::text
-    ) < 50
+    and public.brand_asset_count() < 50
   );
 
 drop policy if exists "brand_assets_own_delete" on storage.objects;

@@ -108,7 +108,7 @@ test("the bucket only takes the formats and size the client prepares", () => {
 });
 
 test("a signed-in person can only touch their own folder, and only so many files", () => {
-  const policies = [...sql.matchAll(/create policy "([^"]+)" on storage\.objects\s+for (\w+) to (\w+)([\s\S]*?);\s*(?=drop policy|$)/g)]
+  const policies = [...sql.matchAll(/create policy "([^"]+)" on storage\.objects\s+for (\w+) to (\w+)([^;]*);/g)]
     .map(([, name, cmd, role, body]) => ({ name, cmd, role, body }));
 
   assert.deepEqual(policies.map((p) => p.cmd).sort(), ["delete", "insert", "select"]);
@@ -118,6 +118,27 @@ test("a signed-in person can only touch their own folder, and only so many files
     assert.match(p.body, /storage\.foldername\(name\)\)\[1\] = \(select auth\.uid\(\)\)::text/, `${p.name}: own folder only`);
   }
   const insert = policies.find((p) => p.cmd === "insert");
-  assert.match(insert.body, /\)\s*<\s*50/, "there is a per-person cap on files");
+  assert.match(insert.body, /public\.brand_asset_count\(\)\s*<\s*50/, "there is a per-person cap on files");
   assert.ok(!policies.some((p) => p.cmd === "update"), "files are never overwritten, only replaced by new ones");
+});
+
+// This one exists because the first version of the migration counted files
+// with a subquery on storage.objects inside a policy on storage.objects.
+// Postgres accepts that when the policy is created and only fails when it is
+// used: every upload came back "infinite recursion detected in policy for
+// relation objects". Creating the policy proves nothing; this is the guard.
+test("no policy queries the table it protects; the file count goes through a definer function", () => {
+  const policies = [...sql.matchAll(/create policy "([^"]+)" on storage\.objects[^;]*;/g)];
+  assert.equal(policies.length, 3);
+  for (const [text, name] of policies) {
+    assert.ok(!/\bfrom\s+storage\.objects\b/i.test(text), `${name} must not select from storage.objects`);
+  }
+
+  const fn = sql.match(/create or replace function public\.brand_asset_count\(\)[\s\S]*?\$\$;/)?.[0];
+  assert.ok(fn, "the counting function exists");
+  assert.match(fn, /security definer/i, "it must bypass the policies it is used by");
+  assert.match(fn, /set search_path = ''/, "and pin its search path, as every definer function here does");
+  assert.doesNotMatch(fn, /\(\s*\w+\s+\w+\s*\)/, "it takes no argument, so it can only count the caller's own folder");
+  assert.match(sql, /revoke all on function public\.brand_asset_count\(\) from public, anon;/, "not runnable by anon or PUBLIC");
+  assert.match(sql, /grant execute on function public\.brand_asset_count\(\) to authenticated;/);
 });
