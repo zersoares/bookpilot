@@ -17,15 +17,17 @@ import { notify, confirmDialog } from "../core/toast.js";
 import { pageHead, fmt, demoBadge } from "./shared.js";
 import { healthBadge, wireTrackingChecks } from "./tracking-check.js";
 import { amazonImportBlock, wireAmazonImport } from "./amazon-import.js";
+import { kdpSalesImportBlock, wireKdpSalesImport } from "./kdp-sales-import.js";
 import { platformCard, wirePlatform } from "./platform-card.js";
 import { platformConnectBlock, wirePlatformConnect } from "./platform-connect.js";
 
 export async function render(container, params, query) {
   const empty = { summary: null, campaigns: [] };
-  const [{ integrations, capabilities }, { sites }, { summary: amazonSummary }, { campaigns }, tiktok, google, pinterest, { books }] = await Promise.all([
+  const [{ integrations, capabilities }, { sites }, { summary: amazonSummary }, { summary: kdpSummary }, { campaigns }, tiktok, google, pinterest, { books }] = await Promise.all([
     API.integrations(),
     API.trackingSites().catch(() => ({ sites: [] })),
     API.amazonSummary().catch(() => ({ summary: null })),
+    API.kdpSalesSummary().catch(() => ({ summary: null })),
     API.campaigns().catch(() => ({ campaigns: [] })),
     API.platformSummary("tiktok").catch(() => empty),
     API.platformSummary("google").catch(() => empty),
@@ -91,6 +93,7 @@ export async function render(container, params, query) {
         connect: platformConnectBlock("pinterest", integrations.find((i) => i.provider === "pinterest"), capabilities, { books }),
       }))}
       ${raw(amazonCard(amazonSummary, platformConnectBlock("amazon", integrations.find((i) => i.provider === "amazon_attribution"), capabilities, { books })))}
+      ${raw(kdpSalesCard(kdpSummary))}
     </div>
   `;
 
@@ -109,6 +112,11 @@ export async function render(container, params, query) {
   wireAmazonImport(container, {
     campaigns: campaigns.filter((c) => !c.is_demo || isDemo()),
     defaultCurrency: campaigns[0]?.currency || "EUR",
+    done: () => render(container, params, query),
+  });
+  wireKdpSalesImport(container, {
+    books: books.filter((b) => !b.is_demo || isDemo()),
+    defaultCurrency: books[0]?.currency || campaigns[0]?.currency || "EUR",
     done: () => render(container, params, query),
   });
 
@@ -344,6 +352,29 @@ function amazonCard(summary, connect = "") {
       ${raw(connect)}
       ${raw(connect ? '<h3 class="bp-small" style="margin:var(--bp-5) 0 var(--bp-2)"><strong>Or import a report</strong></h3>' : "")}
       ${raw(amazonImportBlock(summary))}
+    </section>
+  `;
+}
+
+function kdpSalesCard(summary) {
+  const has = summary && summary.rows > 0;
+  return html`
+    <section class="bp-card" data-platform-card data-platform="kdp">
+      <div class="bp-card__header">
+        <div class="bp-card__title">KDP sales &amp; royalties</div>
+        <span class="bp-badge ${has ? "bp-badge--success" : ""}">${has ? "Imported" : "No data yet"}</span>
+      </div>
+      <div class="bp-alert bp-alert--info" style="margin-bottom:var(--bp-4)">
+        <span class="bp-alert__icon">◆</span>
+        <div class="bp-small">
+          <strong>What this adds.</strong> Amazon Attribution above only ever shows sales an ad click
+          led to. This is the whole book: every sale, whichever channel it came from, plus Kindle
+          Unlimited pages read — from the sales or royalty report you download in KDP Reports. Once
+          both are imported, Analytics can show real royalties earned against real ad spend, not just
+          ad-claimed conversions.
+        </div>
+      </div>
+      ${raw(kdpSalesImportBlock(summary))}
     </section>
   `;
 }

@@ -48,7 +48,11 @@ export async function render(container, params, query) {
 
       ${raw(analytics.platforms?.length > 1 || analytics.platforms?.some((p) => p.source !== "meta") ? platformPanel(analytics.platforms, currency) : "")}
 
+      ${raw(analytics.profit ? profitPanel(analytics.profit) : "")}
+
       ${raw(analytics.amazon ? amazonPanel(analytics.amazon, currency) : "")}
+
+      ${raw(analytics.kdpSales ? kdpSalesPanel(analytics.kdpSales, currency) : "")}
 
       <section>
         <div class="bp-row bp-row--between" style="margin-bottom:var(--bp-3)">
@@ -256,6 +260,65 @@ function amazonPanel(amazon, currency) {
         ${raw(amazon.kindleRoyaltiesCents ? html`<div class="bp-stat"><div class="bp-stat__label">Est. page-read royalties</div><div class="bp-stat__value">${amazon.mixedCurrencies ? "Mixed currencies" : fmt.money(amazon.kindleRoyaltiesCents, shownCurrency)}</div></div>` : "")}
       </div>
       ${raw(amazon.kindlePagesRead || amazon.kindleRoyaltiesCents ? '<p class="bp-tiny bp-subtle" style="margin:var(--bp-3) 0 0">Kindle pages read are pages read by Kindle Unlimited readers within 14 days of an ad click. The royalties are Amazon\'s estimate for those pages and are not included in product sales.</p>' : "")}
+    </section>
+  `;
+}
+
+/**
+ * Real, actual-money profit: royalties earned (imported from KDP) against
+ * what was spent to earn them — the one figure no ad platform can show,
+ * because a platform only ever reports what it claims credit for.
+ */
+function profitPanel(profit) {
+  const positive = profit.netCents >= 0;
+  return html`
+    <section class="bp-card">
+      <div class="bp-card__header">
+        <div class="bp-card__title">Profit — royalties vs. ad spend</div>
+        <span class="bp-badge ${positive ? "bp-badge--success" : "bp-badge--warning"}">${positive ? "In profit" : "Behind"}</span>
+      </div>
+      <p class="bp-small bp-muted">
+        Your imported KDP royalties for this period, minus what you spent across every ad platform in
+        the same window. This is the whole book's royalties, not just ad-attributed sales, against the
+        whole ad spend — so it is the closest thing here to "did this actually make money", not just
+        "did this ad get credited with a sale".
+      </p>
+      <div class="bp-stat-grid" style="margin-top:var(--bp-3)">
+        <div class="bp-stat"><div class="bp-stat__label">Royalties earned</div><div class="bp-stat__value">${fmt.money(profit.royaltyCents, profit.currency)}</div></div>
+        <div class="bp-stat"><div class="bp-stat__label">Ad spend</div><div class="bp-stat__value">${fmt.money(profit.spendCents, profit.currency)}</div></div>
+        <div class="bp-stat"><div class="bp-stat__label">Net</div><div class="bp-stat__value" style="color:${positive ? "var(--bp-success)" : "var(--bp-danger)"}">${positive ? "+" : ""}${fmt.money(profit.netCents, profit.currency)}</div></div>
+      </div>
+      <p class="bp-tiny bp-subtle" style="margin-top:var(--bp-3)">
+        Royalties are what KDP reports for every sale, on any channel, in this window — not only the
+        ones an ad is claimed to have caused. Spend is your ad platforms' totals for the same window.
+        Shown only when both are in the same currency.
+      </p>
+    </section>
+  `;
+}
+
+function kdpSalesPanel(kdp, currency) {
+  const shownCurrency = kdp.currency || currency;
+  return html`
+    <section class="bp-card">
+      <div class="bp-card__header">
+        <div class="bp-card__title">KDP sales &amp; royalties</div>
+        <span class="bp-badge bp-badge--info">Whole-book, not ad-attributed</span>
+      </div>
+      <p class="bp-small bp-muted">
+        Imported from your KDP sales or royalty report. This covers every sale of the book, whichever
+        channel it came from — never added to the ad-platform totals above, which only count sales a
+        platform claims credit for.${kdp.from ? ` Covers ${fmt.date(kdp.from)} to ${fmt.date(kdp.to)}, from the report${kdp.importedAt ? ` imported ${fmt.relativeTime(kdp.importedAt)}` : "s you imported"}.` : ""}
+        <a href="#/attribution">Import another report</a>
+      </p>
+      <div class="bp-stat-grid">
+        <div class="bp-stat"><div class="bp-stat__label">Units sold</div><div class="bp-stat__value">${fmt.number(kdp.unitsSold)}</div></div>
+        <div class="bp-stat"><div class="bp-stat__label">Units refunded</div><div class="bp-stat__value">${fmt.number(kdp.unitsRefunded)}</div></div>
+        <div class="bp-stat"><div class="bp-stat__label">Net units sold</div><div class="bp-stat__value">${fmt.number(kdp.netUnitsSold)}</div></div>
+        <div class="bp-stat"><div class="bp-stat__label">Royalty</div><div class="bp-stat__value">${kdp.mixedCurrencies ? "Mixed currencies" : fmt.money(kdp.royaltyCents, shownCurrency)}</div></div>
+        ${raw(kdp.kenpPagesRead ? html`<div class="bp-stat"><div class="bp-stat__label">Kindle pages read</div><div class="bp-stat__value">${fmt.number(kdp.kenpPagesRead)}</div></div>` : "")}
+        ${raw(kdp.kenpRoyaltyCents ? html`<div class="bp-stat"><div class="bp-stat__label">Est. page-read royalty</div><div class="bp-stat__value">${kdp.mixedCurrencies ? "Mixed currencies" : fmt.money(kdp.kenpRoyaltyCents, shownCurrency)}</div></div>` : "")}
+      </div>
     </section>
   `;
 }

@@ -19,6 +19,7 @@ import { deriveMetrics, confidenceLevel } from "./bookpilot-lib/metrics.js";
 import * as audit from "./bookpilot-lib/audit.js";
 import * as tracking from "./bookpilot-lib/tracking.js";
 import * as amazon from "./bookpilot-lib/amazon.js";
+import * as kdpSales from "./bookpilot-lib/kdp-sales.js";
 import * as platformReport from "./bookpilot-lib/platform-report.js";
 
 const PREFIX = "/api/bp";
@@ -579,10 +580,13 @@ async function handleAnalytics(ctx, segments, url) {
   });
   if (!campaigns.length) {
     // No campaigns does not mean no Amazon data: an author can import
-    // Attribution reports before running a single BookPilot campaign.
+    // Attribution reports, or a KDP royalty report, before running a
+    // single BookPilot campaign.
     return json({
       totals: deriveMetrics([]), campaigns: [], creatives: [], days,
       amazon: await amazonTotals(ctx, since),
+      kdpSales: await kdpSalesTotals(ctx, since),
+      profit: null,
     });
   }
 
@@ -636,14 +640,30 @@ async function handleAnalytics(ctx, segments, url) {
     .map((source) => ({ source, metrics: deriveMetrics(platformRows.filter((r) => r.source === source)) }))
     .filter((p) => p.metrics.hasData);
 
+  const totals = deriveMetrics(platformRows);
+  const kdp = await kdpSalesTotals(ctx, since);
+  // Real, actual-money profit needs a KDP royalty import: ad-attributed
+  // "revenue" above is each platform's own claimed conversions, which can
+  // double-count a sale between platforms and was never a royalty. Spend
+  // across campaigns is already assumed to share one currency elsewhere
+  // in this report (see platformPanel in the UI); the same assumption is
+  // used here, checked against the one KDP was imported in, since neither
+  // side tracks a currency per row. A mismatch or a mixed-currency import
+  // shows no figure rather than a wrong one.
+  const profit = kdp && totals.hasData && !kdp.mixedCurrencies && kdp.currency === ctx.profile.currency
+    ? { royaltyCents: kdp.royaltyCents + kdp.kenpRoyaltyCents, spendCents: totals.spendCents, netCents: kdp.royaltyCents + kdp.kenpRoyaltyCents - totals.spendCents, currency: kdp.currency }
+    : null;
+
   return json({
     days,
-    totals: deriveMetrics(platformRows),
+    totals,
     platforms,
     campaigns: perCampaign,
     creatives: creativeTable,
     // Reported separately, never folded into the totals above.
     amazon: await amazonTotals(ctx, since),
+    kdpSales: kdp,
+    profit,
   });
 }
 
@@ -669,6 +689,15 @@ async function amazonTotals(ctx, since) {
     filters: { metric_date: `gte.${since}` },
   });
   return amazon.totalsOf(rows);
+}
+
+async function kdpSalesTotals(ctx, since) {
+  const rows = await selectAll(ctx.db, "kdp_royalty_metrics", {
+    select: "metric_date,units_sold,units_refunded,net_units_sold,kenp_pages_read,royalty_cents,kenp_royalty_cents,currency,imported_at,external_title",
+    eq: { user_id: ctx.user.id },
+    filters: { metric_date: `gte.${since}` },
+  });
+  return kdpSales.totalsOf(rows);
 }
 
 // ---------------------------------------------------------------------
@@ -834,6 +863,62 @@ async function handleAmazonImport(ctx, method, body) {
   if (method === "DELETE") {
     await dbAsService().remove("amazon_attribution_metrics", { eq: { user_id: ctx.user.id } });
     await audit.record(ctx.user.id, "amazon.import_removed", { entity: "amazon_attribution" });
+    return json({ deleted: true });
+  }
+  throw Errors.notFound("endpoint");
+}
+
+async function handleKdpSalesImport(ctx, method, body) {
+  if (method === "GET") {
+    const rows = await selectAll(ctx.db, "kdp_royalty_metrics", {
+      select: "metric_date,external_title,currency,imported_at", eq: { user_id: ctx.user.id },
+    });
+    return json({ summary: kdpSales.summarise(rows) });
+  }
+
+  if (method === "POST") {
+    const currency = v.currency(body.currency);
+    const parsed = kdpSales.normaliseRows(body.rows);
+
+    // Optional links from a KDP title to one of the author's books. Books
+    // are looked up through the user-scoped client, so another account's
+    // book id is simply not found.
+    const links = new Map();
+    for (const link of Array.isArray(body.links) ? body.links.slice(0, 200) : []) {
+      const title = v.str(link?.title, "Title", { max: 300 });
+      if (title && link.book_id) links.set(title, v.uuid(link.book_id, "Book id"));
+    }
+    if (links.size) {
+      const found = await ctx.db.select("books", { select: "id", in: { id: [...new Set(links.values())] }, limit: 200 });
+      const owned = new Set(found.map((b) => b.id));
+      for (const id of links.values()) {
+        if (!owned.has(id)) throw Errors.invalid("One of the BookPilot books you linked wasn't found.");
+      }
+    }
+
+    const dbRows = parsed.rows.map((row) =>
+      kdpSales.toDbRow(row, { userId: ctx.user.id, currency, bookId: links.get(row.title) || null }));
+
+    // Re-importing a report replaces the same title, marketplace and day
+    // rather than adding to it: KDP restates recent royalties, and an
+    // author will re-download an overlapping range.
+    const service = dbAsService();
+    for (let i = 0; i < dbRows.length; i += 500) {
+      await service.upsert("kdp_royalty_metrics", dbRows.slice(i, i + 500), {
+        onConflict: "user_id,external_title,marketplace,metric_date", returning: false,
+      });
+    }
+    await audit.record(ctx.user.id, "kdp_sales.imported", {
+      entity: "kdp_royalty", detail: { days: parsed.rows.length, from: parsed.from, to: parsed.to },
+    });
+    return json({
+      imported: dbRows.length, titles: parsed.titles.length, from: parsed.from, to: parsed.to,
+    }, 201);
+  }
+
+  if (method === "DELETE") {
+    await dbAsService().remove("kdp_royalty_metrics", { eq: { user_id: ctx.user.id } });
+    await audit.record(ctx.user.id, "kdp_sales.import_removed", { entity: "kdp_royalty" });
     return json({ deleted: true });
   }
   throw Errors.notFound("endpoint");
@@ -1030,6 +1115,8 @@ export default withGuards(async (req) => {
       return handleTrackingSites(ctx, req.method, segments, body);
     case "amazon-import":
       return handleAmazonImport(ctx, req.method, body);
+    case "kdp-sales-import":
+      return handleKdpSalesImport(ctx, req.method, body);
     case "platform-campaigns":
       return handlePlatformCampaigns(ctx, req.method, segments[1], body);
     case "platform-import":

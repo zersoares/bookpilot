@@ -194,6 +194,9 @@ export const API = {
   amazonSummary: () => api.get("/api/bp/amazon-import"),
   amazonImport: (payload) => api.post("/api/bp/amazon-import", payload),
   amazonRemove: () => api.delete("/api/bp/amazon-import"),
+  kdpSalesSummary: () => api.get("/api/bp/kdp-sales-import"),
+  kdpSalesImport: (payload) => api.post("/api/bp/kdp-sales-import", payload),
+  kdpSalesRemove: () => api.delete("/api/bp/kdp-sales-import"),
   trackingStatus: (id) => api.get(`/api/bp/tracking-sites/${id}/status`),
   // Demo workspace only: there is no real site to visit.
   simulateTestVisit: (id) => api.post(`/api/bp/tracking-sites/${id}/simulate-test`, {}),

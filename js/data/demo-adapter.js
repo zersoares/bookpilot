@@ -86,6 +86,7 @@ function freshState() {
     }],
     trackingEvents: demoTrackingEvents(),
     amazonRows: [],
+    kdpRows: [],
     // The authoring half keeps its own slice, reset by the same button.
     builder: freshBuilderState(),
   };
@@ -341,6 +342,51 @@ function demoAmazonTotals(state) {
   };
 }
 
+// --- KDP sales & royalties (demo) --------------------------------------
+//
+// A second, separate import: the whole book's sales, not just what an ad
+// is credited with. Kept in its own rows so it is never summed with
+// state.amazonRows, matching the real server's two tables.
+
+function demoKdpSummary(state) {
+  const rows = state.kdpRows;
+  if (!rows.length) return { days: 0, rows: 0, titles: [], from: null, to: null, last_imported_at: null, currencies: [] };
+  const dates = rows.map((r) => r.metric_date).sort();
+  return {
+    days: new Set(rows.map((r) => r.metric_date)).size,
+    rows: rows.length,
+    titles: [...new Set(rows.map((r) => r.external_title))].sort(),
+    from: dates[0], to: dates[dates.length - 1],
+    last_imported_at: rows.map((r) => r.imported_at).sort().pop(),
+    currencies: [...new Set(rows.map((r) => r.currency))],
+  };
+}
+
+function demoKdpTotals(state) {
+  const rows = state.kdpRows;
+  if (!rows.length) return null;
+  const sum = (f) => rows.reduce((a, r) => a + Number(r[f] || 0), 0);
+  const summary = demoKdpSummary(state);
+  return {
+    unitsSold: sum("units_sold"), unitsRefunded: sum("units_refunded"), netUnitsSold: sum("net_units_sold"),
+    kenpPagesRead: sum("kenp_pages_read"), kenpRoyaltyCents: sum("kenp_royalty_cents"), royaltyCents: sum("royalty_cents"),
+    currency: summary.currencies.length === 1 ? summary.currencies[0] : null,
+    mixedCurrencies: summary.currencies.length > 1,
+    from: summary.from, to: summary.to, importedAt: summary.last_imported_at,
+  };
+}
+
+/**
+ * Same rule as the real endpoint: profit only when both sides agree on
+ * currency, so demo mode never shows a made-up figure either.
+ */
+function demoProfit(state, totals) {
+  const kdp = demoKdpTotals(state);
+  if (!kdp || !totals.hasData || kdp.mixedCurrencies || kdp.currency !== (state.profile?.currency || "EUR")) return null;
+  const royaltyCents = kdp.royaltyCents + kdp.kenpRoyaltyCents;
+  return { royaltyCents, spendCents: totals.spendCents, netCents: royaltyCents - totals.spendCents, currency: kdp.currency };
+}
+
 // --- Other platforms (demo): TikTok, Google Ads, Pinterest ------------------------
 
 const DEMO_PLATFORMS = ["tiktok", "google", "pinterest"];
@@ -507,9 +553,10 @@ async function handle(method, path, body) {
 
     if (resource === "analytics") {
       const rows = state.performance;
+      const totals = deriveMetrics(rows);
       return {
         days: Number(query.get("days")) || 30,
-        totals: deriveMetrics(rows),
+        totals,
         campaigns: state.campaigns.map((c) => ({
           campaign: c,
           metrics: deriveMetrics(rows.filter((r) => r.campaign_id === c.id)),
@@ -518,6 +565,8 @@ async function handle(method, path, body) {
           creative: row.creative, metrics: row.metrics, confidence: row.confidence,
         })),
         amazon: demoAmazonTotals(state),
+        kdpSales: demoKdpTotals(state),
+        profit: demoProfit(state, totals),
         platforms: demoPlatforms(state),
       };
     }
@@ -618,6 +667,36 @@ async function handle(method, path, body) {
           from: dates[0], to: dates[dates.length - 1] };
       }
       if (method === "DELETE") { state.amazonRows = []; return { deleted: true }; }
+    }
+
+    // Demo only: KDP sales & royalties, imported into memory and vanishing
+    // with "Reset demo" like everything else here. A second, separate
+    // table from Amazon Attribution above, never merged with it.
+    if (resource === "kdp-sales-import") {
+      if (method === "GET") return { summary: demoKdpSummary(state) };
+      if (method === "POST") {
+        const rows = Array.isArray(body.rows) ? body.rows : [];
+        if (!rows.length) throw new DemoError("invalid", "There are no rows to import.", 400);
+        const currency = body.currency || "EUR";
+        const links = new Map((body.links || []).map((l) => [l.title, l.book_id]));
+        for (const row of rows) {
+          // Same rule as the server: one row per title per marketplace per
+          // day, and a re-import replaces it.
+          state.kdpRows = state.kdpRows.filter((r) => !(
+            r.external_title === row.title && r.marketplace === row.marketplace && r.metric_date === row.date));
+          state.kdpRows.push({
+            external_title: row.title, marketplace: row.marketplace, metric_date: row.date, currency,
+            units_sold: row.units_sold, units_refunded: row.units_refunded, net_units_sold: row.net_units_sold,
+            kenp_pages_read: row.kenp_pages_read || 0, royalty_cents: row.royalty_cents,
+            kenp_royalty_cents: row.kenp_royalty_cents || 0,
+            book_id: links.get(row.title) || null, imported_at: new Date().toISOString(),
+          });
+        }
+        const dates = rows.map((r) => r.date).sort();
+        return { imported: rows.length, titles: new Set(rows.map((r) => r.title)).size,
+          from: dates[0], to: dates[dates.length - 1] };
+      }
+      if (method === "DELETE") { state.kdpRows = []; return { deleted: true }; }
     }
 
     if (resource === "notifications") {
