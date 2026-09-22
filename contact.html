@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — BookPilot AI</title>
+<meta name="description" content="Get in touch with the BookPilot AI team.">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/assets/css/design-system.css">
+<link rel="stylesheet" href="/assets/css/landing.css">
+<script>
+  try {
+    var t = localStorage.getItem('bookpilot.theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
+<style>
+  .bp-legal { max-width: 620px; margin: 0 auto; padding: var(--bp-12) var(--bp-6) var(--bp-20); }
+  .bp-legal p { color: var(--bp-text-muted); }
+  .bp-contact-form { margin-top: var(--bp-8); }
+  .bp-contact-alt { margin-top: var(--bp-10); padding-top: var(--bp-6); border-top: 1px solid var(--bp-border); }
+  .bp-contact-alt dt { font-weight: 600; margin-top: var(--bp-3); }
+  .bp-contact-alt dd { margin: 2px 0 0; color: var(--bp-text-muted); }
+</style>
+</head>
+<body>
+<a class="bp-skip-link" href="#main">Skip to content</a>
+<header class="bp-nav">
+  <div class="bp-nav__inner">
+    <a class="bp-logo" href="/"><span class="bp-logo__mark" aria-hidden="true"></span> BookPilot <span class="bp-logo__ai">AI</span></a>
+    <nav class="bp-nav__links" aria-label="Legal">
+      <a class="bp-nav__link" href="/privacy.html">Privacy</a>
+      <a class="bp-nav__link" href="/terms.html">Terms</a>
+      <a class="bp-nav__link" href="/cookies.html">Cookies</a>
+      <a class="bp-nav__link" href="/contact.html">Contact</a>
+    </nav>
+    <div class="bp-nav__actions">
+      <a class="bp-btn bp-btn--ghost bp-btn--sm" href="/">Product</a>
+      <a class="bp-btn bp-btn--primary bp-btn--sm" href="/app.html#/signup">Start free</a>
+    </div>
+  </div>
+</header>
+<main id="main" class="bp-legal">
+  <p class="bp-eyebrow">Get in touch</p>
+  <h1 class="bp-display" style="font-size:2.1rem;margin:var(--bp-2) 0 var(--bp-3)">Contact us</h1>
+  <p class="bp-lead">Questions about the product, your account or anything else — send us a message and we'll get back to you.</p>
+
+  <form class="bp-contact-form" action="https://formspree.io/f/mljdbkzp" method="POST">
+    <input type="hidden" name="_subject" value="New message from bookpilot.org/contact">
+    <div class="bp-field">
+      <label class="bp-label" for="name">Name</label>
+      <input class="bp-input" id="name" name="name" required maxlength="200">
+    </div>
+    <div class="bp-field">
+      <label class="bp-label" for="email">Email</label>
+      <input class="bp-input" id="email" name="_replyto" type="email" required maxlength="200">
+    </div>
+    <div class="bp-field">
+      <label class="bp-label" for="message">Message</label>
+      <textarea class="bp-textarea" id="message" name="message" rows="6" required maxlength="4000"></textarea>
+    </div>
+    <button class="bp-btn bp-btn--primary" type="submit">Send message</button>
+  </form>
+
+  <dl class="bp-contact-alt">
+    <p class="bp-small bp-subtle" style="margin:0 0 var(--bp-2)">Prefer email directly?</p>
+    <dt>General enquiries</dt>
+    <dd><a href="mailto:hello@bookpilot.org">hello@bookpilot.org</a></dd>
+    <dt>Account &amp; billing support</dt>
+    <dd><a href="mailto:bookpilot@bookpilot.org">bookpilot@bookpilot.org</a></dd>
+    <dt>Privacy &amp; data requests</dt>
+    <dd><a href="mailto:privacy@bookpilot.org">privacy@bookpilot.org</a></dd>
+  </dl>
+</main>
+<footer class="bp-footer">
+  <div class="bp-footer__legal">
+    <div class="bp-footer__legal-inner">
+      <span>© <span id="year">2026</span> BookPilot AI</span>
+      <span>
+        <a href="/privacy.html">Privacy</a> ·
+        <a href="/terms.html">Terms</a> ·
+        <a href="/cookies.html">Cookies</a> ·
+        <a href="/contact.html">Contact</a>
+      </span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('year').textContent = String(new Date().getFullYear());</script>
+<script type="module" src="/js/cookie-notice.js"></script>
+</body>
+</html>
