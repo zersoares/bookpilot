@@ -158,6 +158,7 @@ export async function renderDetail(container, params) {
           <a class="bp-btn bp-btn--primary bp-btn--sm" href="#/strategy/${book.id}">AI strategy</a>
           <a class="bp-btn bp-btn--secondary bp-btn--sm" href="#/creatives/new?book=${book.id}">Generate ads</a>
           <a class="bp-btn bp-btn--secondary bp-btn--sm" href="#/campaigns/new?book=${book.id}">Create campaign</a>
+          <a class="bp-btn bp-btn--secondary bp-btn--sm" href="#/books/${book.id}/landing">Landing page</a>
           <a class="bp-btn bp-btn--ghost bp-btn--sm" href="#/books/${book.id}/edit">Edit</a>
           ${book.sales_url ? raw(html`<a class="bp-btn bp-btn--ghost bp-btn--sm" href="${safeUrl(book.sales_url)}" target="_blank" rel="noopener noreferrer">Sales page ↗</a>`) : ""}
           <button type="button" class="bp-btn bp-btn--danger bp-btn--sm" id="delete-book">Delete</button>

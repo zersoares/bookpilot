@@ -197,6 +197,14 @@ export const API = {
   kdpSalesSummary: () => api.get("/api/bp/kdp-sales-import"),
   kdpSalesImport: (payload) => api.post("/api/bp/kdp-sales-import", payload),
   kdpSalesRemove: () => api.delete("/api/bp/kdp-sales-import"),
+
+  landingPage: (bookId) => api.get(`/api/bp/landing-pages?book_id=${encodeURIComponent(bookId)}`),
+  landingPageSlugAvailable: (slug, excludeId) =>
+    api.get(`/api/bp/landing-pages/slug-available?slug=${encodeURIComponent(slug)}${excludeId ? `&exclude=${excludeId}` : ""}`),
+  createLandingPage: (payload) => api.post("/api/bp/landing-pages", payload),
+  updateLandingPage: (id, patch) => api.patch(`/api/bp/landing-pages/${id}`, patch),
+  deleteLandingPage: (id) => api.delete(`/api/bp/landing-pages/${id}`),
+  landingPageLeads: (id) => api.get(`/api/bp/landing-pages/${id}/leads`),
   trackingStatus: (id) => api.get(`/api/bp/tracking-sites/${id}/status`),
   // Demo workspace only: there is no real site to visit.
   simulateTestVisit: (id) => api.post(`/api/bp/tracking-sites/${id}/simulate-test`, {}),

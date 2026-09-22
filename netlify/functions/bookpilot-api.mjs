@@ -21,6 +21,7 @@ import * as tracking from "./bookpilot-lib/tracking.js";
 import * as amazon from "./bookpilot-lib/amazon.js";
 import * as kdpSales from "./bookpilot-lib/kdp-sales.js";
 import * as platformReport from "./bookpilot-lib/platform-report.js";
+import { slugify, validateSlug } from "./bookpilot-lib/landing.js";
 
 const PREFIX = "/api/bp";
 
@@ -924,6 +925,128 @@ async function handleKdpSalesImport(ctx, method, body) {
   throw Errors.notFound("endpoint");
 }
 
+// ---------------------------------------------------------------------
+// Landing pages (reader-magnet, one per book)
+// ---------------------------------------------------------------------
+
+function landingFields(body, { partial = false } = {}) {
+  const fields = {
+    headline: (x) => v.str(x, "Headline", { max: 200 }),
+    subhead: (x) => v.str(x, "Subhead", { max: 300 }),
+    cta_label: (x) => v.str(x, "Button text", { max: 40 }),
+    cta_url: (x) => v.url(x, "Button link"),
+    magnet_enabled: (x) => v.bool(x),
+    magnet_label: (x) => v.str(x, "Email button text", { max: 60 }),
+    magnet_url: (x) => v.url(x, "Download link"),
+    published: (x) => v.bool(x),
+  };
+  return v.pick(body, fields);
+}
+
+/**
+ * A slug the author asked for, or one generated from the book's title.
+ * Generated slugs get a short random tail so a common title (two authors
+ * both writing "The Long Walk Home") doesn't collide on the first try —
+ * asked-for slugs don't, because stealing the author's own choice out
+ * from under them would be more confusing than a clear "taken" error.
+ */
+async function uniqueSlug(service, requested, bookTitle, excludeId = null) {
+  if (requested) {
+    const slug = validateSlug(requested);
+    const clash = await service.selectOne("landing_pages", { select: "id", eq: { slug } });
+    if (clash && clash.id !== excludeId) throw Errors.invalid(`"${slug}" is already taken. Choose another.`);
+    return slug;
+  }
+  const base = slugify(bookTitle);
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const candidate = attempt === 0 ? base : `${base}-${Math.random().toString(36).slice(2, 6)}`;
+    const slug = validateSlug(candidate.length >= 2 ? candidate : `${candidate}-book`);
+    const clash = await service.selectOne("landing_pages", { select: "id", eq: { slug } });
+    if (!clash || clash.id === excludeId) return slug;
+  }
+  throw Errors.invalid("Couldn't find a free page address. Try choosing one yourself.");
+}
+
+async function handleLandingPages(ctx, method, segments, body, url) {
+  const service = dbAsService();
+  const id = segments[1];
+
+  if (method === "GET" && !id) {
+    const bookId = v.uuid(url.searchParams.get("book_id"), "Book id");
+    const page = await ctx.db.selectOne("landing_pages", { eq: { book_id: bookId, user_id: ctx.user.id } });
+    return json({ page });
+  }
+
+  if (method === "GET" && id === "slug-available") {
+    const slug = v.str(url.searchParams.get("slug"), "Page address", { max: 60, required: true });
+    const excludeId = v.uuid(url.searchParams.get("exclude"), "Page id", { required: false });
+    try {
+      validateSlug(slug);
+    } catch {
+      return json({ available: false });
+    }
+    const clash = await service.selectOne("landing_pages", { select: "id", eq: { slug: slug.toLowerCase() } });
+    return json({ available: !clash || clash.id === excludeId });
+  }
+
+  if (method === "POST" && !id) {
+    const bookId = v.uuid(body.book_id, "Book id");
+    const book = await ctx.db.selectOne("books", { select: "id,title", eq: { id: bookId } });
+    if (!book) throw Errors.invalid("We couldn't find that book.");
+    const existing = await ctx.db.selectOne("landing_pages", { select: "id", eq: { book_id: bookId } });
+    if (existing) throw Errors.invalid("This book already has a landing page. Edit it instead of creating another.");
+
+    const slug = await uniqueSlug(service, body.slug ? v.str(body.slug, "Page address", { max: 60 }) : null, book.title);
+    const page = await ctx.db.insert("landing_pages", {
+      ...landingFields(body),
+      user_id: ctx.user.id,
+      book_id: bookId,
+      slug,
+    });
+    await audit.record(ctx.user.id, "landing_page.created", { entity: "landing_page", entityId: page.id });
+    return json({ page }, 201);
+  }
+
+  v.uuid(id, "Landing page id");
+
+  if (method === "GET" && segments[2] === "leads") {
+    const page = await ctx.db.selectOne("landing_pages", { select: "id", eq: { id } });
+    if (!page) throw Errors.notFound("landing page");
+    const leads = await ctx.db.select("landing_page_leads", {
+      select: "id,email,created_at", eq: { landing_page_id: id }, order: "created_at.desc", limit: 5000,
+    });
+    return json({ leads });
+  }
+
+  if (method === "GET") {
+    const page = await ctx.db.selectOne("landing_pages", { eq: { id } });
+    if (!page) throw Errors.notFound("landing page");
+    return json({ page });
+  }
+
+  if (method === "PATCH") {
+    const current = await ctx.db.selectOne("landing_pages", { select: "id,slug", eq: { id } });
+    if (!current) throw Errors.notFound("landing page");
+    const patch = landingFields(body, { partial: true });
+    if (typeof body.slug === "string" && body.slug.trim()) {
+      patch.slug = await uniqueSlug(service, v.str(body.slug, "Page address", { max: 60 }), null, id);
+    }
+    if (!Object.keys(patch).length) throw Errors.invalid("Nothing to update.");
+    const page = await ctx.db.update("landing_pages", patch, { eq: { id } });
+    if (!page) throw Errors.notFound("landing page");
+    await audit.record(ctx.user.id, "landing_page.updated", { entity: "landing_page", entityId: id });
+    return json({ page });
+  }
+
+  if (method === "DELETE") {
+    await ctx.db.remove("landing_pages", { eq: { id } });
+    await audit.record(ctx.user.id, "landing_page.deleted", { entity: "landing_page", entityId: id });
+    return json({ deleted: true });
+  }
+
+  throw Errors.notFound("endpoint");
+}
+
 /**
  * The author's campaigns on a platform BookPilot does not run (TikTok,
  * Google Ads): they exist so links and imported figures have a home.
@@ -1117,6 +1240,8 @@ export default withGuards(async (req) => {
       return handleAmazonImport(ctx, req.method, body);
     case "kdp-sales-import":
       return handleKdpSalesImport(ctx, req.method, body);
+    case "landing-pages":
+      return handleLandingPages(ctx, req.method, segments, body, url);
     case "platform-campaigns":
       return handlePlatformCampaigns(ctx, req.method, segments[1], body);
     case "platform-import":

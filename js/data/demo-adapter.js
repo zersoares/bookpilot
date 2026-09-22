@@ -17,6 +17,7 @@ import {
   DEMO_RECOMMENDATIONS, DEMO_PROFILE, DEMO_IDS,
 } from "./demo.js";
 import { deriveMetrics, confidenceLevel, budgetRecommendation } from "../core/metrics.js";
+import { slugify, isValidSlug, isValidEmail, normaliseEmail, RESERVED_SLUGS } from "../core/landing.js";
 import {
   freshBuilderState, handleBuilder, exportBookFromState, DemoError as BuilderError,
 } from "./demo-builder.js";
@@ -87,6 +88,8 @@ function freshState() {
     trackingEvents: demoTrackingEvents(),
     amazonRows: [],
     kdpRows: [],
+    landingPages: [],
+    landingLeads: [],
     // The authoring half keeps its own slice, reset by the same button.
     builder: freshBuilderState(),
   };
@@ -697,6 +700,102 @@ async function handle(method, path, body) {
           from: dates[0], to: dates[dates.length - 1] };
       }
       if (method === "DELETE") { state.kdpRows = []; return { deleted: true }; }
+    }
+
+    // Demo only: reader-magnet landing pages and the leads they collect.
+    // No public /l/:slug page exists in the demo (that page is served by
+    // a real function against real data) — this covers the author-side
+    // editor and its leads list, which is everything the demo workspace
+    // itself renders.
+    if (resource === "landing-pages") {
+      if (method === "GET" && !id) {
+        const bookId = query.get("book_id");
+        const page = state.landingPages.find((p) => p.book_id === bookId) || null;
+        return { page };
+      }
+      if (method === "GET" && id === "slug-available") {
+        const slug = (query.get("slug") || "").trim().toLowerCase();
+        const excludeId = query.get("exclude");
+        if (!isValidSlug(slug)) return { available: false };
+        const clash = state.landingPages.find((p) => p.slug === slug && p.id !== excludeId);
+        return { available: !clash };
+      }
+      if (method === "POST" && !id) {
+        const book = state.books.find((b) => b.id === body.book_id);
+        if (!book) throw new DemoError("invalid", "We couldn't find that book.", 400);
+        if (state.landingPages.some((p) => p.book_id === book.id)) {
+          throw new DemoError("invalid", "This book already has a landing page. Edit it instead of creating another.", 400);
+        }
+        let slug = (body.slug || "").trim().toLowerCase();
+        if (slug) {
+          if (!isValidSlug(slug)) {
+            throw new DemoError("invalid", RESERVED_SLUGS.has(slug)
+              ? `"${slug}" is reserved. Choose a different page address.`
+              : "The page address can only use lowercase letters, numbers and hyphens, and must be 2–60 characters.", 400);
+          }
+          if (state.landingPages.some((p) => p.slug === slug)) {
+            throw new DemoError("invalid", `"${slug}" is already taken. Choose another.`, 400);
+          }
+        } else {
+          const base = slugify(book.title);
+          slug = base;
+          let n = 0;
+          while (state.landingPages.some((p) => p.slug === slug)) { n += 1; slug = `${base}-${n}`; }
+        }
+        const page = {
+          id: uid(), user_id: "demo", book_id: book.id, slug,
+          headline: body.headline || null, subhead: body.subhead || null,
+          cta_label: body.cta_label || "Get the book", cta_url: body.cta_url || null,
+          magnet_enabled: body.magnet_enabled !== false,
+          magnet_label: body.magnet_label || "Send me the first chapter", magnet_url: body.magnet_url || null,
+          published: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+        };
+        state.landingPages.push(page);
+        // No visitor can actually reach a demo page (the public /l/:slug
+        // route is real infrastructure this workspace doesn't run), so a
+        // couple of example leads show what a populated list looks like
+        // rather than leaving it permanently, misleadingly empty.
+        for (const email of ["reader.one@example.com", "book.fan@example.com"]) {
+          state.landingLeads.push({
+            id: uid(), landing_page_id: page.id, email,
+            created_at: new Date(Date.now() - Math.random() * 5 * 86_400_000).toISOString(),
+          });
+        }
+        return { page };
+      }
+      const page = state.landingPages.find((p) => p.id === id);
+      if (!page) throw new DemoError("not_found", "We couldn't find that landing page.", 404);
+      if (sub === "leads") {
+        const leads = state.landingLeads
+          .filter((l) => l.landing_page_id === page.id)
+          .sort((a, b) => b.created_at.localeCompare(a.created_at));
+        return { leads };
+      }
+      if (method === "PATCH") {
+        if (typeof body.slug === "string" && body.slug.trim()) {
+          const slug = body.slug.trim().toLowerCase();
+          if (!isValidSlug(slug)) {
+            throw new DemoError("invalid", RESERVED_SLUGS.has(slug)
+              ? `"${slug}" is reserved. Choose a different page address.`
+              : "The page address can only use lowercase letters, numbers and hyphens, and must be 2–60 characters.", 400);
+          }
+          if (state.landingPages.some((p) => p.slug === slug && p.id !== page.id)) {
+            throw new DemoError("invalid", `"${slug}" is already taken. Choose another.`, 400);
+          }
+          page.slug = slug;
+        }
+        for (const key of ["headline", "subhead", "cta_label", "cta_url", "magnet_enabled", "magnet_label", "magnet_url", "published"]) {
+          if (key in body) page[key] = body[key];
+        }
+        page.updated_at = new Date().toISOString();
+        return { page };
+      }
+      if (method === "DELETE") {
+        state.landingPages = state.landingPages.filter((p) => p.id !== id);
+        state.landingLeads = state.landingLeads.filter((l) => l.landing_page_id !== id);
+        return { deleted: true };
+      }
+      return { page };
     }
 
     if (resource === "notifications") {
