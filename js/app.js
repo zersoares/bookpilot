@@ -21,6 +21,7 @@ import { applyStoredTheme, toggleTheme, currentTheme } from "./core/theme.js";
 import { notify } from "./core/toast.js";
 import * as fmt from "./core/format.js";
 import { refreshAccount } from "./core/session.js";
+import * as planIntent from "./core/plan-intent.js";
 import { loading, errorBox } from "./views/shared.js";
 
 import * as authView from "./views/auth.js";
@@ -545,8 +546,13 @@ async function boot() {
   if (!isDemo() && (await auth.accessToken())) {
     try {
       const me = await refresh();
-      // A brand-new account goes through onboarding before anything else.
-      if (me.profile.onboarding_step < 6 && !isPublicRoute()) {
+      // Someone who picked a paid plan on the pricing page pays first; a
+      // return from Stripe stays on Billing so its result is shown. Anyone
+      // else new goes through onboarding before anything else.
+      const onBilling = router.currentPath().split("?")[0] === "/billing";
+      if (planIntent.peek() && !isPublicRoute()) {
+        if (!onBilling) router.navigate("/billing", { replace: true });
+      } else if (me.profile.onboarding_step < 6 && !isPublicRoute() && !onBilling) {
         router.navigate("/onboarding", { replace: true });
       }
     } catch (err) {

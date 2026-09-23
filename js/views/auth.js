@@ -8,6 +8,7 @@ import * as auth from "../core/auth.js";
 import { notify } from "../core/toast.js";
 import * as store from "../core/store.js";
 import { isDemo } from "../core/api.js";
+import * as planIntent from "../core/plan-intent.js";
 
 function shell(title, body, footer) {
   return html`
@@ -54,7 +55,10 @@ function unavailableNotice() {
     </div>`;
 }
 
-export function render(root, mode) {
+export function render(root, mode, query) {
+  // From a "Choose <plan>" button on the pricing page.
+  planIntent.remember(query?.get("plan"));
+  const afterAuth = planIntent.peek() ? "#/billing" : null;
   const configured = auth.isConfigured();
   const googleEnabled = configured && store.get("config")?.flags?.google_oauth;
   const target = root.id === "app-root" ? root : document.body;
@@ -169,14 +173,14 @@ export function render(root, mode) {
             </div>`;
           return;
         }
-        location.hash = "#/onboarding";
+        location.hash = afterAuth || "#/onboarding";
         location.reload();
       } else if (mode === "reset") {
         await auth.requestPasswordReset(values.email);
         notify.success("If that email has an account, a reset link is on its way.");
       } else {
         await auth.signIn(values);
-        location.hash = "#/overview";
+        location.hash = afterAuth || "#/overview";
         location.reload();
       }
     } catch (err) {

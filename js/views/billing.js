@@ -1,5 +1,6 @@
 // Billing, plans and AI credits (spec §29, §30).
 
+import * as planIntent from "../core/plan-intent.js";
 import { html, raw, $, setBusy } from "../core/dom.js";
 import { API, isDemo } from "../core/api.js";
 import * as store from "../core/store.js";
@@ -171,6 +172,16 @@ export async function render(container, params, query) {
       }
     });
   });
+
+  // A plan chosen on the pricing page before signing up: go straight on to
+  // its checkout. Only a real upgrade button is clicked, so a current or
+  // unavailable plan (or billing not configured) just leaves the page as is.
+  const intended = planIntent.take();
+  if (intended && !checkout) {
+    const button = container.querySelector(`[data-plan="${intended}"]`);
+    if (button) button.click();
+    else if (!billing.billingAvailable) notify.info("Upgrading isn't available yet — you're on the Free plan for now.");
+  }
 }
 
 function planCard(plan, billing, currentPlan) {
