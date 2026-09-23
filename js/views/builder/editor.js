@@ -244,6 +244,10 @@ export async function render(container, params) {
               </ul>`)
             : raw('<p class="bp-tiny bp-subtle">No earlier versions yet. One is kept every time the text changes.</p>')}
         </div>
+
+        <p class="bp-tiny bp-subtle" style="margin-top:var(--bp-4)">
+          This chapter is never used to train a model, ours or anyone else's — see <a href="/#faq-manuscript" target="_blank" rel="noopener noreferrer">how we handle it</a>.
+        </p>
       </aside>
     </div>
   `;

@@ -86,6 +86,10 @@
       <p class="bp-hero__note">
         Free plan, no card required. Explore the full product with sample data before you sign up.
       </p>
+      <p class="bp-hero__note">
+        Your manuscript is never used to train any AI model, ours or anyone else's.
+        <a href="#faq-manuscript">How we handle it →</a>
+      </p>
     </div>
 
     <!-- Illustration of the dashboard. Every number here is invented for
@@ -1119,7 +1123,7 @@
       <summary>Will it invent reviews or claim my book is a bestseller?</summary>
       <p>No. Every prompt is bound by rules that forbid inventing awards, bestseller status, review quotes, sales figures, endorsements or guaranteed outcomes. If you supply real review text, it can use that. If you don't, it writes copy that works without it.</p>
     </details>
-    <details>
+    <details id="faq-manuscript">
       <summary>What happens to my manuscript?</summary>
       <p>Sample text you upload is used to analyse your book and generate marketing material, and is stored in your account. It is never used to train a model, never shared with other users, and you can export or permanently delete everything from Settings at any time.</p>
     </details>
@@ -1225,6 +1229,23 @@
     const paused = shelf.classList.toggle('is-paused');
     toggle.setAttribute('aria-pressed', String(paused));
     toggle.querySelector('.bp-shelf__toggle-label').textContent = paused ? 'Play' : 'Pause';
+  });
+
+  /* A link to an FAQ answer (e.g. "How we handle it →" on the manuscript
+     pledge) should open that answer, not just scroll near a collapsed
+     <details>. Browsers vary on auto-opening a <details> that is the
+     fragment target, so this does it explicitly, on load and on an
+     in-page click to the same hash (which fires no hashchange). */
+  function openTargetDetails() {
+    const id = location.hash.slice(1);
+    if (!id) return;
+    document.getElementById(id)?.closest('details')?.setAttribute('open', '');
+  }
+  openTargetDetails();
+  window.addEventListener('hashchange', openTargetDetails);
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href^="#"]');
+    if (link && link.getAttribute('href') === location.hash) openTargetDetails();
   });
 </script>
 <script type="module" src="/js/cookie-notice.js"></script>
