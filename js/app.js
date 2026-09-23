@@ -28,6 +28,7 @@ import * as onboardingView from "./views/onboarding.js";
 import * as overviewView from "./views/overview.js";
 import * as booksView from "./views/books.js";
 import * as landingPageView from "./views/landing-page.js";
+import * as amazonKeywordsView from "./views/amazon-keywords.js";
 import * as strategyView from "./views/strategy.js";
 import * as creativesView from "./views/creatives.js";
 import * as campaignsView from "./views/campaigns.js";
@@ -438,6 +439,7 @@ function registerRoutes() {
   router.register("/books/:id", view("Book", booksView.renderDetail));
   router.register("/books/:id/edit", view("Edit book", booksView.renderForm));
   router.register("/books/:id/landing", view("Landing page", landingPageView.render));
+  router.register("/books/:id/amazon-ads", view("Amazon Ads starter kit", amazonKeywordsView.render));
 
   router.register("/strategy", view("AI Strategy", strategyView.render));
   router.register("/strategy/:bookId", view("AI Strategy", strategyView.render));
