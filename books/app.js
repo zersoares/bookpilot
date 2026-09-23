@@ -170,6 +170,28 @@
   };
   window.addEventListener('hashchange', openFromHash);
   openFromHash();
+  // Instagram has no web share link: copy the book's link, then open Instagram.
+  let toast;
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.share__btn[data-copy]');
+    if (!btn) return;
+    const url = btn.dataset.copy;
+    let copied = false;
+    try { await navigator.clipboard.writeText(url); copied = true; } catch {}
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'share-toast';
+      toast.setAttribute('role', 'status');
+      document.body.append(toast);
+    }
+    toast.textContent = copied ? 'Link copied. Paste it into your Instagram story or bio.' : `Copy this link for Instagram: ${url}`;
+    toast.classList.add('is-visible');
+    btn.classList.add('is-copied');
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => { toast.classList.remove('is-visible'); btn.classList.remove('is-copied'); }, 3200);
+    window.open('https://www.instagram.com/', '_blank', 'noopener');
+  });
+
   // A deep link opens before the page has finished loading; reset once it has.
   window.addEventListener('load', () => { if (dlg.open) dlg.scrollTop = 0; });
 })();
