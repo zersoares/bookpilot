@@ -56,13 +56,24 @@ export async function costOf(operation) {
   return value;
 }
 
+/** An operator testing the product on their own account, not a discount tier. */
+export function isAdmin(profile) {
+  return profile?.role === "admin";
+}
+
 /**
  * Charge for an operation. Throws a 402 with the shortfall when the
  * balance is too low, so the UI can link straight to Billing.
+ *
+ * An admin's own account is never charged: the credit system exists to
+ * meter what a customer pays for, not to stop the person running the
+ * product from being able to check that a feature works. `remaining` is
+ * reported as-is either way, so the screen never claims a balance that
+ * isn't real.
  */
-export async function charge(userId, operation, { bookId = null, model = null, available = 0 } = {}) {
+export async function charge(userId, operation, { bookId = null, model = null, available = 0, profile = null } = {}) {
   const credits = await costOf(operation);
-  if (credits === 0) return { credits: 0, remaining: available };
+  if (credits === 0 || isAdmin(profile)) return { credits: 0, remaining: available };
 
   const service = dbAsService();
   try {

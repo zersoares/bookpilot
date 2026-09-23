@@ -20,7 +20,7 @@
 
 import { AppError, Errors } from "./errors.js";
 import { dbAsService } from "./db.js";
-import { costOf } from "./credits.js";
+import { costOf, isAdmin } from "./credits.js";
 import { withAiTimeout, BACKGROUND_TIMEOUT_MS } from "./ai.js";
 import * as v from "./validate.js";
 
@@ -86,7 +86,10 @@ export async function createJob(ctx, body, { service = dbAsService(), now = Date
 
   const cost = await costOf(operation);
   const available = ctx.profile.ai_credits ?? 0;
-  if (cost > 0 && available < cost) throw Errors.noCredits(cost, available);
+  // An admin's account isn't charged (see credits.js's charge()); the
+  // same account must not be blocked from even starting the job by a
+  // balance that will never actually be spent.
+  if (cost > 0 && available < cost && !isAdmin(ctx.profile)) throw Errors.noCredits(cost, available);
 
   const row = await service.insert("ai_jobs", {
     user_id: ctx.user.id,

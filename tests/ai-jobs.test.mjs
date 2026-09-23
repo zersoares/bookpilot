@@ -67,8 +67,8 @@ function fakeDb(tables, { asUser = null } = {}) {
   };
 }
 
-const ctxFor = (user, tables, credits = 100) => ({
-  user, profile: { ai_credits: credits }, db: fakeDb(tables, { asUser: user.id }),
+const ctxFor = (user, tables, credits = 100, role = null) => ({
+  user, profile: { ai_credits: credits, role }, db: fakeDb(tables, { asUser: user.id }),
 });
 const world = () => ({ books: [{ id: BOOK, user_id: ME.id }], ai_jobs: [] });
 const respond = (body) => new Response(JSON.stringify(body), { headers: { "Content-Type": "application/json" } });
@@ -104,6 +104,21 @@ test("without enough credits it says so up front, before anything is queued", as
     (e) => e.code === "insufficient_credits" && e.status === 402 && e.detail.needed === 10 && e.detail.available === 4,
   );
   assert.equal(tables.ai_jobs.length, 0);
+});
+
+test("an admin's own low balance never blocks starting a job — the account is never actually charged for it", async () => {
+  const tables = world();
+  const ctx = ctxFor(ME, tables, 0, "admin");
+  const job = await createJob(ctx, { route: "analyze", book_id: BOOK }, { service: fakeDb(tables), now: NOW });
+  assert.equal(job.status, "queued", "queued exactly as a paying account's job would be");
+
+  // A non-admin with the same zero balance is still refused: this is not
+  // a blanket "skip validation" switch, only the credit check.
+  const other = ctxFor(OTHER, tables, 0);
+  await assert.rejects(
+    createJob(other, { route: "analyze", book_id: BOOK }, { service: fakeDb(tables), now: NOW + 1 }),
+    (e) => e.code === "insufficient_credits",
+  );
 });
 
 test("creating a job records it as queued and returns it without its internals", async () => {

@@ -35,6 +35,7 @@ async function billed(ctx, operation, bookId, run) {
   const { credits } = await charge(ctx.user.id, operation, {
     bookId,
     available: ctx.profile.ai_credits,
+    profile: ctx.profile,
   });
   try {
     const result = await run();
