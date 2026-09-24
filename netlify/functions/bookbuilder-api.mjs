@@ -512,6 +512,11 @@ function chapterPatch(body) {
     content: (x) => v.str(x, "Chapter text", { max: 200000 }),
     status: (x) => v.oneOf(x, "Status", CHAPTER_STATUSES),
     include: (x) => v.bool(x),
+    // The auto-detection's own correction path: an author certain a
+    // section is entirely their own words, or that it does contain AI
+    // text the heuristic missed, has the final say (spec: "you can
+    // disagree with it").
+    ai_generated: (x) => v.bool(x),
     sort_order: (x) => v.int(x, "Position", { min: 0, max: 10000 }),
   });
 }
@@ -581,17 +586,33 @@ async function handleChapters(ctx, projectId, method, segments, body) {
   if (method === "PATCH" && chapterId) {
     v.uuid(chapterId, "Chapter");
     const patch = chapterPatch(body);
-    if (!Object.keys(patch).length) throw Errors.invalid("Nothing to update.");
+
+    // Not a stored column: a signal from the editor that this save is
+    // the author accepting an AI Revise/Continue proposal into the
+    // textarea, not typing. The generic save has no other way to tell
+    // the two apart — both arrive as the same "content changed" PATCH.
+    const aiModel = body.ai_model ? v.str(body.ai_model, "Model", { max: 100 }) : null;
+
+    if (!Object.keys(patch).length && !aiModel) throw Errors.invalid("Nothing to update.");
 
     // Editing the text always leaves the previous text behind. Losing a
     // draft to an autosave is the failure an author never forgives.
     if (patch.content !== undefined) {
       const current = await ctx.db.selectOne("book_chapters", {
-        select: "id,content,word_count", eq: { id: chapterId, project_id: projectId },
+        select: "id,content,word_count,ai_models", eq: { id: chapterId, project_id: projectId },
       });
       if (!current) throw Errors.notFound("chapter");
       if (current.content && current.content !== patch.content) {
-        await saveChapterVersion(ctx, projectId, chapterId, current, body.version_label || "Before editing", "manual");
+        await saveChapterVersion(ctx, projectId, chapterId, current,
+          body.version_label || "Before editing", aiModel ? "rewrite" : "manual", aiModel || null);
+      }
+      if (aiModel) {
+        // Sticky per KDP's own disclosure rule (sql/022_ai_provenance.sql):
+        // once AI has produced this section's words, a later hand-edit
+        // never clears the flag, so this only ever adds, never removes.
+        patch.ai_generated = true;
+        const models = Array.isArray(current.ai_models) ? current.ai_models : [];
+        patch.ai_models = models.includes(aiModel) ? models : [...models, aiModel];
       }
     }
 

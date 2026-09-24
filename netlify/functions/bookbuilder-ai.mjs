@@ -445,6 +445,10 @@ async function writeChapter(ctx, body) {
   const updated = await ctx.db.update("book_chapters", {
     content,
     status: "draft",
+    // Sticky per KDP's own disclosure rule: a later hand-edit never
+    // un-flags a section the AI wrote (see sql/022_ai_provenance.sql).
+    ai_generated: true,
+    ai_models: mergeModel(chapter.ai_models, result.model),
   }, { eq: { id: chapter.id } });
 
   // The Bible learns what this chapter established, so the next chapter
@@ -473,6 +477,13 @@ async function writeChapter(ctx, body) {
     notes_for_author: result.data.notes_for_author || null,
     creditsUsed: credits,
   });
+}
+
+/** The distinct list of models that have ever written this section, newest last. */
+function mergeModel(existing, model) {
+  const list = Array.isArray(existing) ? existing : [];
+  if (!model || list.includes(model)) return list;
+  return [...list, model];
 }
 
 function describeList(items, format) {
@@ -521,6 +532,7 @@ async function reviseChapter(ctx, body) {
     what_changed: result.data.what_changed,
     notes_for_author: result.data.notes_for_author || null,
     is_selection: Boolean(body.passage),
+    model: result.model,
     creditsUsed: credits,
   });
 }
@@ -560,6 +572,7 @@ async function continueChapter(ctx, body) {
   return json({
     content: result.data.content,
     appendTo: chapter.id,
+    model: result.model,
     creditsUsed: credits,
   });
 }

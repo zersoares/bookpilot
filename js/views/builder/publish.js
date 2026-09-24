@@ -16,6 +16,7 @@ import { demoBadge } from "../shared.js";
 import { layoutBook } from "../../doc/layout.js";
 import { renderPage } from "../../doc/render-html.js";
 import { assembleBook } from "../../doc/assemble.js";
+import { disclosureSummary, disclosureText } from "../../core/ai-disclosure.js";
 
 // =====================================================================
 // The previewer (spec 24)
@@ -245,6 +246,10 @@ export async function renderPublish(container, params) {
         }))}
       </section>
 
+      <section style="margin-bottom:var(--bp-10)" id="disclosure">
+        ${raw(disclosurePanel(project, chapters))}
+      </section>
+
       <section>
         <h2 class="bb-section-title">Export</h2>
         <p class="bp-small bp-muted" style="margin:4px 0 var(--bp-5)">
@@ -386,6 +391,82 @@ export async function renderPublish(container, params) {
       setBusy(button, false);
     }
   });
+
+  $("#copy-disclosure", container)?.addEventListener("click", async (event) => {
+    try {
+      await navigator.clipboard.writeText(disclosureText(project, chapters));
+      notify.success("Copied.");
+    } catch {
+      notify.info("Select the text and copy it manually.");
+    }
+  });
+
+  $$("[data-ai-toggle]", container).forEach((checkbox) => {
+    checkbox.addEventListener("change", async () => {
+      const chapterId = checkbox.dataset.aiToggle;
+      checkbox.disabled = true;
+      try {
+        await BB.updateChapter(project.id, chapterId, { ai_generated: checkbox.checked });
+        const chapter = chapters.find((c) => c.id === chapterId);
+        if (chapter) chapter.ai_generated = checkbox.checked;
+        $("#disclosure", container).innerHTML = disclosurePanel(project, chapters);
+        notify.success("Updated.");
+      } catch (err) {
+        notify.error(err.message);
+        checkbox.checked = !checkbox.checked;
+        checkbox.disabled = false;
+      }
+    });
+  });
+}
+
+function disclosurePanel(project, chapters) {
+  const summary = disclosureSummary(chapters);
+  const tone = !summary.total ? "" : summary.anyFlagged ? "bp-badge--warning" : "bp-badge--success";
+  const label = !summary.total
+    ? "Nothing written yet"
+    : summary.anyFlagged
+      ? `${summary.flagged.length} of ${summary.total} section${summary.total === 1 ? "" : "s"} flagged`
+      : "No AI-generated text detected";
+
+  return html`
+    <div class="bp-card">
+      <div class="bp-card__header">
+        <div class="bp-card__title">AI content disclosure</div>
+        <span class="bp-badge ${tone}">${label}</span>
+      </div>
+      <p class="bp-small bp-muted" style="margin:0 0 var(--bp-4);max-width:64ch">
+        KDP asks every book whether it contains AI-generated text — text an AI tool produced, even
+        one you then heavily edited. Using the AI only to brainstorm, outline or tidy your own words
+        doesn't count and needs no disclosure. A section below is flagged the moment the AI Book Writer
+        has ever written or rewritten it; a later hand-edit doesn't clear the flag, because KDP's own
+        rule says it shouldn't. You know your manuscript best — correct any of these yourself.
+      </p>
+      ${raw(summary.total ? html`
+        <div class="bp-table-wrap">
+          <table class="bp-table">
+            <thead><tr><th>Section</th><th>AI-generated</th><th>Model${summary.models.length === 1 ? "" : "s"}</th></tr></thead>
+            <tbody>
+              ${raw([...summary.flagged, ...summary.clear]
+                .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+                .map((c) => html`
+                <tr>
+                  <td class="bp-small">${c.number ? `${c.number}. ` : ""}${c.title}</td>
+                  <td><label class="bp-row" style="gap:6px;cursor:pointer">
+                    <input type="checkbox" data-ai-toggle="${c.id}" ${c.ai_generated ? "checked" : ""}>
+                    <span class="bp-tiny bp-subtle">${c.ai_generated ? "Yes" : "No"}</span>
+                  </label></td>
+                  <td class="bp-tiny bp-subtle">${(c.ai_models || []).join(", ") || "—"}</td>
+                </tr>`).join(""))}
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="copy-disclosure" style="margin-top:var(--bp-4)">
+          Copy disclosure notes
+        </button>
+      ` : '<p class="bp-small bp-muted">Write at least one chapter to see its disclosure status here.</p>')}
+    </div>
+  `;
 }
 
 function qualityReport(quality, project) {

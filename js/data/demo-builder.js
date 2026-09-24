@@ -50,7 +50,13 @@ export function freshBuilderState() {
     positioning: [clone(DEMO_POSITIONING)],
     bibles: [clone(DEMO_BIBLE)],
     parts: clone(DEMO_PARTS),
-    chapters: clone(DEMO_CHAPTERS),
+    // The fixture's pre-written chapters are the Book Writer's own
+    // sample output, not the demo author's — flagged the same way a
+    // real fresh draft would be (sql/022_ai_provenance.sql's backfill:
+    // content with no edit history is presumed AI-written).
+    chapters: clone(DEMO_CHAPTERS).map((c) => (c.content
+      ? { ...c, ai_generated: true, ai_models: ["demo"] }
+      : c)),
     chapterVersions: [],
     projectVersions: clone(DEMO_VERSIONS),
     visuals: clone(DEMO_VISUALS),
@@ -634,6 +640,10 @@ function handleAgents(operation, body, state, account) {
       chapter.word_count = wordCount(chapter.content);
       chapter.status = "draft";
       chapter.updated_at = new Date().toISOString();
+      // Sticky, same as the real deployment (sql/022_ai_provenance.sql):
+      // a later hand-edit in the demo never clears this either.
+      chapter.ai_generated = true;
+      chapter.ai_models = chapter.ai_models?.includes("demo") ? chapter.ai_models : [...(chapter.ai_models || []), "demo"];
       return {
         chapter,
         placeholders: [],

@@ -314,7 +314,7 @@ function wire(container, project, chapter, visuals) {
   const counter = $("#word-count", container);
   const titleInput = $("#chapter-title", container);
 
-  state = { chapterId: chapter.id, dirty: false, proposal: null, autosave: null };
+  state = { chapterId: chapter.id, dirty: false, proposal: null, autosave: null, pendingAiModel: null };
 
   const countWords = (text) => {
     const plain = String(text || "")
@@ -336,6 +336,13 @@ function wire(container, project, chapter, visuals) {
     const patch = { content: textarea.value };
     if (titleInput.value.trim() && titleInput.value !== chapter.title) {
       patch.title = titleInput.value.trim();
+    }
+    // Set only right before this save, by accept()/continue() below — a
+    // plain keystroke autosave never carries it, so typing after an AI
+    // proposal is accepted saves as an ordinary edit, not another AI hit.
+    if (state.pendingAiModel) {
+      patch.ai_model = state.pendingAiModel;
+      state.pendingAiModel = null;
     }
     const updated = await BB.updateChapter(project.id, chapter.id, patch);
     state.dirty = false;
@@ -502,6 +509,7 @@ function wire(container, project, chapter, visuals) {
         await refreshAccount().catch(() => {});
         textarea.value = `${textarea.value.replace(/\s*$/, "")}\n\n${result.content}`;
         markDirty();
+        state.pendingAiModel = result.model;
         await save({ quiet: true });
         notify.success("Continued. Read it before you keep going.");
       } catch (err) {
@@ -523,6 +531,7 @@ function wire(container, project, chapter, visuals) {
         textarea.value = proposal.content;
       }
       markDirty();
+      state.pendingAiModel = proposal.model;
       $("#proposal", container).innerHTML = "";
       state.proposal = null;
       save().catch((err) => notify.error(err.message));
