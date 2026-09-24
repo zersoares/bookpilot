@@ -42,7 +42,7 @@ export function paletteById(id) {
 // Small helpers
 // =====================================================================
 
-function canvasOf(w, h) {
+export function canvasOf(w, h) {
   const c = document.createElement("canvas");
   c.width = Math.max(1, Math.round(w));
   c.height = Math.max(1, Math.round(h));
@@ -165,7 +165,7 @@ function letterSpaced(ctx, spacing) {
 }
 
 /** Cover-fit an image into a box, like object-fit: cover. */
-function drawCovered(ctx, img, w, h) {
+export function drawCovered(ctx, img, w, h) {
   const s = Math.max(w / img.width, h / img.height);
   const dw = img.width * s, dh = img.height * s;
   ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
@@ -366,7 +366,7 @@ function paintEdge(length, thick, boardFrac, boardColor) {
 // Camera and textured-quad warping
 // =====================================================================
 
-function makeCamera({ W, H, yaw = 0, pitch = 60, f = 5200, zoom = 1, cx = W / 2, cy = H / 2 }) {
+export function makeCamera({ W, H, yaw = 0, pitch = 60, f = 5200, zoom = 1, cx = W / 2, cy = H / 2 }) {
   const th = (90 - pitch) * DEG;
   const ct = Math.cos(th), st = Math.sin(th);
   const cyw = Math.cos(yaw * DEG), syw = Math.sin(yaw * DEG);
@@ -459,7 +459,7 @@ function warp(ctx, cam, tex, surf, nu = 10, nv = 10) {
 // Backdrop, light and shadow
 // =====================================================================
 
-function paintBackdrop(ctx, W, H, pal) {
+export function paintBackdrop(ctx, W, H, pal) {
   const g = ctx.createLinearGradient(0, 0, W * 0.25, H);
   g.addColorStop(0, pal.top);
   g.addColorStop(1, pal.bottom);
@@ -539,7 +539,7 @@ function shadeOverlay(ctx, outline, normal) {
  * on x and y, standing on z = 0, front cover toward −y. `pose` moves it
  * into the world — lying flat, turned, placed.
  */
-function closedBook(ctx, cam, a, spec) {
+export function closedBook(ctx, cam, a, spec) {
   const { w, h, d, lay = "upright", yaw = 0, at = [0, 0], lift = 0, pal, S } = spec;
   const bt = Math.min(d * 0.16, 9 * S);
   const yawR = yaw * DEG, cy = Math.cos(yawR), sy = Math.sin(yawR);

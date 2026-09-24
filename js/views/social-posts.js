@@ -32,8 +32,10 @@ function socialPreview(template, book) {
     // real size is in the ×px label under the card, not the box shape.
     // `coverPosition: "hero"` centres the book large, the way an actual
     // book-launch post shows it, rather than the small ad-template corner
-    // thumbnail, which reads as a watermark at this box height.
-    { label: size.label, aspect: "gallery", coverPosition: "hero", book },
+    // thumbnail, which reads as a watermark at this box height. TikTok's
+    // background is a talking-to-camera setup with nowhere for the book to
+    // sit, so it skips the cover overlay rather than floating one over it.
+    { label: size.label, aspect: "gallery", coverPosition: "hero", book: template.platform === "tiktok" ? null : book },
   );
 }
 
