@@ -15,7 +15,11 @@ export const GENRES = [
   "Biography", "Children's Books", "Young Adult", "Other",
 ];
 
-export const PLATFORMS = ["meta", "instagram", "facebook", "tiktok", "google"];
+// meta/instagram/facebook/tiktok/google run paid campaigns (spec's ad
+// platforms). linkedin/x/bluesky never do — they only ever reach here as
+// the `platform` on an organic social-post creative (see
+// js/views/social-templates.js), which has no ad-account connection.
+export const PLATFORMS = ["meta", "instagram", "facebook", "tiktok", "google", "linkedin", "x", "bluesky"];
 export const CREATIVE_FORMATS = [
   "static", "carousel", "story", "reel", "video_script", "mockup", "quote", "promo",
 ];

@@ -32,6 +32,7 @@ import * as landingPageView from "./views/landing-page.js";
 import * as amazonKeywordsView from "./views/amazon-keywords.js";
 import * as strategyView from "./views/strategy.js";
 import * as creativesView from "./views/creatives.js";
+import * as socialPostsView from "./views/social-posts.js";
 import * as campaignsView from "./views/campaigns.js";
 import * as analyticsView from "./views/analytics.js";
 import * as advisorView from "./views/advisor.js";
@@ -76,6 +77,7 @@ const NAV_GROUPS = [
       { path: "/books", label: "My Books", icon: "▤", mobile: "Books" },
       { path: "/strategy", label: "AI Strategy", icon: "✦" },
       { path: "/creatives", label: "Creatives", icon: "◐", mobile: "Creatives" },
+      { path: "/social", label: "Social Posts", icon: "◒", mobile: "Social" },
       { path: "/campaigns", label: "Campaigns", icon: "▶", mobile: "Campaigns" },
       { path: "/analytics", label: "Analytics", icon: "▦", mobile: "Analytics" },
       { path: "/advisor", label: "AI Advisor", icon: "✧" },
@@ -449,6 +451,8 @@ function registerRoutes() {
   router.register("/creatives/new", view("Create ads", creativesView.renderFactory));
   router.register("/creatives/templates", view("Templates", creativesView.renderTemplates));
   router.register("/creatives/:id", view("Creative", creativesView.renderDetail));
+
+  router.register("/social", view("Social Posts", socialPostsView.renderGallery));
 
   router.register("/campaigns", view("Campaigns", campaignsView.renderList));
   router.register("/campaigns/new", view("New campaign", campaignsView.renderWizard));

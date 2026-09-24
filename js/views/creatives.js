@@ -377,11 +377,23 @@ export async function renderDetail(container, params) {
         <div class="bp-row bp-row--wrap">
           <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="edit-btn">Edit copy</button>
           <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="duplicate-btn">Duplicate</button>
-          <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="variation-btn">Create variation</button>
-          <button type="button" class="bp-btn bp-btn--ghost bp-btn--sm" id="download-btn">Download</button>
-          <a class="bp-btn bp-btn--ghost bp-btn--sm" href="#/campaigns/new?book=${book.id}&creative=${creative.id}">Add to campaign</a>
+          ${creative.body?.social_post ? "" : raw(html`
+            <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="variation-btn">Create variation</button>`)}
+          ${creative.body?.social_post ? raw(html`
+            <button type="button" class="bp-btn bp-btn--ghost bp-btn--sm" id="copy-caption-btn">Copy caption</button>
+            <button type="button" class="bp-btn bp-btn--ghost bp-btn--sm" id="download-image-btn">
+              Download image (${creative.body.size?.width}×${creative.body.size?.height})
+            </button>`) : ""}
+          <button type="button" class="bp-btn bp-btn--ghost bp-btn--sm" id="download-btn">Download brief</button>
+          ${creative.body?.social_post ? "" : raw(html`
+            <a class="bp-btn bp-btn--ghost bp-btn--sm" href="#/campaigns/new?book=${book.id}&creative=${creative.id}">Add to campaign</a>`)}
           <button type="button" class="bp-btn bp-btn--danger bp-btn--sm" id="delete-btn">Delete</button>
         </div>
+        ${creative.body?.social_post ? raw(html`
+          <p class="bp-tiny bp-subtle">
+            No platform here connects to BookPilot for publishing — copy the caption and download the
+            image, then post it yourself from your ${fmt.platformName(creative.platform)} account.
+          </p>`) : ""}
       </div>
     </div>
   `;
@@ -418,7 +430,18 @@ export async function renderDetail(container, params) {
     navigate(`/creatives/${copy.id}`);
   });
 
-  $("#variation-btn").addEventListener("click", async (event) => {
+  $("#copy-caption-btn")?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(creative.primary_text || "");
+      notify.success("Caption copied.");
+    } catch {
+      notify.error("Couldn't reach the clipboard — select and copy the text by hand.");
+    }
+  });
+
+  $("#download-image-btn")?.addEventListener("click", (event) => downloadSocialImage(creative, event.currentTarget));
+
+  $("#variation-btn")?.addEventListener("click", async (event) => {
     setBusy(event.currentTarget, true, "Writing…");
     try {
       const { creatives } = await API.generateCreatives({
@@ -584,6 +607,47 @@ function downloadCreative(creative, book) {
   link.download = `bookpilot-creative-${creative.id.slice(0, 8)}.txt`;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+/**
+ * Export a social post's background art at the exact pixel size its
+ * network crops to (spec: creative.body.size, set by socialPostFromTemplate).
+ * Same-origin sample art only — no book cover baked in, so there is
+ * nothing here to taint the canvas with a cross-origin image.
+ */
+async function downloadSocialImage(creative, button) {
+  const size = creative.body?.size;
+  const mediaUrl = creative.media_url;
+  if (!size?.width || !size?.height || !mediaUrl) return;
+  setBusy(button, true, "Preparing…");
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error("The image didn't load."));
+      el.src = mediaUrl;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = size.width;
+    canvas.height = size.height;
+    const ctx = canvas.getContext("2d");
+    const scale = Math.max(size.width / img.naturalWidth, size.height / img.naturalHeight);
+    const w = img.naturalWidth * scale;
+    const h = img.naturalHeight * scale;
+    ctx.drawImage(img, (size.width - w) / 2, (size.height - h) / 2, w, h);
+
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    if (!blob) throw new Error("Could not render the image.");
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `bookpilot-${creative.platform}-${creative.id.slice(0, 8)}.png`;
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    notify.error(err.message || "Couldn't download the image.");
+  }
+  setBusy(button, false);
 }
 
 // ---------------------------------------------------------------------

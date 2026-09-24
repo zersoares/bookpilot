@@ -378,6 +378,9 @@
   border-bottom: 1px solid var(--bp-border);
 }
 .bp-creative__preview--reel { aspect-ratio: 9 / 16; }
+.bp-creative__preview--square { aspect-ratio: 1 / 1; }
+.bp-creative__preview--landscape { aspect-ratio: 1.91 / 1; }
+.bp-creative__preview--wide { aspect-ratio: 16 / 9; }
 /* With a picture: the image fills the box, a scrim keeps the headline
    readable whatever the photo, and the text is always light on dark. */
 .bp-creative__preview--image {

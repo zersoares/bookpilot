@@ -72,12 +72,14 @@ export function cover(book, { className = "" } = {}) {
  *   3. Failing that, the plain gradient, and, when we know the book, a
  *      link to add its cover. Never a stand-in dressed up as artwork.
  */
-export function creativePreview(creative, { label = "", tall = false, book = null } = {}) {
+export function creativePreview(creative, { label = "", tall = false, aspect = "", book = null } = {}) {
   // media_url is a free URL column; only show it when it looks like a picture.
   const mediaUrl = safeUrl(creative.media_url);
   const image = /\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(mediaUrl) ? "" : mediaUrl;
   const coverUrl = safeImageUrl(book?.cover_url);
-  const tallClass = tall ? " bp-creative__preview--reel" : "";
+  // `aspect` names a modifier class directly (e.g. "landscape", for a
+  // platform's exact post shape); `tall` is the older reel/story shorthand.
+  const tallClass = aspect ? ` bp-creative__preview--${aspect}` : (tall ? " bp-creative__preview--reel" : "");
   const headline = creative.headline || "Untitled creative";
   const heading = raw(html`
       <span class="bp-badge bp-badge--accent" style="align-self:flex-start">${label}</span>
