@@ -72,7 +72,7 @@ export function cover(book, { className = "" } = {}) {
  *   3. Failing that, the plain gradient, and, when we know the book, a
  *      link to add its cover. Never a stand-in dressed up as artwork.
  */
-export function creativePreview(creative, { label = "", tall = false, aspect = "", book = null } = {}) {
+export function creativePreview(creative, { label = "", tall = false, aspect = "", coverPosition = "", book = null } = {}) {
   // media_url is a free URL column; only show it when it looks like a picture.
   const mediaUrl = safeUrl(creative.media_url);
   const image = /\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(mediaUrl) ? "" : mediaUrl;
@@ -95,7 +95,7 @@ export function creativePreview(creative, { label = "", tall = false, aspect = "
     return html`
       <div class="bp-creative__preview bp-creative__preview--image${tallClass}">
         <img class="bp-creative__img" src="${image}" alt="${sample ? sampleAltFor(image) : creative.body?.image_alt || ""}" loading="lazy" decoding="async">
-        ${cover(subject ? "hero" : "thumb")}
+        ${cover(coverPosition || (subject ? "hero" : "thumb"))}
         <span class="bp-creative__concept" title="${sample
           ? "A sample of the look, not artwork for your book."
           : "Generated from the art direction. Not finished ad artwork."}">${sample ? "Sample image" : "AI concept image"}</span>

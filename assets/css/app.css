@@ -381,6 +381,12 @@
 .bp-creative__preview--square { aspect-ratio: 1 / 1; }
 .bp-creative__preview--landscape { aspect-ratio: 1.91 / 1; }
 .bp-creative__preview--wide { aspect-ratio: 16 / 9; }
+/* A gallery of templates for six different post shapes (portrait, square,
+   landscape, vertical video) looks like a broken layout if every card is a
+   different height — the real per-network shape still shows in the size
+   label under the card. A fixed box + object-fit:cover keeps every card the
+   same size, cropping each sample image to fit rather than stretching it. */
+.bp-creative__preview--gallery { aspect-ratio: auto; height: 300px; }
 /* With a picture: the image fills the box, a scrim keeps the headline
    readable whatever the photo, and the text is always light on dark. */
 .bp-creative__preview--image {
@@ -420,6 +426,11 @@
 }
 .bp-creative__cover--thumb { top: 12px; left: 12px; width: 21%; }
 .bp-creative__cover--hero { top: 8%; left: 50%; width: 44%; transform: translateX(-50%); }
+/* In the fixed-height gallery box, the hero cover at its usual size runs
+   into a two-line headline underneath it (a short landscape post's title
+   wraps to two lines, and the cover's bottom edge sat right where the
+   first one started) — smaller and higher leaves clear air above the text. */
+.bp-creative__preview--gallery .bp-creative__cover--hero { top: 6%; width: 34%; }
 .bp-creative__preview { position: relative; }
 .bp-creative__nocover {
   position: absolute;

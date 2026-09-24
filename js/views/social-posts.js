@@ -25,7 +25,15 @@ function socialPreview(template, book) {
       media_url: sampleImagePath(template.id),
       headline: headline.startsWith("[") ? template.name : headline,
     },
-    { label: size.label, aspect: size.aspect, book },
+    // Every card the same box (`aspect: "gallery"`, a fixed height rather
+    // than each network's own aspect ratio) so six very different post
+    // shapes — square-ish feed post next to 9:16 video cover — still read
+    // as one gallery instead of a ragged row of mismatched heights. The
+    // real size is in the ×px label under the card, not the box shape.
+    // `coverPosition: "hero"` centres the book large, the way an actual
+    // book-launch post shows it, rather than the small ad-template corner
+    // thumbnail, which reads as a watermark at this box height.
+    { label: size.label, aspect: "gallery", coverPosition: "hero", book },
   );
 }
 
