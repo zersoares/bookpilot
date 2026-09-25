@@ -504,7 +504,13 @@
   max-width: 70%;
   max-height: 82%;
   object-fit: contain;
+  transform: scale(var(--book-scale, 1));
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
+.bp-social-box__book:active { cursor: grabbing; }
 /* With a headline/subtext overlay along the bottom, the book needs to clear
    that strip rather than sit behind it — reserve room for the text (padding
    on the flex container, which centres what's left) and let the book shrink
@@ -553,6 +559,22 @@
 }
 .bp-social-box__nocover a { color: inherit; text-decoration: underline; }
 
+.bp-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--bp-primary);
+  cursor: pointer;
+}
+.bp-link:hover { text-decoration: underline; }
+
+.bp-range {
+  width: 100%;
+  margin-top: 8px;
+  accent-color: var(--bp-primary);
+  cursor: pointer;
+}
+
 .bp-swatch {
   width: 30px;
   height: 30px;
@@ -572,6 +594,16 @@
 /* A photographed backdrop reads as a smear of colour in a 30px circle —
    square, a little larger, tells you it's a photo before you click it. */
 .bp-swatch--photo { width: 36px; height: 36px; border-radius: 7px; background-size: cover; background-position: center; }
+.bp-swatch--upload {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-style: dashed;
+  color: var(--bp-text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+}
 
 .bp-score {
   display: inline-flex;

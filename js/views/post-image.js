@@ -98,8 +98,9 @@ export const BG_IMAGES = [
   "/assets/social/bg/bg-20-lavender-band.webp",
 ];
 
-/** Is this a photographed backdrop (a path) rather than a plain colour? */
-export const isImageBg = (bg) => typeof bg === "string" && bg.startsWith("/");
+/** Is this a photographed backdrop (a path, or an uploaded photo) rather than a plain colour? */
+export const isImageBg = (bg) =>
+  typeof bg === "string" && (bg.startsWith("/") || bg.startsWith("data:image/") || bg.startsWith("blob:"));
 
 // A handful of books ship with one finished hero shot — the cover and its
 // backdrop already composed together as a single image (a dramatic angled
@@ -175,7 +176,31 @@ export function bgSwatchesMarkup(initialBg) {
           <button type="button" class="bp-swatch bp-swatch--photo${!colorActive && src === initialBg ? " bp-swatch--active" : ""}" data-bg-swatch
             style="background-image:url('${src}')" data-color="${src}" aria-label="Use this backdrop photo" title="Backdrop photo"></button>
         `).join(""))}
+        <label class="bp-swatch bp-swatch--photo bp-swatch--upload" title="Upload your own photo">
+          <span aria-hidden="true">+</span>
+          <input type="file" accept="image/*" data-bg-upload style="position:absolute;inset:0;opacity:0;cursor:pointer">
+        </label>
       </div>
+      <p class="bp-tiny bp-subtle" style="margin:6px 0 0" data-upload-hint hidden>Uploaded photos aren't saved anywhere — pick it again next time you open this.</p>
+    </div>
+  `;
+}
+
+/**
+ * The book-position controls: a size slider and a reset link, meant to sit
+ * under `imageBoxMarkup`. Position itself has no widget — the book is
+ * dragged directly in the box above — this is only for what dragging alone
+ * can't do (the book too big or small for a given backdrop's "floor").
+ */
+export function positionControlsMarkup() {
+  return html`
+    <div class="bp-field">
+      <div class="bp-row bp-row--between" style="align-items:center">
+        <label class="bp-label" for="post-book-scale" style="margin:0">Book size</label>
+        <button type="button" class="bp-small bp-link" data-reset-position>Reset position</button>
+      </div>
+      <input class="bp-range" id="post-book-scale" type="range" min="0.5" max="1.6" step="0.02" value="1">
+      <p class="bp-tiny bp-subtle" style="margin:4px 0 0">Drag the book in the picture above to place it — useful when a backdrop's "floor" doesn't line up with the middle of the box.</p>
     </div>
   `;
 }
@@ -195,10 +220,75 @@ export function textFieldsMarkup(initialHeadline, initialSubtext = "") {
 }
 
 /**
- * Wires the swatches, the custom-colour input and the headline/subtext
- * fields (all already in `root`) to update the box live. Returns
- * `{ getBg, getHeadline, getSubtext }` for the caller's own download
- * handler to read from.
+ * Lets the book in `bookEl` be dragged around inside `box` (its own
+ * on-screen picture, not just a description of one). The book starts out
+ * centred by ordinary flow layout; the first drag switches it to absolute
+ * positioning anchored at wherever it already was, so a book nobody has
+ * touched yet still sits exactly where `imageBoxMarkup` put it. The offset
+ * this returns is a fraction of the box's own size (how far the book's
+ * centre has moved, left/right and up/down, as a share of box width/height)
+ * so the same number means the same thing whether it's applied to this
+ * small on-screen box or the much larger canvas `downloadPostImage` draws.
+ */
+function makeBookDraggable(box, bookEl) {
+  let dragging = false;
+  let start = null;
+  let offset = { x: 0, y: 0 };
+
+  const ensureAbsolute = () => {
+    if (bookEl.style.position === "absolute") return;
+    const boxRect = box.getBoundingClientRect();
+    const bookRect = bookEl.getBoundingClientRect();
+    bookEl.style.position = "absolute";
+    bookEl.style.left = `${bookRect.left - boxRect.left}px`;
+    bookEl.style.top = `${bookRect.top - boxRect.top}px`;
+    bookEl.style.margin = "0";
+  };
+
+  const recomputeOffset = () => {
+    const boxRect = box.getBoundingClientRect();
+    const bookRect = bookEl.getBoundingClientRect();
+    const bookCx = bookRect.left - boxRect.left + bookRect.width / 2;
+    const bookCy = bookRect.top - boxRect.top + bookRect.height / 2;
+    offset = {
+      x: (bookCx - boxRect.width / 2) / boxRect.width,
+      y: (bookCy - boxRect.height / 2) / boxRect.height,
+    };
+  };
+
+  bookEl.addEventListener("pointerdown", (event) => {
+    ensureAbsolute();
+    dragging = true;
+    bookEl.setPointerCapture(event.pointerId);
+    start = { x: event.clientX, y: event.clientY, left: parseFloat(bookEl.style.left), top: parseFloat(bookEl.style.top) };
+  });
+  bookEl.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+    bookEl.style.left = `${start.left + (event.clientX - start.x)}px`;
+    bookEl.style.top = `${start.top + (event.clientY - start.y)}px`;
+    recomputeOffset();
+  });
+  const stopDragging = () => { dragging = false; };
+  bookEl.addEventListener("pointerup", stopDragging);
+  bookEl.addEventListener("pointercancel", stopDragging);
+
+  return {
+    getOffset: () => offset,
+    reset: () => {
+      bookEl.style.position = "";
+      bookEl.style.left = "";
+      bookEl.style.top = "";
+      bookEl.style.margin = "";
+      offset = { x: 0, y: 0 };
+    },
+  };
+}
+
+/**
+ * Wires the swatches, the custom-colour input, the headline/subtext fields
+ * and the book's drag-to-reposition + size slider (all already in `root`)
+ * to update the box live. Returns `{ getBg, getHeadline, getSubtext,
+ * getOffset, getScale }` for the caller's own download handler to read from.
  */
 export function wireImageBox(root, { initialBg }) {
   let currentBg = initialBg;
@@ -221,6 +311,19 @@ export function wireImageBox(root, { initialBg }) {
   };
   root.querySelectorAll("[data-bg-swatch]").forEach((btn) => btn.addEventListener("click", () => setBg(btn.dataset.color)));
   root.querySelector("[data-bg-custom]")?.addEventListener("input", (event) => setBg(event.target.value));
+  root.querySelector("[data-bg-upload]")?.addEventListener("change", (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setBg(reader.result);
+      const upload = root.querySelector(".bp-swatch--upload");
+      if (upload) { upload.style.backgroundImage = `url('${reader.result}')`; upload.style.backgroundSize = "cover"; }
+      const hint = root.querySelector("[data-upload-hint]");
+      if (hint) hint.hidden = false;
+    };
+    reader.readAsDataURL(file);
+  });
 
   const headlineInput = root.querySelector("#post-headline");
   const subtextInput = root.querySelector("#post-subtext");
@@ -271,10 +374,28 @@ export function wireImageBox(root, { initialBg }) {
   headlineInput?.addEventListener("input", syncOverlay);
   subtextInput?.addEventListener("input", syncOverlay);
 
+  const box = root.querySelector("[data-bg-box]");
+  const bookEl = box?.querySelector(".bp-social-box__book");
+  const scaleInput = root.querySelector("#post-book-scale");
+  const drag = bookEl ? makeBookDraggable(box, bookEl) : null;
+
+  scaleInput?.addEventListener("input", (event) => {
+    box.style.setProperty("--book-scale", event.target.value);
+  });
+  root.querySelector("[data-reset-position]")?.addEventListener("click", () => {
+    drag?.reset();
+    if (scaleInput) {
+      scaleInput.value = "1";
+      box.style.setProperty("--book-scale", "1");
+    }
+  });
+
   return {
     getBg: () => currentBg,
     getHeadline: () => headlineInput?.value.trim() || "",
     getSubtext: () => subtextInput?.value.trim() || "",
+    getOffset: () => drag?.getOffset() || { x: 0, y: 0 },
+    getScale: () => Number(scaleInput?.value) || 1,
   };
 }
 
@@ -338,7 +459,7 @@ function wrapText(ctx, text, maxWidth) {
  * back to the plain background — with a clear notice, never a silently
  * wrong file.
  */
-export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtext, size, filename, button) {
+export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtext, size, filename, button, { offset = { x: 0, y: 0 }, scale = 1 } = {}) {
   setBusy(button, true, "Preparing…");
   try {
     const canvas = document.createElement("canvas");
@@ -348,8 +469,8 @@ export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtex
     if (isImageBg(bg)) {
       try {
         const backdrop = await loadImage(bg);
-        const scale = Math.max(size.width / backdrop.naturalWidth, size.height / backdrop.naturalHeight);
-        const bw = backdrop.naturalWidth * scale, bh = backdrop.naturalHeight * scale;
+        const bgFit = Math.max(size.width / backdrop.naturalWidth, size.height / backdrop.naturalHeight);
+        const bw = backdrop.naturalWidth * bgFit, bh = backdrop.naturalHeight * bgFit;
         ctx.drawImage(backdrop, (size.width - bw) / 2, (size.height - bh) / 2, bw, bh);
       } catch {
         ctx.fillStyle = "#e7eef0";
@@ -386,11 +507,11 @@ export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtex
         const book = await loadImage(imageUrl, { crossOrigin: "anonymous" });
         const maxW = size.width * (scrimHeight ? 0.76 : 0.7);
         const maxH = bookAreaHeight * (scrimHeight ? 0.93 : 0.82);
-        const scale = Math.min(maxW / book.naturalWidth, maxH / book.naturalHeight);
-        const w = book.naturalWidth * scale;
-        const h = book.naturalHeight * scale;
-        const x = (size.width - w) / 2;
-        const y = (bookAreaHeight - h) / 2;
+        const fit = Math.min(maxW / book.naturalWidth, maxH / book.naturalHeight) * scale;
+        const w = book.naturalWidth * fit;
+        const h = book.naturalHeight * fit;
+        const x = (size.width - w) / 2 + offset.x * size.width;
+        const y = (bookAreaHeight - h) / 2 + offset.y * size.height;
         ctx.save();
         if (!isMockup) {
           ctx.shadowColor = "rgba(0, 0, 0, 0.35)";

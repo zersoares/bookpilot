@@ -22,7 +22,7 @@ import * as store from "../core/store.js";
 import { notify, openModal } from "../core/toast.js";
 import { SOCIAL_TEMPLATES, PLATFORM_SIZES, sizeLabel } from "./social-templates.js";
 import { pageHead, emptyState, demoBadge } from "./shared.js";
-import { bookImage, imageBoxMarkup, bgSwatchesMarkup, textFieldsMarkup, wireImageBox, downloadPostImage, defaultBgFor, ensureBookMockup3D } from "./post-image.js";
+import { bookImage, imageBoxMarkup, bgSwatchesMarkup, positionControlsMarkup, textFieldsMarkup, wireImageBox, downloadPostImage, defaultBgFor, ensureBookMockup3D } from "./post-image.js";
 
 // Networks with a real web share-intent URL: a popup pre-filled with text
 // (and a link, where the network accepts one) that the person still sends
@@ -160,6 +160,7 @@ function openComposer(template, book) {
         </div>
 
         ${raw(bgSwatchesMarkup(initialBg))}
+        ${raw(positionControlsMarkup())}
         ${raw(textFieldsMarkup(initialHeadline, initialSubtext))}
 
         <div class="bp-field">
@@ -208,10 +209,11 @@ function openComposer(template, book) {
     }
   });
 
-  const { getBg, getHeadline, getSubtext } = wireImageBox(root, { initialBg });
+  const { getBg, getHeadline, getSubtext, getOffset, getScale } = wireImageBox(root, { initialBg });
 
   root.querySelector("[data-download]").addEventListener("click", (event) =>
-    downloadPostImage(getBg(), bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${template.platform}-${template.id}.png`, event.currentTarget)
+    downloadPostImage(getBg(), bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${template.platform}-${template.id}.png`, event.currentTarget,
+      { offset: getOffset(), scale: getScale() })
   );
 
   root.querySelector("[data-intent-share]")?.addEventListener("click", () => {

@@ -9,7 +9,7 @@ import { refreshAccount } from "../core/session.js";
 import { FORMATS, PLATFORMS } from "./options.js";
 import { CREATIVE_TEMPLATES, creativeFromTemplate, sampleImagePath } from "./creative-templates.js";
 import { pageHead, emptyState, scoreBadge, fmt, demoBadge, loading, bullets, creativePreview } from "./shared.js";
-import { bookImage, imageBoxMarkup, bgSwatchesMarkup, textFieldsMarkup, wireImageBox, downloadPostImage, ensureBookMockup3D } from "./post-image.js";
+import { bookImage, imageBoxMarkup, bgSwatchesMarkup, positionControlsMarkup, textFieldsMarkup, wireImageBox, downloadPostImage, ensureBookMockup3D } from "./post-image.js";
 
 const FORMAT_LABEL = Object.fromEntries(FORMATS.map((f) => [f.value, f.label]));
 
@@ -852,6 +852,7 @@ function openImageComposer({ title, format, book, headline, subtext, filenamePre
         </div>
 
         ${raw(bgSwatchesMarkup(initialBg))}
+        ${raw(positionControlsMarkup())}
         ${raw(textFieldsMarkup(initialHeadline, initialSubtext))}
 
         <p class="bp-tiny bp-subtle">${size.width}×${size.height}px</p>
@@ -870,10 +871,11 @@ function openImageComposer({ title, format, book, headline, subtext, filenamePre
     { wide: false }
   );
 
-  const { getBg, getHeadline, getSubtext } = wireImageBox(root, { initialBg });
+  const { getBg, getHeadline, getSubtext, getOffset, getScale } = wireImageBox(root, { initialBg });
   const { url: bookImageUrl, isMockup } = bookImage(book);
 
   root.querySelector("[data-download]").addEventListener("click", (event) =>
-    downloadPostImage(getBg(), bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${filenamePrefix}.png`, event.currentTarget)
+    downloadPostImage(getBg(), bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${filenamePrefix}.png`, event.currentTarget,
+      { offset: getOffset(), scale: getScale() })
   );
 }
