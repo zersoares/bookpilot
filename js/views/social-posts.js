@@ -22,7 +22,10 @@ import * as store from "../core/store.js";
 import { notify, openModal } from "../core/toast.js";
 import { SOCIAL_TEMPLATES, PLATFORM_SIZES, sizeLabel } from "./social-templates.js";
 import { pageHead, emptyState, demoBadge } from "./shared.js";
-import { bookImage, imageBoxMarkup, bgSwatchesMarkup, positionControlsMarkup, textFieldsMarkup, wireImageBox, downloadPostImage, defaultBgFor, ensureBookMockup3D } from "./post-image.js";
+import {
+  bookImage, imageBoxMarkup, bgSwatchesMarkup, positionControlsMarkup, textFieldsMarkup, wireImageBox,
+  downloadPostImage, defaultBgFor, ensureBookMockup3D, saveComposerState, loadComposerState,
+} from "./post-image.js";
 
 // Networks with a real web share-intent URL: a popup pre-filled with text
 // (and a link, where the network accepts one) that the person still sends
@@ -147,9 +150,13 @@ function openComposer(template, book) {
   const intentNeedsLink = hasIntent && !intentUrl;
   const canDeviceShare = typeof navigator.share === "function";
 
-  const initialBg = defaultBgFor(book, PLATFORM_BG[template.platform]);
-  const initialHeadline = built.headline?.startsWith("[") ? "" : (built.headline || "");
-  const initialSubtext = book?.subtitle || "";
+  // A saved session (background, book position/size/angle, text) beats the
+  // template's own defaults — the author already decided how they want this
+  // one to look.
+  const saved = loadComposerState(book, template.id);
+  const initialBg = saved?.bg || defaultBgFor(book, PLATFORM_BG[template.platform]);
+  const initialHeadline = saved?.headline ?? (built.headline?.startsWith("[") ? "" : (built.headline || ""));
+  const initialSubtext = saved?.subtext ?? (book?.subtitle || "");
 
   const { root, close } = openModal(
     html`
@@ -175,7 +182,9 @@ function openComposer(template, book) {
             Download image (${size.width}×${size.height})
           </button>
           ${canDeviceShare ? raw(html`<button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" data-device-share>Share…</button>`) : ""}
+          <button type="button" class="bp-btn bp-btn--primary bp-btn--sm" data-save-composer>Save changes</button>
         </div>
+        ${saved ? raw(html`<p class="bp-tiny bp-subtle">Restored from your last save.</p>`) : ""}
 
         ${hasIntent ? raw(html`
           <div class="bp-row bp-row--wrap" style="gap:var(--bp-2)">
@@ -209,12 +218,22 @@ function openComposer(template, book) {
     }
   });
 
-  const { getBg, getHeadline, getSubtext, getOffset, getScale, getImageUrl } = wireImageBox(root, { initialBg, book });
+  const { getBg, getHeadline, getSubtext, getExtraLines, getOffset, getScale, getRotate, getImageUrl, applyState } =
+    wireImageBox(root, { initialBg, book });
+  applyState(saved);
 
   root.querySelector("[data-download]").addEventListener("click", (event) =>
     downloadPostImage(getBg(), getImageUrl() || bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${template.platform}-${template.id}.png`, event.currentTarget,
-      { offset: getOffset(), scale: getScale() })
+      { offset: getOffset(), scale: getScale(), extraLines: getExtraLines() })
   );
+
+  root.querySelector("[data-save-composer]").addEventListener("click", () => {
+    saveComposerState(book, template.id, {
+      bg: getBg(), headline: getHeadline(), subtext: getSubtext(), extraLines: getExtraLines(),
+      offset: getOffset(), scale: getScale(), rotate: getRotate(),
+    });
+    notify.success("Saved — this will be here next time you open this post.");
+  });
 
   root.querySelector("[data-intent-share]")?.addEventListener("click", () => {
     if (!intentUrl) return;

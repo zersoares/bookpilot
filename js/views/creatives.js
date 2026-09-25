@@ -9,7 +9,10 @@ import { refreshAccount } from "../core/session.js";
 import { FORMATS, PLATFORMS } from "./options.js";
 import { CREATIVE_TEMPLATES, creativeFromTemplate, sampleImagePath } from "./creative-templates.js";
 import { pageHead, emptyState, scoreBadge, fmt, demoBadge, loading, bullets, creativePreview } from "./shared.js";
-import { bookImage, imageBoxMarkup, bgSwatchesMarkup, positionControlsMarkup, textFieldsMarkup, wireImageBox, downloadPostImage, ensureBookMockup3D } from "./post-image.js";
+import {
+  bookImage, imageBoxMarkup, bgSwatchesMarkup, positionControlsMarkup, textFieldsMarkup, wireImageBox,
+  downloadPostImage, ensureBookMockup3D, saveComposerState, loadComposerState,
+} from "./post-image.js";
 
 const FORMAT_LABEL = Object.fromEntries(FORMATS.map((f) => [f.value, f.label]));
 
@@ -839,9 +842,10 @@ export async function renderTemplates(container, params, query) {
 function openImageComposer({ title, format, book, headline, subtext, filenamePrefix }) {
   const label = FORMAT_LABEL[format] || format;
   const size = FORMAT_SIZE[format] || FORMAT_SIZE.static;
-  const initialBg = FORMAT_BG[format] || FORMAT_BG.static;
-  const initialHeadline = headline || "";
-  const initialSubtext = subtext || "";
+  const saved = loadComposerState(book, filenamePrefix);
+  const initialBg = saved?.bg || FORMAT_BG[format] || FORMAT_BG.static;
+  const initialHeadline = saved?.headline ?? (headline || "");
+  const initialSubtext = saved?.subtext ?? (subtext || "");
 
   const { root, close } = openModal(
     html`
@@ -856,11 +860,13 @@ function openImageComposer({ title, format, book, headline, subtext, filenamePre
         ${raw(textFieldsMarkup(initialHeadline, initialSubtext))}
 
         <p class="bp-tiny bp-subtle">${size.width}×${size.height}px</p>
+        ${saved ? raw(html`<p class="bp-tiny bp-subtle">Restored from your last save.</p>`) : ""}
 
         <div class="bp-row bp-row--wrap" style="gap:var(--bp-2)">
           <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" data-download>
             Download image (${size.width}×${size.height})
           </button>
+          <button type="button" class="bp-btn bp-btn--primary bp-btn--sm" data-save-composer>Save changes</button>
         </div>
 
         <div class="bp-modal__footer">
@@ -871,11 +877,21 @@ function openImageComposer({ title, format, book, headline, subtext, filenamePre
     { wide: false }
   );
 
-  const { getBg, getHeadline, getSubtext, getOffset, getScale, getImageUrl } = wireImageBox(root, { initialBg, book });
+  const { getBg, getHeadline, getSubtext, getExtraLines, getOffset, getScale, getRotate, getImageUrl, applyState } =
+    wireImageBox(root, { initialBg, book });
+  applyState(saved);
   const { url: bookImageUrl, isMockup } = bookImage(book);
 
   root.querySelector("[data-download]").addEventListener("click", (event) =>
     downloadPostImage(getBg(), getImageUrl() || bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${filenamePrefix}.png`, event.currentTarget,
-      { offset: getOffset(), scale: getScale() })
+      { offset: getOffset(), scale: getScale(), extraLines: getExtraLines() })
   );
+
+  root.querySelector("[data-save-composer]").addEventListener("click", () => {
+    saveComposerState(book, filenamePrefix, {
+      bg: getBg(), headline: getHeadline(), subtext: getSubtext(), extraLines: getExtraLines(),
+      offset: getOffset(), scale: getScale(), rotate: getRotate(),
+    });
+    notify.success("Saved — this will be here next time you open this post.");
+  });
 }

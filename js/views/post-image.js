@@ -139,6 +139,37 @@ export function defaultBgFor(book, fallback) {
   return BOOK_BG_OVERRIDE[book?.title] || fallback;
 }
 
+// A saved composer session — background, book position/size/angle, headline,
+// subtext and any extra text lines — kept in localStorage rather than sent
+// anywhere: this is a convenience for coming back to the same post later,
+// not a draft on a server. Keyed by book + template, so each network's
+// template on each book remembers its own edit.
+const SAVE_PREFIX = "bp.postComposer.";
+
+function composerStateKey(book, templateId) {
+  return `${SAVE_PREFIX}${book?.id || "book"}:${templateId || "default"}`;
+}
+
+/** Save the composer's current state for this book+template. Returns false if storage failed (quota, private mode). */
+export function saveComposerState(book, templateId, state) {
+  try {
+    localStorage.setItem(composerStateKey(book, templateId), JSON.stringify(state));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** The last-saved state for this book+template, or `null` if there isn't one. */
+export function loadComposerState(book, templateId) {
+  try {
+    const raw = localStorage.getItem(composerStateKey(book, templateId));
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 /** The bottom text overlay: a bold headline and a smaller subtext line, either optional. */
 function textOverlayMarkup(initialHeadline, initialSubtext) {
   if (!initialHeadline && !initialSubtext) return "";
@@ -241,6 +272,13 @@ export function textFieldsMarkup(initialHeadline, initialSubtext = "") {
       <label class="bp-label" for="post-subtext">Subtext <span class="bp-subtle">(optional)</span></label>
       <input class="bp-input" id="post-subtext" type="text" maxlength="100" value="${initialSubtext}" placeholder="e.g. A practical guide for solo founders">
     </div>
+    <div class="bp-field">
+      <div class="bp-row bp-row--between" style="align-items:center">
+        <label class="bp-label" style="margin:0">Extra text <span class="bp-subtle">(optional)</span></label>
+        <button type="button" class="bp-small bp-link" data-add-text>+ Add a line</button>
+      </div>
+      <div data-extra-lines></div>
+    </div>
   `;
 }
 
@@ -306,6 +344,17 @@ function makeBookDraggable(box, bookEl) {
       bookEl.style.margin = "";
       offset = { x: 0, y: 0 };
     },
+    /** Move the book to a saved offset (fractions of box size) — restoring a save, not a drag. */
+    setOffset: (x, y) => {
+      ensureAbsolute();
+      const boxRect = box.getBoundingClientRect();
+      const bookRect = bookEl.getBoundingClientRect();
+      const targetCx = boxRect.width / 2 + x * boxRect.width;
+      const targetCy = boxRect.height / 2 + y * boxRect.height;
+      bookEl.style.left = `${targetCx - bookRect.width / 2}px`;
+      bookEl.style.top = `${targetCy - bookRect.height / 2}px`;
+      offset = { x, y };
+    },
   };
 }
 
@@ -352,14 +401,20 @@ export function wireImageBox(root, { initialBg, book = null }) {
 
   const headlineInput = root.querySelector("#post-headline");
   const subtextInput = root.querySelector("#post-subtext");
+  const extraLinesContainer = root.querySelector("[data-extra-lines]");
+  let extraLineInputs = [];
 
+  // Rebuilt from the three text sources every time, rather than diffed —
+  // simpler than tracking which of an arbitrary number of extra lines
+  // changed, and cheap enough for something a person edits by hand.
   const syncOverlay = () => {
     const headline = headlineInput?.value.trim() || "";
     const subtext = subtextInput?.value.trim() || "";
+    const extras = extraLineInputs.map((input) => input.value.trim()).filter(Boolean);
     const box = root.querySelector("[data-bg-box]");
     let overlay = box.querySelector("[data-headline-overlay]");
 
-    if (!headline && !subtext) {
+    if (!headline && !subtext && !extras.length) {
       overlay?.remove();
       return;
     }
@@ -369,32 +424,51 @@ export function wireImageBox(root, { initialBg, book = null }) {
       overlay.dataset.headlineOverlay = "";
       box.appendChild(overlay);
     }
-
-    let headlineEl = overlay.querySelector("[data-headline-text]");
+    overlay.innerHTML = "";
     if (headline) {
-      if (!headlineEl) {
-        headlineEl = document.createElement("div");
-        headlineEl.dataset.headlineText = "";
-        overlay.prepend(headlineEl);
-      }
-      headlineEl.textContent = headline;
-    } else {
-      headlineEl?.remove();
+      const el = document.createElement("div");
+      el.textContent = headline;
+      overlay.appendChild(el);
     }
-
-    let subtextEl = overlay.querySelector("[data-subtext-text]");
-    if (subtext) {
-      if (!subtextEl) {
-        subtextEl = document.createElement("div");
-        subtextEl.className = "bp-social-box__subtext";
-        subtextEl.dataset.subtextText = "";
-        overlay.appendChild(subtextEl);
-      }
-      subtextEl.textContent = subtext;
-    } else {
-      subtextEl?.remove();
+    for (const line of [subtext, ...extras].filter(Boolean)) {
+      const el = document.createElement("div");
+      el.className = "bp-social-box__subtext";
+      el.textContent = line;
+      overlay.appendChild(el);
     }
   };
+
+  /** Add one editable "extra text" row, wired to re-sync the overlay as it's typed or removed. */
+  function addExtraLine(value = "") {
+    const row = document.createElement("div");
+    row.className = "bp-row";
+    row.style.cssText = "gap:6px;margin-top:6px;align-items:center";
+    const input = document.createElement("input");
+    input.className = "bp-input";
+    input.type = "text";
+    input.maxLength = 80;
+    input.value = value;
+    input.placeholder = "Another line on the image";
+    input.style.flex = "1";
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "bp-btn bp-btn--ghost bp-btn--sm";
+    removeBtn.textContent = "Remove";
+    input.addEventListener("input", syncOverlay);
+    removeBtn.addEventListener("click", () => {
+      row.remove();
+      extraLineInputs = extraLineInputs.filter((i) => i !== input);
+      syncOverlay();
+    });
+    row.append(input, removeBtn);
+    extraLinesContainer?.appendChild(row);
+    extraLineInputs.push(input);
+  }
+
+  root.querySelector("[data-add-text]")?.addEventListener("click", () => {
+    addExtraLine();
+    syncOverlay();
+  });
 
   headlineInput?.addEventListener("input", syncOverlay);
   subtextInput?.addEventListener("input", syncOverlay);
@@ -431,13 +505,41 @@ export function wireImageBox(root, { initialBg, book = null }) {
     }
   });
 
+  /**
+   * Reproduce a previously-saved state: background, book offset/scale/angle,
+   * headline, subtext and extra lines. Called once, right after wiring —
+   * order matters, since the offset restore reads the book's current
+   * (already-scaled) size to place it correctly.
+   */
+  function applyState(state) {
+    if (!state) return;
+    if (state.bg) setBg(state.bg);
+    if (headlineInput && typeof state.headline === "string") headlineInput.value = state.headline;
+    if (subtextInput && typeof state.subtext === "string") subtextInput.value = state.subtext;
+    for (const line of state.extraLines || []) addExtraLine(line);
+    if (scaleInput && state.scale) {
+      scaleInput.value = String(state.scale);
+      box.style.setProperty("--book-scale", String(state.scale));
+    }
+    if (canRotate && rotateInput && Number.isFinite(state.rotate)) {
+      rotateInput.value = String(state.rotate);
+      const url = rotateBookMockup(book, state.rotate);
+      if (url) bookEl.src = url;
+    }
+    if (drag && state.offset) drag.setOffset(state.offset.x || 0, state.offset.y || 0);
+    syncOverlay();
+  }
+
   return {
     getBg: () => currentBg,
     getHeadline: () => headlineInput?.value.trim() || "",
     getSubtext: () => subtextInput?.value.trim() || "",
+    getExtraLines: () => extraLineInputs.map((input) => input.value.trim()).filter(Boolean),
     getOffset: () => drag?.getOffset() || { x: 0, y: 0 },
     getScale: () => Number(scaleInput?.value) || 1,
+    getRotate: () => (canRotate ? Number(rotateInput?.value) : null),
     getImageUrl: () => bookEl?.src || "",
+    applyState,
   };
 }
 
@@ -501,7 +603,7 @@ function wrapText(ctx, text, maxWidth) {
  * back to the plain background — with a clear notice, never a silently
  * wrong file.
  */
-export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtext, size, filename, button, { offset = { x: 0, y: 0 }, scale = 1 } = {}) {
+export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtext, size, filename, button, { offset = { x: 0, y: 0 }, scale = 1, extraLines = [] } = {}) {
   setBusy(button, true, "Preparing…");
   try {
     const canvas = document.createElement("canvas");
@@ -536,11 +638,14 @@ export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtex
     ctx.font = `700 ${headlineSize}px system-ui, sans-serif`;
     const headlineLines = headline ? wrapText(ctx, headline, maxTextWidth).slice(0, 3) : [];
     ctx.font = `400 ${subtextSize}px system-ui, sans-serif`;
-    const subtextLines = subtext ? wrapText(ctx, subtext, maxTextWidth).slice(0, 2) : [];
+    // Subtext plus any extra lines share the same smaller style, one below
+    // the other — capped so a handful of added lines can't push the book
+    // off the top of the frame.
+    const subLines = [subtext, ...extraLines].filter(Boolean).flatMap((line) => wrapText(ctx, line, maxTextWidth)).slice(0, 6);
 
-    const gap = headlineLines.length && subtextLines.length ? subtextSize * 0.5 : 0;
-    const blockHeight = headlineLines.length * headlineLineHeight + gap + subtextLines.length * subtextLineHeight;
-    const scrimHeight = (headlineLines.length || subtextLines.length) ? blockHeight + padding * 2 : 0;
+    const gap = headlineLines.length && subLines.length ? subtextSize * 0.5 : 0;
+    const blockHeight = headlineLines.length * headlineLineHeight + gap + subLines.length * subtextLineHeight;
+    const scrimHeight = (headlineLines.length || subLines.length) ? blockHeight + padding * 2 : 0;
     const bookAreaHeight = size.height - scrimHeight;
 
     let bookDrawn = false;
@@ -568,7 +673,7 @@ export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtex
       }
     }
 
-    if (headline || subtext) {
+    if (headline || subLines.length) {
       const scrim = ctx.createLinearGradient(0, size.height - scrimHeight, 0, size.height);
       scrim.addColorStop(0, "rgba(0, 0, 0, 0)");
       scrim.addColorStop(1, "rgba(0, 0, 0, 0.55)");
@@ -585,10 +690,10 @@ export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtex
         ctx.fillText(line, size.width / 2, y);
         y += headlineLineHeight;
       }
-      if (headlineLines.length && subtextLines.length) y += gap;
+      if (headlineLines.length && subLines.length) y += gap;
       ctx.font = `400 ${subtextSize}px system-ui, sans-serif`;
       ctx.globalAlpha = 0.85;
-      for (const line of subtextLines) {
+      for (const line of subLines) {
         ctx.fillText(line, size.width / 2, y);
         y += subtextLineHeight;
       }
