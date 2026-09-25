@@ -9,7 +9,7 @@ import { refreshAccount } from "../core/session.js";
 import { FORMATS, PLATFORMS } from "./options.js";
 import { CREATIVE_TEMPLATES, creativeFromTemplate, sampleImagePath } from "./creative-templates.js";
 import { pageHead, emptyState, scoreBadge, fmt, demoBadge, loading, bullets, creativePreview } from "./shared.js";
-import { bookImage, imageBoxMarkup, bgSwatchesMarkup, textFieldsMarkup, wireImageBox, downloadPostImage } from "./post-image.js";
+import { bookImage, imageBoxMarkup, bgSwatchesMarkup, textFieldsMarkup, wireImageBox, downloadPostImage, ensureBookMockup3D } from "./post-image.js";
 
 const FORMAT_LABEL = Object.fromEntries(FORMATS.map((f) => [f.value, f.label]));
 
@@ -133,12 +133,13 @@ export async function renderLibrary(container, params, query) {
   // Event delegation: the grid's innerHTML is replaced on every filter
   // change, so a listener bound to individual buttons would go stale —
   // one listener on the (stable) grid container catches every click.
-  $("#creative-grid").addEventListener("click", (event) => {
+  $("#creative-grid").addEventListener("click", async (event) => {
     const button = event.target.closest("[data-customize-creative]");
     if (!button) return;
     const creative = creatives.find((c) => c.id === button.dataset.customizeCreative);
     if (!creative) return;
     const book = bookById.get(creative.book_id);
+    await ensureBookMockup3D(book);
     openImageComposer({
       title: creative.headline || FORMAT_LABEL[creative.format] || "Creative",
       format: creative.format,
@@ -809,12 +810,13 @@ export async function renderTemplates(container, params, query) {
   });
 
   container.querySelectorAll("[data-customize]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
       const template = CREATIVE_TEMPLATES.find((t) => t.id === button.dataset.customize);
       const book = books.find((b) => b.id === $("#template-book").value);
       if (!template || !book) return;
       const built = template.build(book);
       const headline = built.headline || "";
+      await ensureBookMockup3D(book);
       openImageComposer({
         title: template.name,
         format: template.format,

@@ -22,7 +22,7 @@ import * as store from "../core/store.js";
 import { notify, openModal } from "../core/toast.js";
 import { SOCIAL_TEMPLATES, PLATFORM_SIZES, sizeLabel } from "./social-templates.js";
 import { pageHead, emptyState, demoBadge } from "./shared.js";
-import { bookImage, imageBoxMarkup, bgSwatchesMarkup, textFieldsMarkup, wireImageBox, downloadPostImage, defaultBgFor } from "./post-image.js";
+import { bookImage, imageBoxMarkup, bgSwatchesMarkup, textFieldsMarkup, wireImageBox, downloadPostImage, defaultBgFor, ensureBookMockup3D } from "./post-image.js";
 
 // Networks with a real web share-intent URL: a popup pre-filled with text
 // (and a link, where the network accepts one) that the person still sends
@@ -73,6 +73,7 @@ export async function renderGallery(container, params, query) {
   }
 
   const preselected = query?.get("book") || books[0].id;
+  await ensureBookMockup3D(books.find((b) => b.id === preselected));
 
   container.innerHTML = html`
     ${raw(pageHead({
@@ -113,8 +114,9 @@ export async function renderGallery(container, params, query) {
 
   // The backdrop is generic per network; the selected book's own picture
   // goes on top, so switching books here shows what that book's post looks like.
-  $("#social-book").addEventListener("change", () => {
+  $("#social-book").addEventListener("change", async () => {
     const book = books.find((b) => b.id === $("#social-book").value);
+    await ensureBookMockup3D(book);
     container.querySelectorAll("[data-preview]").forEach((slot) => {
       const t = SOCIAL_TEMPLATES.find((x) => x.id === slot.dataset.preview);
       if (t) slot.innerHTML = socialPreview(t, book);
@@ -122,10 +124,11 @@ export async function renderGallery(container, params, query) {
   });
 
   container.querySelectorAll("[data-template]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
       const template = SOCIAL_TEMPLATES.find((t) => t.id === button.dataset.template);
       const book = books.find((b) => b.id === $("#social-book").value);
       if (!template || !book) return;
+      await ensureBookMockup3D(book);
       openComposer(template, book);
     });
   });

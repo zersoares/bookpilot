@@ -5,6 +5,7 @@
 
 import { html, raw, safeImageUrl, setBusy } from "../core/dom.js";
 import { notify } from "../core/toast.js";
+import { getMockup3D, renderMockup3D } from "./book-mockup-3d.js";
 
 // A rendered 3D hardcover mockup (real angled photo of the actual cover,
 // transparent background, shadow already lit into the render) for every
@@ -27,12 +28,41 @@ export const MOCKUP_3D = {
   "Money Hack": "money-hacks",
 };
 
-/** The best real picture of this book: its own 3D mockup, or its flat cover. */
+/**
+ * The best real picture of this book: a curated 3D mockup, a live-rendered
+ * one built from its flat cover (see `ensureBookMockup3D` — this is what
+ * makes that one available, since the render itself is async and this
+ * function isn't), or, failing both, the flat cover itself.
+ */
 export function bookImage(book) {
   const slug = MOCKUP_3D[book?.title];
   if (slug) return { url: `/assets/covers/3d/${slug}.webp`, isMockup: true };
   const cover = safeImageUrl(book?.cover_url);
+  if (cover) {
+    const live = getMockup3D(cover);
+    if (live) return { url: live, isMockup: true };
+  }
   return cover ? { url: cover, isMockup: false } : { url: "", isMockup: false };
+}
+
+/**
+ * Renders (and caches) a live 3D mockup for this book's flat cover, unless
+ * it already has a curated one or a full-art background override — call
+ * this and await it before the first `bookImage`/`imageBoxMarkup` for a
+ * book, so that call sees the 3D render instead of the flat cover. A
+ * render that fails (e.g. the cover URL doesn't allow cross-origin reads)
+ * is swallowed here; `bookImage` then falls back to the flat cover exactly
+ * as it always has, rather than the caller having to handle the error.
+ */
+export async function ensureBookMockup3D(book) {
+  if (MOCKUP_3D[book?.title] || BOOK_BG_OVERRIDE[book?.title]) return;
+  const cover = safeImageUrl(book?.cover_url);
+  if (!cover) return;
+  try {
+    await renderMockup3D(cover);
+  } catch {
+    // Falls back to the flat cover in bookImage().
+  }
 }
 
 // A small studio-colour palette to pick from, in the style of real
