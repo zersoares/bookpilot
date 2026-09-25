@@ -748,6 +748,117 @@ hr {
 }
 
 /* ------------------------------------------------------------------ */
+/* Learning drawer                                                     */
+/* ------------------------------------------------------------------ */
+
+/* A right-hand slide-in panel of short lessons on how to use BookPilot,
+   one lesson at a time, each with a title and a plain-language
+   explanation of what it covers. Distinct from .bp-modal (centred,
+   blocking, for a single decision) because this is meant to sit
+   alongside the app while you keep working, not interrupt it. */
+
+.bp-learn-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(20, 18, 15, 0.32);
+  animation: bp-fade 0.15s ease;
+}
+
+.bp-learn-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 420px;
+  background: var(--bp-raised);
+  border-left: 1px solid var(--bp-border);
+  box-shadow: var(--bp-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  animation: bp-learn-in 0.2s ease;
+}
+@keyframes bp-learn-in {
+  from { transform: translateX(16px); opacity: 0; }
+}
+
+.bp-learn-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bp-3);
+  padding: var(--bp-5) var(--bp-5) var(--bp-4);
+  border-bottom: 1px solid var(--bp-border);
+}
+.bp-learn-drawer__header h2 { font-size: 1.05rem; margin: 0; }
+
+.bp-learn-drawer__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--bp-4);
+}
+.bp-learn-drawer__list > * + * { margin-top: var(--bp-3); }
+
+.bp-lesson {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--bp-border);
+  border-radius: var(--bp-radius-lg);
+  background: var(--bp-surface);
+  padding: 0;
+  overflow: hidden;
+  font: inherit;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.bp-lesson:hover { border-color: var(--bp-border-strong); box-shadow: var(--bp-shadow-sm); }
+.bp-lesson--playing { border-color: var(--bp-primary-border); }
+
+.bp-lesson__preview {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bp-primary-soft), var(--bp-sunken));
+  font-size: 1.8rem;
+  color: var(--bp-primary);
+  border: 0;
+  padding: 0;
+  width: 100%;
+  font-family: inherit;
+}
+.bp-lesson[data-has-video="true"] .bp-lesson__preview { cursor: pointer; }
+.bp-lesson__preview video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--bp-sunken);
+}
+.bp-lesson__play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 18, 15, 0.22);
+  color: #fff;
+  font-size: 1.1rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.bp-lesson:hover .bp-lesson__play,
+.bp-lesson[open] .bp-lesson__play { opacity: 1; }
+.bp-lesson[data-has-video="false"] .bp-lesson__play { display: none; }
+
+.bp-lesson__body { padding: var(--bp-4); }
+.bp-lesson__title { font-weight: 600; font-size: 0.92rem; margin: 0 0 4px; }
+.bp-lesson__text { margin: 0; font-size: 0.84rem; color: var(--bp-text-muted); line-height: 1.5; }
+
+/* ------------------------------------------------------------------ */
 /* Tabs                                                                */
 /* ------------------------------------------------------------------ */
 

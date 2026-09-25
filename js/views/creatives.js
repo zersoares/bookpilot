@@ -9,8 +9,36 @@ import { refreshAccount } from "../core/session.js";
 import { FORMATS, PLATFORMS } from "./options.js";
 import { CREATIVE_TEMPLATES, creativeFromTemplate, sampleImagePath } from "./creative-templates.js";
 import { pageHead, emptyState, scoreBadge, fmt, demoBadge, loading, bullets, creativePreview } from "./shared.js";
+import { bookImage, imageBoxMarkup, bgSwatchesMarkup, textFieldsMarkup, wireImageBox, downloadPostImage } from "./post-image.js";
 
 const FORMAT_LABEL = Object.fromEntries(FORMATS.map((f) => [f.value, f.label]));
+
+// A soft pastel tint per ad format for the customize-and-download box — the
+// same hue family as the format's accent colour (bp-creative--tone-* in
+// app.css), just light enough to sit behind a book without fighting it.
+const FORMAT_BG = {
+  static: "#e6e5fb",
+  carousel: "#fbe3ef",
+  story: "#fdf0dc",
+  reel: "#dff5ec",
+  video_script: "#dff6f9",
+  mockup: "#ece4fb",
+  quote: "#fbe2e2",
+  promo: "#fde7d8",
+};
+
+// Pixel sizes for the downloadable image, in the absence of a real ad
+// platform's own crop (these are Meta's most common feed/story dimensions).
+const FORMAT_SIZE = {
+  static: { width: 1080, height: 1350 },
+  carousel: { width: 1080, height: 1350 },
+  story: { width: 1080, height: 1920 },
+  reel: { width: 1080, height: 1920 },
+  video_script: { width: 1080, height: 1920 },
+  mockup: { width: 1080, height: 1350 },
+  quote: { width: 1080, height: 1350 },
+  promo: { width: 1080, height: 1350 },
+};
 
 // ---------------------------------------------------------------------
 // Library
@@ -101,12 +129,31 @@ export async function renderLibrary(container, params, query) {
     $(selector).addEventListener("change", paint)
   );
   paint();
+
+  // Event delegation: the grid's innerHTML is replaced on every filter
+  // change, so a listener bound to individual buttons would go stale —
+  // one listener on the (stable) grid container catches every click.
+  $("#creative-grid").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-customize-creative]");
+    if (!button) return;
+    const creative = creatives.find((c) => c.id === button.dataset.customizeCreative);
+    if (!creative) return;
+    const book = bookById.get(creative.book_id);
+    openImageComposer({
+      title: creative.headline || FORMAT_LABEL[creative.format] || "Creative",
+      format: creative.format,
+      book,
+      headline: creative.headline || "",
+      subtext: creative.description || book?.subtitle || "",
+      filenamePrefix: `creative-${creative.id.slice(0, 8)}`,
+    });
+  });
 }
 
 function creativeCard(creative, book) {
   return html`
-    <article class="bp-card bp-card--flush bp-card--interactive bp-creative">
-      ${raw(creativePreview(creative, { label: FORMAT_LABEL[creative.format] || creative.format, book }))}
+    <article class="bp-card bp-card--flush bp-card--interactive bp-creative bp-creative--tone-${creative.format}">
+      ${raw(creativePreview(creative, { label: FORMAT_LABEL[creative.format] || creative.format, book, showCover: false }))}
       <div class="bp-creative__body">
         <p class="bp-small bp-muted bp-clamp-3" style="margin:0">${creative.primary_text || ""}</p>
         <div class="bp-row bp-row--between">
@@ -115,6 +162,9 @@ function creativeCard(creative, book) {
         </div>
         <div class="bp-creative__footer">
           <a class="bp-btn bp-btn--secondary bp-btn--sm" href="#/creatives/${creative.id}">Open</a>
+          <button type="button" class="bp-btn bp-btn--ghost bp-btn--sm" data-customize-creative="${creative.id}">
+            Customize &amp; download
+          </button>
         </div>
       </div>
     </article>
@@ -669,7 +719,7 @@ function templatePreview(template, book) {
       // Some templates open with a bracketed gap for the author to fill; show the name instead.
       headline: headline.startsWith("[") ? template.name : headline,
     },
-    { label: FORMAT_LABEL[template.format] || template.format, book },
+    { label: FORMAT_LABEL[template.format] || template.format, book, showCover: false },
   );
 }
 
@@ -707,7 +757,7 @@ export async function renderTemplates(container, params, query) {
 
     <div class="bp-grid bp-grid--cards">
       ${raw(CREATIVE_TEMPLATES.map((t) => html`
-        <article class="bp-card bp-card--flush bp-creative">
+        <article class="bp-card bp-card--flush bp-creative bp-creative--tone-${t.format}">
           <div data-preview="${t.id}">${raw(templatePreview(t, books.find((b) => b.id === preselected)))}</div>
           <div class="bp-creative__body">
             <div class="bp-row" style="justify-content:space-between;align-items:flex-start;gap:var(--bp-2)">
@@ -718,6 +768,9 @@ export async function renderTemplates(container, params, query) {
             <div class="bp-creative__footer">
               <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" data-template="${t.id}">
                 Use this template
+              </button>
+              <button type="button" class="bp-btn bp-btn--ghost bp-btn--sm" data-customize="${t.id}">
+                Customize &amp; download
               </button>
             </div>
           </div>
@@ -754,4 +807,71 @@ export async function renderTemplates(container, params, query) {
       }
     });
   });
+
+  container.querySelectorAll("[data-customize]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const template = CREATIVE_TEMPLATES.find((t) => t.id === button.dataset.customize);
+      const book = books.find((b) => b.id === $("#template-book").value);
+      if (!template || !book) return;
+      const built = template.build(book);
+      const headline = built.headline || "";
+      openImageComposer({
+        title: template.name,
+        format: template.format,
+        book,
+        headline: headline.startsWith("[") ? "" : headline,
+        subtext: built.description || book?.subtitle || "",
+        filenamePrefix: template.id,
+      });
+    });
+  });
+}
+
+/**
+ * A lighter-weight sibling of "Use this template" / opening a creative's
+ * own detail page: no draft is written, no credits spent — just this one
+ * picture, customized (background, optional headline) and downloaded. For
+ * putting the design somewhere the creative editor doesn't reach (a slide,
+ * a printed flyer, a manual upload), without creating a draft to get there.
+ */
+function openImageComposer({ title, format, book, headline, subtext, filenamePrefix }) {
+  const label = FORMAT_LABEL[format] || format;
+  const size = FORMAT_SIZE[format] || FORMAT_SIZE.static;
+  const initialBg = FORMAT_BG[format] || FORMAT_BG.static;
+  const initialHeadline = headline || "";
+  const initialSubtext = subtext || "";
+
+  const { root, close } = openModal(
+    html`
+      <div class="bp-modal__header"><h3>${title}</h3></div>
+      <div class="bp-stack">
+        <div class="bp-card bp-card--flush bp-creative" style="border-radius:var(--bp-radius, 8px);overflow:hidden">
+          ${raw(imageBoxMarkup({ label, book, initialBg, initialHeadline, initialSubtext, height: 340 }))}
+        </div>
+
+        ${raw(bgSwatchesMarkup(initialBg))}
+        ${raw(textFieldsMarkup(initialHeadline, initialSubtext))}
+
+        <p class="bp-tiny bp-subtle">${size.width}×${size.height}px</p>
+
+        <div class="bp-row bp-row--wrap" style="gap:var(--bp-2)">
+          <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" data-download>
+            Download image (${size.width}×${size.height})
+          </button>
+        </div>
+
+        <div class="bp-modal__footer">
+          <button type="button" class="bp-btn bp-btn--ghost" data-close>Close</button>
+        </div>
+      </div>
+    `,
+    { wide: false }
+  );
+
+  const { getBg, getHeadline, getSubtext } = wireImageBox(root, { initialBg });
+  const { url: bookImageUrl, isMockup } = bookImage(book);
+
+  root.querySelector("[data-download]").addEventListener("click", (event) =>
+    downloadPostImage(getBg(), bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${filenamePrefix}.png`, event.currentTarget)
+  );
 }

@@ -162,10 +162,24 @@ export const SOCIAL_TEMPLATES = [
   },
 ];
 
+// Every template's background is a generic scene — a studio backdrop, at
+// most a couple of plain unbranded "other books" as props — with no book
+// cover ever baked into the art itself. The actual selected book's own
+// cover is a separate flat image the page overlays on top (creativePreview's
+// "hero" position), same as everywhere else in the app; an earlier version
+// of these baked one specific real cover into the background pixels, so
+// every social post showed that one book regardless of which book it was
+// actually for. Never draw a real cover into this file's sample art again.
 export const sampleImagePath = (templateId) => `/assets/social/sample-${templateId}.webp`;
 
 /** Is this URL one of the social template samples? */
 export const isSampleImage = (url) => /\/assets\/social\/sample-([a-z-]+)\.webp(\?|#|$)/.test(String(url || ""));
+
+/** Alt text for a social sample image URL, or "" for anything else. */
+export function sampleAltFor(url) {
+  const id = String(url || "").match(/\/assets\/social\/sample-([a-z-]+)\.webp/)?.[1];
+  return (id && SOCIAL_TEMPLATES.find((t) => t.id === id)?.blurb) || "";
+}
 
 /**
  * Build the POST body for `API.createCreative` from a social template + book.

@@ -3,7 +3,11 @@
 import { html, raw, safeUrl, safeImageUrl } from "../core/dom.js";
 import * as fmt from "../core/format.js";
 import { isDemo } from "../core/api.js";
-import { isSampleImage, sampleAltFor } from "./creative-templates.js";
+import { isSampleImage as isCreativeSample, sampleAltFor as creativeSampleAltFor } from "./creative-templates.js";
+import { isSampleImage as isSocialSample, sampleAltFor as socialSampleAltFor } from "./social-templates.js";
+
+const isSampleImage = (url) => isCreativeSample(url) || isSocialSample(url);
+const sampleAltFor = (url) => creativeSampleAltFor(url) || socialSampleAltFor(url);
 
 export function pageHead({ title, description, actions = "" }) {
   return html`
@@ -72,11 +76,14 @@ export function cover(book, { className = "" } = {}) {
  *   3. Failing that, the plain gradient, and, when we know the book, a
  *      link to add its cover. Never a stand-in dressed up as artwork.
  */
-export function creativePreview(creative, { label = "", tall = false, aspect = "", coverPosition = "", book = null } = {}) {
+export function creativePreview(creative, { label = "", tall = false, aspect = "", coverPosition = "", book = null, showCover = true } = {}) {
   // media_url is a free URL column; only show it when it looks like a picture.
   const mediaUrl = safeUrl(creative.media_url);
   const image = /\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(mediaUrl) ? "" : mediaUrl;
-  const coverUrl = safeImageUrl(book?.cover_url);
+  // `showCover: false` keeps the box to the creative's own picture only — used
+  // in grid galleries, where the same small book-cover badge stamped on every
+  // card just repeats itself and hides how different the pictures actually are.
+  const coverUrl = showCover ? safeImageUrl(book?.cover_url) : "";
   // `aspect` names a modifier class directly (e.g. "landscape", for a
   // platform's exact post shape); `tall` is the older reel/story shorthand.
   const tallClass = aspect ? ` bp-creative__preview--${aspect}` : (tall ? " bp-creative__preview--reel" : "");

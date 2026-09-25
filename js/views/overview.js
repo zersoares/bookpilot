@@ -4,10 +4,11 @@
 // what is happening, what is working, and what to do next. Anything
 // that doesn't serve one of those three belongs on another page.
 
-import { html, raw } from "../core/dom.js";
+import { html, raw, $ } from "../core/dom.js";
 import { API, isDemo } from "../core/api.js";
 import * as store from "../core/store.js";
 import { notify } from "../core/toast.js";
+import { openLearnPanel } from "../core/learn.js";
 import { pageHead, statGrid, emptyState, fmt, cover, statusBadge, confidenceBadge, demoBadge } from "./shared.js";
 
 export async function render(container) {
@@ -35,7 +36,10 @@ export async function render(container) {
     ${raw(pageHead({
       title: firstName ? `Good to see you, ${firstName}` : "Overview",
       description: "What's happening, what's working, and what to do next.",
-      actions: '<a class="bp-btn bp-btn--primary" href="#/campaigns/new">Create new campaign</a>',
+      actions: `
+        <button type="button" class="bp-btn bp-btn--ghost" id="open-learn">How BookPilot works</button>
+        <a class="bp-btn bp-btn--primary" href="#/campaigns/new">Create new campaign</a>
+      `,
     }))}
 
     <div class="bp-stack-lg">
@@ -146,6 +150,8 @@ export async function render(container) {
       render(container);
     });
   });
+
+  $("#open-learn", container)?.addEventListener("click", () => openLearnPanel());
 }
 
 function bookTile(book, campaigns, currency) {
@@ -176,6 +182,7 @@ function renderFirstRun(container, firstName) {
     ${raw(pageHead({
       title: firstName ? `Welcome, ${firstName}` : "Welcome to BookPilot AI",
       description: "One book is all it takes to get started.",
+      actions: '<button type="button" class="bp-btn bp-btn--ghost" id="open-learn">How BookPilot works</button>',
     }))}
     ${raw(emptyState({
       icon: "▤",
@@ -188,4 +195,5 @@ function renderFirstRun(container, firstName) {
         Want to look around first? <a href="/app.html?demo=1#/overview">Open the demo workspace</a>.
       </p>`)}
   `;
+  $("#open-learn", container)?.addEventListener("click", () => openLearnPanel());
 }

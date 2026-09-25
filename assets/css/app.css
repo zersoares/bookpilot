@@ -465,6 +465,111 @@
 .bp-creative__body { padding: var(--bp-4); display: flex; flex-direction: column; gap: var(--bp-3); flex: 1; }
 .bp-creative__footer { margin-top: auto; display: flex; gap: var(--bp-2); flex-wrap: wrap; }
 
+/* A distinct accent per ad format / social network, so a gallery of otherwise
+   similarly-toned sample photos still reads as a set of different things
+   rather than one template repeated. The bar sits above the picture; the
+   label badge drawn over the picture picks up the same colour. */
+.bp-creative--tone-static      { --bp-creative-tone: #6366f1; }
+.bp-creative--tone-carousel    { --bp-creative-tone: #ec4899; }
+.bp-creative--tone-story       { --bp-creative-tone: #f59e0b; }
+.bp-creative--tone-reel        { --bp-creative-tone: #10b981; }
+.bp-creative--tone-video_script{ --bp-creative-tone: #06b6d4; }
+.bp-creative--tone-mockup      { --bp-creative-tone: #8b5cf6; }
+.bp-creative--tone-quote       { --bp-creative-tone: #ef4444; }
+.bp-creative--tone-promo       { --bp-creative-tone: #f97316; }
+.bp-creative--tone-instagram   { --bp-creative-tone: #d6249f; }
+.bp-creative--tone-facebook    { --bp-creative-tone: #1877f2; }
+.bp-creative--tone-linkedin    { --bp-creative-tone: #0a66c2; }
+.bp-creative--tone-tiktok      { --bp-creative-tone: #fe2c55; }
+.bp-creative--tone-x           { --bp-creative-tone: #000000; }
+.bp-creative--tone-bluesky     { --bp-creative-tone: #1185fe; }
+[class*="bp-creative--tone-"] { border-top: 3px solid var(--bp-creative-tone); }
+[class*="bp-creative--tone-"] .bp-badge--accent {
+  background: var(--bp-creative-tone);
+  border-color: var(--bp-creative-tone);
+  color: #fff;
+}
+
+/* A social post's picture: a real 3D mockup of the book (or its flat cover)
+   centred on a plain studio-colour background — a real product photo, not a
+   stock scene with a book pasted onto it. */
+.bp-social-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.bp-social-box__book {
+  max-width: 70%;
+  max-height: 82%;
+  object-fit: contain;
+}
+/* With a headline/subtext overlay along the bottom, the book needs to clear
+   that strip rather than sit behind it — reserve room for the text (padding
+   on the flex container, which centres what's left) and let the book shrink
+   a little further to leave visible air above the overlay. */
+.bp-social-box:has(.bp-social-box__headline) {
+  padding-bottom: 76px;
+}
+.bp-social-box:has(.bp-social-box__headline) .bp-social-box__book {
+  max-height: 78%;
+  max-width: 76%;
+}
+/* The mockup's own render already has a shadow baked in; a flat cover has
+   none, so it gets one here rather than reading as a sticker on the bg. */
+.bp-social-box__book--flat {
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.28));
+  border-radius: 3px;
+}
+.bp-social-box__label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+.bp-social-box__headline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 28px 20px 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), transparent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.3;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+}
+.bp-social-box__subtext {
+  margin-top: 6px;
+  font-weight: 400;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+.bp-social-box__nocover {
+  color: var(--bp-text-muted);
+  font-size: 0.85rem;
+}
+.bp-social-box__nocover a { color: inherit; text-decoration: underline; }
+
+.bp-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 2px solid var(--bp-border);
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+}
+.bp-swatch--active { border-color: var(--bp-primary); box-shadow: 0 0 0 2px var(--bp-primary-soft); }
+.bp-swatch--custom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+}
+
 .bp-score {
   display: inline-flex;
   align-items: baseline;

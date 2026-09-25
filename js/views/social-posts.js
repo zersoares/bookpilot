@@ -1,42 +1,59 @@
 // Social Posts gallery — organic, one-per-network templates (spec: the
 // "post/share to Instagram, Facebook, LinkedIn, TikTok, X, Bluesky" ask).
-// Picking one writes a draft creative into the same library the paid-ad
-// templates use, tagged `body.social_post: true`, so it gets the same
-// editor, the same "Copy caption" / "Download image" pair (see
-// downloadSocialImage in creatives.js) and the same detail page — just
-// without a campaign attached, since none of these six platforms has a
-// publish connection.
+//
+// This is a standalone feature, deliberately separate from the Creative
+// library: picking a template opens a self-contained composer right here
+// (caption + correctly-sized image + share/copy/download actions). Nothing
+// is written to the creatives table, nothing opens the creative editor, and
+// there is no cross-link between the two — they are two different options,
+// not one funnelling into the other.
+//
+// None of the six networks has a publish API BookPilot is connected to, so
+// "share" means one of two honest things: a network's own web share-intent
+// (a popup window pre-filled with the text/link, which the person still
+// has to post from) where the network offers one, or the device's native
+// share sheet (Web Share API) where the browser supports it. The rest get
+// "copy the caption and download the image, then post from the app"
+// instead of a fake share button.
 
 import { html, raw, $ } from "../core/dom.js";
 import { API } from "../core/api.js";
 import * as store from "../core/store.js";
-import { notify } from "../core/toast.js";
-import { navigate } from "../core/router.js";
-import { SOCIAL_TEMPLATES, PLATFORM_SIZES, sizeLabel, sampleImagePath, socialPostFromTemplate } from "./social-templates.js";
-import { pageHead, emptyState, demoBadge, creativePreview } from "./shared.js";
+import { notify, openModal } from "../core/toast.js";
+import { SOCIAL_TEMPLATES, PLATFORM_SIZES, sizeLabel } from "./social-templates.js";
+import { pageHead, emptyState, demoBadge } from "./shared.js";
+import { bookImage, imageBoxMarkup, bgSwatchesMarkup, textFieldsMarkup, wireImageBox, downloadPostImage } from "./post-image.js";
+
+// Networks with a real web share-intent URL: a popup pre-filled with text
+// (and a link, where the network accepts one) that the person still sends
+// themselves. Facebook and LinkedIn's intents only accept a URL, not text,
+// so those two need the book's sales link to be worth showing at all.
+const SHARE_INTENTS = {
+  x: ({ text, url }) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}${url ? `&url=${encodeURIComponent(url)}` : ""}`,
+  bluesky: ({ text, url }) => `https://bsky.app/intent/compose?text=${encodeURIComponent(url ? `${text}\n\n${url}` : text)}`,
+  facebook: ({ url }) => (url ? `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}` : ""),
+  linkedin: ({ url }) => (url ? `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}` : ""),
+};
+
+function openShareWindow(url) {
+  window.open(url, "_blank", "noopener,width=600,height=640");
+}
+
+// A calm, soft-tinted backdrop per network — plain and consistent, the way
+// a real product photo sits on a plain studio background, rather than a
+// stock scene that has nothing to do with the book.
+const PLATFORM_BG = {
+  instagram: "#f3e3ee",
+  facebook: "#e1ecfb",
+  linkedin: "#dfe7f2",
+  tiktok: "#16181d",
+  x: "#eceef0",
+  bluesky: "#dff0fc",
+};
 
 function socialPreview(template, book) {
-  const built = template.build(book || {});
-  const headline = built.headline || "";
-  const size = PLATFORM_SIZES[template.platform];
-  return creativePreview(
-    {
-      format: "static",
-      media_url: sampleImagePath(template.id),
-      headline: headline.startsWith("[") ? template.name : headline,
-    },
-    // Every card the same box (`aspect: "gallery"`, a fixed height rather
-    // than each network's own aspect ratio) so six very different post
-    // shapes — square-ish feed post next to 9:16 video cover — still read
-    // as one gallery instead of a ragged row of mismatched heights. The
-    // real size is in the ×px label under the card, not the box shape.
-    // `coverPosition: "hero"` centres the book large, the way an actual
-    // book-launch post shows it, rather than the small ad-template corner
-    // thumbnail, which reads as a watermark at this box height. TikTok's
-    // background is a talking-to-camera setup with nowhere for the book to
-    // sit, so it skips the cover overlay rather than floating one over it.
-    { label: size.label, aspect: "gallery", coverPosition: "hero", book: template.platform === "tiktok" ? null : book },
-  );
+  const bg = PLATFORM_BG[template.platform];
+  return imageBoxMarkup({ label: PLATFORM_SIZES[template.platform].label, book, initialBg: bg, height: 300 });
 }
 
 export async function renderGallery(container, params, query) {
@@ -61,8 +78,9 @@ export async function renderGallery(container, params, query) {
     ${raw(pageHead({
       title: "Social posts",
       description: "A caption and a correctly-sized image for each network, pre-filled from your book. "
-        + "No AI credits spent, and nothing publishes on its own — copy the caption, download the image, post it yourself.",
-      actions: `${demoBadge()}<a class="bp-btn bp-btn--secondary" href="#/creatives">Creative library</a>`,
+        + "Nothing publishes on its own: copy the caption, download the image, and post it yourself — or use "
+        + "a share button where the network supports one.",
+      actions: demoBadge(),
     }))}
 
     <div class="bp-row bp-row--wrap" style="margin-bottom:var(--bp-5);gap:var(--bp-2);align-items:center">
@@ -74,7 +92,7 @@ export async function renderGallery(container, params, query) {
 
     <div class="bp-grid bp-grid--cards">
       ${raw(SOCIAL_TEMPLATES.map((t) => html`
-        <article class="bp-card bp-card--flush bp-creative">
+        <article class="bp-card bp-card--flush bp-creative bp-creative--tone-${t.platform}">
           <div data-preview="${t.id}">${raw(socialPreview(t, books.find((b) => b.id === preselected)))}</div>
           <div class="bp-creative__body">
             <div class="bp-row" style="justify-content:space-between;align-items:flex-start;gap:var(--bp-2)">
@@ -85,7 +103,7 @@ export async function renderGallery(container, params, query) {
             <p class="bp-tiny bp-subtle" style="margin:0">${sizeLabel(t.platform)}</p>
             <div class="bp-creative__footer">
               <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" data-template="${t.id}">
-                Use this template
+                Create this post
               </button>
             </div>
           </div>
@@ -93,8 +111,8 @@ export async function renderGallery(container, params, query) {
     </div>
   `;
 
-  // Sample art is generic per network; swapping the book updates the headline
-  // shown in the preview so it's clear which book the draft will be written for.
+  // The backdrop is generic per network; the selected book's own picture
+  // goes on top, so switching books here shows what that book's post looks like.
   $("#social-book").addEventListener("change", () => {
     const book = books.find((b) => b.id === $("#social-book").value);
     container.querySelectorAll("[data-preview]").forEach((slot) => {
@@ -104,24 +122,109 @@ export async function renderGallery(container, params, query) {
   });
 
   container.querySelectorAll("[data-template]").forEach((button) => {
-    button.addEventListener("click", async (event) => {
+    button.addEventListener("click", () => {
       const template = SOCIAL_TEMPLATES.find((t) => t.id === button.dataset.template);
       const book = books.find((b) => b.id === $("#social-book").value);
       if (!template || !book) return;
-
-      const btn = event.currentTarget;
-      const original = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = "Creating…";
-      try {
-        const { creative } = await API.createCreative(socialPostFromTemplate(template, book));
-        notify.success("Draft post created.");
-        navigate(`/creatives/${creative.id}`);
-      } catch (error) {
-        notify.error(error.message || "Could not create the draft.");
-        btn.disabled = false;
-        btn.textContent = original;
-      }
+      openComposer(template, book);
     });
+  });
+}
+
+function openComposer(template, book) {
+  const built = template.build(book || {});
+  const caption = [built.primary_text, built.hashtags?.length ? built.hashtags.join(" ") : ""]
+    .filter(Boolean)
+    .join("\n\n");
+  const size = PLATFORM_SIZES[template.platform];
+  const { url: bookImageUrl, isMockup } = bookImage(book);
+  const shareUrl = book?.sales_url || "";
+  const hasIntent = template.platform in SHARE_INTENTS;
+  const intentUrl = hasIntent ? SHARE_INTENTS[template.platform]({ text: caption, url: shareUrl }) : "";
+  const intentNeedsLink = hasIntent && !intentUrl;
+  const canDeviceShare = typeof navigator.share === "function";
+
+  const initialBg = PLATFORM_BG[template.platform];
+  const initialHeadline = built.headline?.startsWith("[") ? "" : (built.headline || "");
+  const initialSubtext = book?.subtitle || "";
+
+  const { root, close } = openModal(
+    html`
+      <div class="bp-modal__header"><h3>${template.name}</h3></div>
+      <div class="bp-stack">
+        <div class="bp-card bp-card--flush bp-creative" style="border-radius:var(--bp-radius, 8px);overflow:hidden">
+          ${raw(imageBoxMarkup({ label: PLATFORM_SIZES[template.platform].label, book, initialBg, initialHeadline, initialSubtext }))}
+        </div>
+
+        ${raw(bgSwatchesMarkup(initialBg))}
+        ${raw(textFieldsMarkup(initialHeadline, initialSubtext))}
+
+        <div class="bp-field">
+          <label class="bp-label" for="post-caption">Caption</label>
+          <textarea class="bp-textarea" id="post-caption" rows="7">${caption}</textarea>
+        </div>
+        <p class="bp-tiny bp-subtle">${sizeLabel(template.platform)}</p>
+
+        <div class="bp-row bp-row--wrap" style="gap:var(--bp-2)">
+          <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" data-copy>Copy caption</button>
+          <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" data-download>
+            Download image (${size.width}×${size.height})
+          </button>
+          ${canDeviceShare ? raw(html`<button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" data-device-share>Share…</button>`) : ""}
+        </div>
+
+        ${hasIntent ? raw(html`
+          <div class="bp-row bp-row--wrap" style="gap:var(--bp-2)">
+            <button type="button" class="bp-btn bp-btn--primary bp-btn--sm" data-intent-share ${intentNeedsLink ? "disabled" : ""}
+              title="${intentNeedsLink ? "Add your book's sales link on the book's edit page to enable this." : ""}">
+              Share to ${PLATFORM_SIZES[template.platform].label}
+            </button>
+          </div>
+          ${intentNeedsLink ? raw(html`<p class="bp-tiny bp-subtle">Add your book's sales link to enable one-click sharing here.</p>`) : ""}
+        `) : raw(html`
+          <p class="bp-tiny bp-subtle">
+            ${PLATFORM_SIZES[template.platform].label} doesn't offer a direct web-share link — copy the caption
+            and download the image above, then post them from the app.
+          </p>
+        `)}
+
+        <div class="bp-modal__footer">
+          <button type="button" class="bp-btn bp-btn--ghost" data-close>Close</button>
+        </div>
+      </div>
+    `,
+    { wide: false }
+  );
+
+  root.querySelector("[data-copy]").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(root.querySelector("#post-caption").value);
+      notify.success("Caption copied.");
+    } catch {
+      notify.error("Couldn't reach the clipboard — select and copy the text by hand.");
+    }
+  });
+
+  const { getBg, getHeadline, getSubtext } = wireImageBox(root, { initialBg });
+
+  root.querySelector("[data-download]").addEventListener("click", (event) =>
+    downloadPostImage(getBg(), bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${template.platform}-${template.id}.png`, event.currentTarget)
+  );
+
+  root.querySelector("[data-intent-share]")?.addEventListener("click", () => {
+    if (!intentUrl) return;
+    openShareWindow(SHARE_INTENTS[template.platform]({ text: root.querySelector("#post-caption").value, url: shareUrl }));
+  });
+
+  root.querySelector("[data-device-share]")?.addEventListener("click", async () => {
+    try {
+      await navigator.share({
+        title: template.name,
+        text: root.querySelector("#post-caption").value,
+        ...(shareUrl ? { url: shareUrl } : {}),
+      });
+    } catch (err) {
+      if (err?.name !== "AbortError") notify.error("Couldn't open the share sheet.");
+    }
   });
 }
