@@ -71,6 +71,23 @@ export const BG_IMAGES = [
 /** Is this a photographed backdrop (a path) rather than a plain colour? */
 export const isImageBg = (bg) => typeof bg === "string" && bg.startsWith("/");
 
+// A handful of books ship with one finished hero shot — the cover and its
+// backdrop already composed together as a single image (a dramatic angled
+// render against a themed backdrop, supplied whole) — rather than the
+// cutout-on-a-swappable-background system every other book uses. Keyed by
+// title, same as MOCKUP_3D. `defaultBgFor` is what a caller asks instead of
+// reading PLATFORM_BG/BG_SWATCHES directly, so this book opens on its own
+// picture; `imageBoxMarkup` checks the same map to skip drawing a second,
+// separate cutout on top of a picture that already has one baked in.
+export const BOOK_BG_OVERRIDE = {
+  "Mastering the GDPR — Volume 1: The Regulation": "/assets/covers/3d/mastering-the-gdpr-vol1.webp",
+};
+
+/** The background a book should open on: its own finished shot, or `fallback`. */
+export function defaultBgFor(book, fallback) {
+  return BOOK_BG_OVERRIDE[book?.title] || fallback;
+}
+
 /** The bottom text overlay: a bold headline and a smaller subtext line, either optional. */
 function textOverlayMarkup(initialHeadline, initialSubtext) {
   if (!initialHeadline && !initialSubtext) return "";
@@ -89,7 +106,11 @@ function textOverlayMarkup(initialHeadline, initialSubtext) {
  * once it is in the DOM to get the background-swatch and text-input behaviour.
  */
 export function imageBoxMarkup({ label, book, initialBg, initialHeadline = "", initialSubtext = "", height = 320 }) {
-  const { url, isMockup } = bookImage(book);
+  // The chosen backdrop IS this book's whole picture already (see
+  // BOOK_BG_OVERRIDE) — drawing the normal cutout or "add a cover" link on
+  // top of it would just be a second, redundant book.
+  const isFullArt = BOOK_BG_OVERRIDE[book?.title] === initialBg;
+  const { url, isMockup } = isFullArt ? { url: "", isMockup: false } : bookImage(book);
   const bgStyle = isImageBg(initialBg)
     ? `background-image:url('${initialBg}');background-size:cover;background-position:center`
     : `background:${initialBg}`;
@@ -97,7 +118,7 @@ export function imageBoxMarkup({ label, book, initialBg, initialHeadline = "", i
     <div class="bp-social-box" data-bg-box style="${bgStyle};height:${height}px">
       ${url
         ? raw(html`<img class="bp-social-box__book${isMockup ? "" : " bp-social-box__book--flat"}" src="${url}" alt="Cover of ${book?.title || "the book"}" loading="lazy" decoding="async">`)
-        : raw(html`<span class="bp-social-box__nocover">${book?.id ? `<a href="#/books/${book.id}/edit">Add your book cover</a>` : "No cover yet"}</span>`)}
+        : (isFullArt ? "" : raw(html`<span class="bp-social-box__nocover">${book?.id ? `<a href="#/books/${book.id}/edit">Add your book cover</a>` : "No cover yet"}</span>`))}
       <span class="bp-badge bp-badge--accent bp-social-box__label">${label}</span>
       ${raw(textOverlayMarkup(initialHeadline, initialSubtext))}
     </div>

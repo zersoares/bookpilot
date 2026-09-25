@@ -22,7 +22,7 @@ import * as store from "../core/store.js";
 import { notify, openModal } from "../core/toast.js";
 import { SOCIAL_TEMPLATES, PLATFORM_SIZES, sizeLabel } from "./social-templates.js";
 import { pageHead, emptyState, demoBadge } from "./shared.js";
-import { bookImage, imageBoxMarkup, bgSwatchesMarkup, textFieldsMarkup, wireImageBox, downloadPostImage } from "./post-image.js";
+import { bookImage, imageBoxMarkup, bgSwatchesMarkup, textFieldsMarkup, wireImageBox, downloadPostImage, defaultBgFor } from "./post-image.js";
 
 // Networks with a real web share-intent URL: a popup pre-filled with text
 // (and a link, where the network accepts one) that the person still sends
@@ -52,7 +52,7 @@ const PLATFORM_BG = {
 };
 
 function socialPreview(template, book) {
-  const bg = PLATFORM_BG[template.platform];
+  const bg = defaultBgFor(book, PLATFORM_BG[template.platform]);
   return imageBoxMarkup({ label: PLATFORM_SIZES[template.platform].label, book, initialBg: bg, height: 300 });
 }
 
@@ -144,7 +144,7 @@ function openComposer(template, book) {
   const intentNeedsLink = hasIntent && !intentUrl;
   const canDeviceShare = typeof navigator.share === "function";
 
-  const initialBg = PLATFORM_BG[template.platform];
+  const initialBg = defaultBgFor(book, PLATFORM_BG[template.platform]);
   const initialHeadline = built.headline?.startsWith("[") ? "" : (built.headline || "");
   const initialSubtext = book?.subtitle || "";
 
