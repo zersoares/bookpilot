@@ -39,6 +39,38 @@ export function bookImage(book) {
 // book-mockup backdrops — plain, single colours, nothing busier than that.
 export const BG_SWATCHES = ["#e7eef0", "#2f6f6b", "#e8734a", "#1f2937", "#f5efe3", "#5b6b8c", "#7a8c6f", "#c9a267"];
 
+// Photographed studio backdrops — the same idea as the plain colour
+// swatches, one step further: a soft gradient, a lit corner, a textured
+// surface. Generated once (ComfyUI, ai-disclosure-free — no book, no
+// text, no logo in any of them) rather than a stock photo, so nothing
+// here was ever "someone else's photoshoot". A path (starts with "/")
+// is how `isImageBg` tells one of these from a plain hex colour.
+export const BG_IMAGES = [
+  "/assets/social/bg/bg-01-cream-studio.webp",
+  "/assets/social/bg/bg-02-teal-studio.webp",
+  "/assets/social/bg/bg-03-terracotta-glow.webp",
+  "/assets/social/bg/bg-04-blush-pastel.webp",
+  "/assets/social/bg/bg-05-concrete-corner.webp",
+  "/assets/social/bg/bg-06-sage-fabric.webp",
+  "/assets/social/bg/bg-07-window-light.webp",
+  "/assets/social/bg/bg-08-marble-flatlay.webp",
+  "/assets/social/bg/bg-09-linen-tray.webp",
+  "/assets/social/bg/bg-10-purple-blocks.webp",
+  "/assets/social/bg/bg-11-navy-spotlight.webp",
+  "/assets/social/bg/bg-12-sunlit-curtain.webp",
+  "/assets/social/bg/bg-13-grey-pedestal.webp",
+  "/assets/social/bg/bg-14-paper-texture.webp",
+  "/assets/social/bg/bg-15-cool-blue.webp",
+  "/assets/social/bg/bg-16-rust-cream-split.webp",
+  "/assets/social/bg/bg-17-pastel-ledge.webp",
+  "/assets/social/bg/bg-18-green-bokeh.webp",
+  "/assets/social/bg/bg-19-sand-glow.webp",
+  "/assets/social/bg/bg-20-lavender-band.webp",
+];
+
+/** Is this a photographed backdrop (a path) rather than a plain colour? */
+export const isImageBg = (bg) => typeof bg === "string" && bg.startsWith("/");
+
 /** The bottom text overlay: a bold headline and a smaller subtext line, either optional. */
 function textOverlayMarkup(initialHeadline, initialSubtext) {
   if (!initialHeadline && !initialSubtext) return "";
@@ -58,8 +90,11 @@ function textOverlayMarkup(initialHeadline, initialSubtext) {
  */
 export function imageBoxMarkup({ label, book, initialBg, initialHeadline = "", initialSubtext = "", height = 320 }) {
   const { url, isMockup } = bookImage(book);
+  const bgStyle = isImageBg(initialBg)
+    ? `background-image:url('${initialBg}');background-size:cover;background-position:center`
+    : `background:${initialBg}`;
   return html`
-    <div class="bp-social-box" data-bg-box style="background:${initialBg};height:${height}px">
+    <div class="bp-social-box" data-bg-box style="${bgStyle};height:${height}px">
       ${url
         ? raw(html`<img class="bp-social-box__book${isMockup ? "" : " bp-social-box__book--flat"}" src="${url}" alt="Cover of ${book?.title || "the book"}" loading="lazy" decoding="async">`)
         : raw(html`<span class="bp-social-box__nocover">${book?.id ? `<a href="#/books/${book.id}/edit">Add your book cover</a>` : "No cover yet"}</span>`)}
@@ -71,17 +106,24 @@ export function imageBoxMarkup({ label, book, initialBg, initialHeadline = "", i
 
 /** The swatch row + custom colour wheel, meant to sit under `imageBoxMarkup`. */
 export function bgSwatchesMarkup(initialBg) {
+  const colorActive = !isImageBg(initialBg);
   return html`
     <div class="bp-field">
       <label class="bp-label">Background</label>
       <div class="bp-row bp-row--wrap" style="gap:8px;align-items:center">
-        ${raw([initialBg, ...BG_SWATCHES.filter((c) => c !== initialBg)].map((color, index) => html`
-          <button type="button" class="bp-swatch${index === 0 ? " bp-swatch--active" : ""}" data-bg-swatch
+        ${raw(BG_SWATCHES.map((color) => html`
+          <button type="button" class="bp-swatch${colorActive && color === initialBg ? " bp-swatch--active" : ""}" data-bg-swatch
             style="background:${color}" data-color="${color}" aria-label="Use this background colour" title="${color}"></button>
         `).join(""))}
         <label class="bp-swatch bp-swatch--custom" title="Pick a custom colour">
-          <input type="color" data-bg-custom value="${initialBg}" style="opacity:0;width:100%;height:100%;cursor:pointer">
+          <input type="color" data-bg-custom value="${colorActive ? initialBg : "#e7eef0"}" style="opacity:0;width:100%;height:100%;cursor:pointer">
         </label>
+      </div>
+      <div class="bp-row bp-row--wrap" style="gap:8px;align-items:center;margin-top:8px">
+        ${raw(BG_IMAGES.map((src) => html`
+          <button type="button" class="bp-swatch bp-swatch--photo${!colorActive && src === initialBg ? " bp-swatch--active" : ""}" data-bg-swatch
+            style="background-image:url('${src}')" data-color="${src}" aria-label="Use this backdrop photo" title="Backdrop photo"></button>
+        `).join(""))}
       </div>
     </div>
   `;
@@ -113,7 +155,17 @@ export function wireImageBox(root, { initialBg }) {
   const setBg = (color) => {
     currentBg = color;
     const box = root.querySelector("[data-bg-box]");
-    if (box) box.style.background = color;
+    if (box) {
+      if (isImageBg(color)) {
+        box.style.background = "";
+        box.style.backgroundImage = `url('${color}')`;
+        box.style.backgroundSize = "cover";
+        box.style.backgroundPosition = "center";
+      } else {
+        box.style.backgroundImage = "";
+        box.style.background = color;
+      }
+    }
     root.querySelectorAll("[data-bg-swatch]").forEach((btn) => btn.classList.toggle("bp-swatch--active", btn.dataset.color === color));
   };
   root.querySelectorAll("[data-bg-swatch]").forEach((btn) => btn.addEventListener("click", () => setBg(btn.dataset.color)));
@@ -242,8 +294,20 @@ export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtex
     canvas.width = size.width;
     canvas.height = size.height;
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, size.width, size.height);
+    if (isImageBg(bg)) {
+      try {
+        const backdrop = await loadImage(bg);
+        const scale = Math.max(size.width / backdrop.naturalWidth, size.height / backdrop.naturalHeight);
+        const bw = backdrop.naturalWidth * scale, bh = backdrop.naturalHeight * scale;
+        ctx.drawImage(backdrop, (size.width - bw) / 2, (size.height - bh) / 2, bw, bh);
+      } catch {
+        ctx.fillStyle = "#e7eef0";
+        ctx.fillRect(0, 0, size.width, size.height);
+      }
+    } else {
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, size.width, size.height);
+    }
 
     // Measure the text first (if any) so the book can be sized and centred
     // to clear that strip, the same way the on-screen box reserves room for

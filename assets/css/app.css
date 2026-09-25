@@ -569,6 +569,9 @@
   justify-content: center;
   background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
 }
+/* A photographed backdrop reads as a smear of colour in a 30px circle —
+   square, a little larger, tells you it's a photo before you click it. */
+.bp-swatch--photo { width: 36px; height: 36px; border-radius: 7px; background-size: cover; background-position: center; }
 
 .bp-score {
   display: inline-flex;

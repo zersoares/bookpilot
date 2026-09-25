@@ -39,16 +39,16 @@ function openShareWindow(url) {
   window.open(url, "_blank", "noopener,width=600,height=640");
 }
 
-// A calm, soft-tinted backdrop per network — plain and consistent, the way
-// a real product photo sits on a plain studio background, rather than a
-// stock scene that has nothing to do with the book.
+// A photographed studio backdrop per network by default — the mood each
+// one's brand and post style suggests — with every other backdrop and the
+// plain colours still one click away in the composer (bgSwatchesMarkup).
 const PLATFORM_BG = {
-  instagram: "#f3e3ee",
-  facebook: "#e1ecfb",
-  linkedin: "#dfe7f2",
-  tiktok: "#16181d",
-  x: "#eceef0",
-  bluesky: "#dff0fc",
+  instagram: "/assets/social/bg/bg-04-blush-pastel.webp",
+  facebook: "/assets/social/bg/bg-15-cool-blue.webp",
+  linkedin: "/assets/social/bg/bg-13-grey-pedestal.webp",
+  tiktok: "/assets/social/bg/bg-11-navy-spotlight.webp",
+  x: "/assets/social/bg/bg-05-concrete-corner.webp",
+  bluesky: "/assets/social/bg/bg-12-sunlit-curtain.webp",
 };
 
 function socialPreview(template, book) {
