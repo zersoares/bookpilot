@@ -871,11 +871,11 @@ function openImageComposer({ title, format, book, headline, subtext, filenamePre
     { wide: false }
   );
 
-  const { getBg, getHeadline, getSubtext, getOffset, getScale } = wireImageBox(root, { initialBg });
+  const { getBg, getHeadline, getSubtext, getOffset, getScale, getImageUrl } = wireImageBox(root, { initialBg, book });
   const { url: bookImageUrl, isMockup } = bookImage(book);
 
   root.querySelector("[data-download]").addEventListener("click", (event) =>
-    downloadPostImage(getBg(), bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${filenamePrefix}.png`, event.currentTarget,
+    downloadPostImage(getBg(), getImageUrl() || bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${filenamePrefix}.png`, event.currentTarget,
       { offset: getOffset(), scale: getScale() })
   );
 }

@@ -209,10 +209,10 @@ function openComposer(template, book) {
     }
   });
 
-  const { getBg, getHeadline, getSubtext, getOffset, getScale } = wireImageBox(root, { initialBg });
+  const { getBg, getHeadline, getSubtext, getOffset, getScale, getImageUrl } = wireImageBox(root, { initialBg, book });
 
   root.querySelector("[data-download]").addEventListener("click", (event) =>
-    downloadPostImage(getBg(), bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${template.platform}-${template.id}.png`, event.currentTarget,
+    downloadPostImage(getBg(), getImageUrl() || bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${template.platform}-${template.id}.png`, event.currentTarget,
       { offset: getOffset(), scale: getScale() })
   );
 

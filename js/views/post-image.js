@@ -5,7 +5,7 @@
 
 import { html, raw, safeImageUrl, setBusy } from "../core/dom.js";
 import { notify } from "../core/toast.js";
-import { getMockup3D, renderMockup3D } from "./book-mockup-3d.js";
+import { getMockup3D, renderMockup3D, getBookAsset, paintMockupAtYaw } from "./book-mockup-3d.js";
 
 // A rendered 3D hardcover mockup (real angled photo of the actual cover,
 // transparent background, shadow already lit into the render) for every
@@ -63,6 +63,26 @@ export async function ensureBookMockup3D(book) {
   } catch {
     // Falls back to the flat cover in bookImage().
   }
+}
+
+/**
+ * Can this book's picture be spun around? Only true for the live-rendered
+ * path (see `ensureBookMockup3D`) — a curated MOCKUP_3D asset and a
+ * BOOK_BG_OVERRIDE full-art picture are both a single flat file on disk,
+ * photographed/rendered once at a fixed angle, with no textures left to
+ * repaint from another side.
+ */
+export function canRotateBook(book) {
+  if (MOCKUP_3D[book?.title] || BOOK_BG_OVERRIDE[book?.title]) return false;
+  const cover = safeImageUrl(book?.cover_url);
+  return Boolean(cover && getBookAsset(cover));
+}
+
+/** Repaint this book's live 3D mockup at `yaw` degrees, or `null` if it can't be rotated. */
+export function rotateBookMockup(book, yaw) {
+  const cover = safeImageUrl(book?.cover_url);
+  const asset = cover && getBookAsset(cover);
+  return asset ? paintMockupAtYaw(asset, yaw) : null;
 }
 
 // A small studio-colour palette to pick from, in the style of real
@@ -202,6 +222,11 @@ export function positionControlsMarkup() {
       <input class="bp-range" id="post-book-scale" type="range" min="0.5" max="1.6" step="0.02" value="1">
       <p class="bp-tiny bp-subtle" style="margin:4px 0 0">Drag the book in the picture above to place it — useful when a backdrop's "floor" doesn't line up with the middle of the box.</p>
     </div>
+    <div class="bp-field" data-rotate-row hidden>
+      <label class="bp-label" for="post-book-rotate" style="margin:0">Turn the book</label>
+      <input class="bp-range" id="post-book-rotate" type="range" min="-180" max="180" step="1" value="30">
+      <p class="bp-tiny bp-subtle" style="margin:4px 0 0">Spin it to whichever side shows what you want — the spine, or straight-on.</p>
+    </div>
   `;
 }
 
@@ -290,7 +315,7 @@ function makeBookDraggable(box, bookEl) {
  * to update the box live. Returns `{ getBg, getHeadline, getSubtext,
  * getOffset, getScale }` for the caller's own download handler to read from.
  */
-export function wireImageBox(root, { initialBg }) {
+export function wireImageBox(root, { initialBg, book = null }) {
   let currentBg = initialBg;
 
   const setBg = (color) => {
@@ -382,11 +407,27 @@ export function wireImageBox(root, { initialBg }) {
   scaleInput?.addEventListener("input", (event) => {
     box.style.setProperty("--book-scale", event.target.value);
   });
+  const rotateRow = root.querySelector("[data-rotate-row]");
+  const rotateInput = root.querySelector("#post-book-rotate");
+  const canRotate = canRotateBook(book);
+  if (rotateRow) rotateRow.hidden = !canRotate;
+  if (canRotate && bookEl) {
+    rotateInput.addEventListener("input", (event) => {
+      const url = rotateBookMockup(book, Number(event.target.value));
+      if (url) bookEl.src = url;
+    });
+  }
+
   root.querySelector("[data-reset-position]")?.addEventListener("click", () => {
     drag?.reset();
     if (scaleInput) {
       scaleInput.value = "1";
       box.style.setProperty("--book-scale", "1");
+    }
+    if (canRotate && rotateInput) {
+      rotateInput.value = "30";
+      const url = rotateBookMockup(book, 30);
+      if (url) bookEl.src = url;
     }
   });
 
@@ -396,6 +437,7 @@ export function wireImageBox(root, { initialBg }) {
     getSubtext: () => subtextInput?.value.trim() || "",
     getOffset: () => drag?.getOffset() || { x: 0, y: 0 },
     getScale: () => Number(scaleInput?.value) || 1,
+    getImageUrl: () => bookEl?.src || "",
   };
 }
 
