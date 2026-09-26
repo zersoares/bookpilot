@@ -5,7 +5,9 @@
 
 import { html, raw, safeImageUrl, setBusy } from "../core/dom.js";
 import { notify } from "../core/toast.js";
-import { getMockup3D, renderMockup3D, getBookAsset, paintMockupAtYaw } from "./book-mockup-3d.js";
+import { getMockup3D, renderMockup3D, getBookAsset, paintMockupAtYaw, MOCKUP_STYLES } from "./book-mockup-3d.js";
+
+export { MOCKUP_STYLES };
 
 // A rendered 3D hardcover mockup (real angled photo of the actual cover,
 // transparent background, shadow already lit into the render) for every
@@ -85,9 +87,22 @@ export function rotateBookMockup(book, yaw) {
   return asset ? paintMockupAtYaw(asset, yaw) : null;
 }
 
+/** Same gate as `canRotateBook` — a style switch repaints the same live-rendered asset. */
+export function canChangeMockupStyle(book) {
+  return canRotateBook(book);
+}
+
+/** Repaint this book's live 3D mockup in a named `MOCKUP_STYLES` pose, or `null` if it can't. */
+export function applyMockupStyle(book, styleId) {
+  const style = MOCKUP_STYLES.find((s) => s.id === styleId) || MOCKUP_STYLES[0];
+  const cover = safeImageUrl(book?.cover_url);
+  const asset = cover && getBookAsset(cover);
+  return asset ? paintMockupAtYaw(asset, style.yaw, style.lay) : null;
+}
+
 // A small studio-colour palette to pick from, in the style of real
 // book-mockup backdrops — plain, single colours, nothing busier than that.
-export const BG_SWATCHES = ["#e7eef0", "#2f6f6b", "#e8734a", "#1f2937", "#f5efe3", "#5b6b8c", "#7a8c6f", "#c9a267"];
+export const BG_SWATCHES = ["transparent", "#e7eef0", "#2f6f6b", "#e8734a", "#1f2937", "#f5efe3", "#5b6b8c", "#7a8c6f", "#c9a267"];
 
 // Photographed studio backdrops — the same idea as the plain colour
 // swatches, one step further: a soft gradient, a lit corner, a textured
@@ -187,7 +202,7 @@ function textOverlayMarkup(initialHeadline, initialSubtext) {
  * Callers embed this inside their own modal/card and call `wireImageBox`
  * once it is in the DOM to get the background-swatch and text-input behaviour.
  */
-export function imageBoxMarkup({ label, book, initialBg, initialHeadline = "", initialSubtext = "", height = 320 }) {
+export function imageBoxMarkup({ label, book, initialBg, initialHeadline = "", initialSubtext = "", initialTextColor = "#ffffff", height = 320 }) {
   // The chosen backdrop IS this book's whole picture already (see
   // BOOK_BG_OVERRIDE) — drawing the normal cutout or "add a cover" link on
   // top of it would just be a second, redundant book.
@@ -197,7 +212,7 @@ export function imageBoxMarkup({ label, book, initialBg, initialHeadline = "", i
     ? `background-image:url('${initialBg}');background-size:cover;background-position:center`
     : `background:${initialBg}`;
   return html`
-    <div class="bp-social-box" data-bg-box style="${bgStyle};height:${height}px">
+    <div class="bp-social-box" data-bg-box style="${bgStyle};height:${height}px;--overlay-text-color:${initialTextColor}">
       ${url
         ? raw(html`<img class="bp-social-box__book${isMockup ? "" : " bp-social-box__book--flat"}" src="${url}" alt="Cover of ${book?.title || "the book"}" loading="lazy" decoding="async">`)
         : (isFullArt ? "" : raw(html`<span class="bp-social-box__nocover">${book?.id ? `<a href="#/books/${book.id}/edit">Add your book cover</a>` : "No cover yet"}</span>`))}
@@ -215,8 +230,8 @@ export function bgSwatchesMarkup(initialBg) {
       <label class="bp-label">Background</label>
       <div class="bp-row bp-row--wrap" style="gap:8px;align-items:center">
         ${raw(BG_SWATCHES.map((color) => html`
-          <button type="button" class="bp-swatch${colorActive && color === initialBg ? " bp-swatch--active" : ""}" data-bg-swatch
-            style="background:${color}" data-color="${color}" aria-label="Use this background colour" title="${color}"></button>
+          <button type="button" class="bp-swatch${color === "transparent" ? " bp-swatch--transparent" : ""}${colorActive && color === initialBg ? " bp-swatch--active" : ""}" data-bg-swatch
+            style="background:${color === "transparent" ? "" : color}" data-color="${color}" aria-label="${color === "transparent" ? "No background" : "Use this background colour"}" title="${color === "transparent" ? "No background" : color}"></button>
         `).join(""))}
         <label class="bp-swatch bp-swatch--custom" title="Pick a custom colour">
           <input type="color" data-bg-custom value="${colorActive ? initialBg : "#e7eef0"}" style="opacity:0;width:100%;height:100%;cursor:pointer">
@@ -258,6 +273,14 @@ export function positionControlsMarkup() {
       <input class="bp-range" id="post-book-rotate" type="range" min="-180" max="180" step="1" value="30">
       <p class="bp-tiny bp-subtle" style="margin:4px 0 0">Spin it to whichever side shows what you want — the spine, or straight-on.</p>
     </div>
+    <div class="bp-field" data-style-row hidden>
+      <label class="bp-label" style="margin:0">Book mockup</label>
+      <div class="bp-row bp-row--wrap" style="gap:8px;margin-top:6px">
+        ${raw(MOCKUP_STYLES.map((style) => html`
+          <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" data-mockup-style="${style.id}">${style.label}</button>
+        `).join(""))}
+      </div>
+    </div>
   `;
 }
 
@@ -278,6 +301,29 @@ export function textFieldsMarkup(initialHeadline, initialSubtext = "") {
         <button type="button" class="bp-small bp-link" data-add-text>+ Add a line</button>
       </div>
       <div data-extra-lines></div>
+    </div>
+  `;
+}
+
+// A handful of readable choices — the scrim behind the text is always a
+// dark gradient, so light colours are what actually stays legible; the
+// custom wheel is there for whoever wants to fight that anyway.
+export const TEXT_COLORS = ["#ffffff", "#f8c85c", "#f5efe3", "#a7d8ff", "#ff8fa3", "#111111"];
+
+/** The text-colour swatch row, meant to sit under `textFieldsMarkup`. */
+export function textColorMarkup(initialColor = "#ffffff") {
+  return html`
+    <div class="bp-field">
+      <label class="bp-label">Text colour</label>
+      <div class="bp-row bp-row--wrap" style="gap:8px;align-items:center">
+        ${raw(TEXT_COLORS.map((color) => html`
+          <button type="button" class="bp-swatch${color === initialColor ? " bp-swatch--active" : ""}" data-text-color-swatch
+            style="background:${color}" data-color="${color}" aria-label="Use this text colour" title="${color}"></button>
+        `).join(""))}
+        <label class="bp-swatch bp-swatch--custom" title="Pick a custom colour">
+          <input type="color" data-text-color-custom value="${initialColor}" style="opacity:0;width:100%;height:100%;cursor:pointer">
+        </label>
+      </div>
     </div>
   `;
 }
@@ -359,13 +405,28 @@ function makeBookDraggable(box, bookEl) {
 }
 
 /**
- * Wires the swatches, the custom-colour input, the headline/subtext fields
- * and the book's drag-to-reposition + size slider (all already in `root`)
- * to update the box live. Returns `{ getBg, getHeadline, getSubtext,
- * getOffset, getScale }` for the caller's own download handler to read from.
+ * Wires the swatches, the custom-colour input, the headline/subtext fields,
+ * the text-colour picker and the book's drag-to-reposition + size slider
+ * (all already in `root`) to update the box live. When `book` and
+ * `autosaveKey` are both given, every change is also saved (debounced) to
+ * `localStorage` on its own — the explicit "Save changes" button a caller
+ * may still offer is then just an immediate, confirmed version of the same
+ * thing, not the only way the edit survives closing the composer. Returns
+ * `{ getBg, getHeadline, getSubtext, getTextColor, getOffset, getScale }`
+ * for the caller's own download handler to read from.
  */
-export function wireImageBox(root, { initialBg, book = null }) {
+export function wireImageBox(root, { initialBg, book = null, initialTextColor = "#ffffff", autosaveKey = null }) {
   let currentBg = initialBg;
+  let currentTextColor = initialTextColor;
+  let autosaveTimer = null;
+
+  const scheduleAutosave = () => {
+    if (!autosaveKey) return;
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(() => {
+      saveComposerState(book, autosaveKey, collectState());
+    }, 600);
+  };
 
   const setBg = (color) => {
     currentBg = color;
@@ -382,6 +443,7 @@ export function wireImageBox(root, { initialBg, book = null }) {
       }
     }
     root.querySelectorAll("[data-bg-swatch]").forEach((btn) => btn.classList.toggle("bp-swatch--active", btn.dataset.color === color));
+    scheduleAutosave();
   };
   root.querySelectorAll("[data-bg-swatch]").forEach((btn) => btn.addEventListener("click", () => setBg(btn.dataset.color)));
   root.querySelector("[data-bg-custom]")?.addEventListener("input", (event) => setBg(event.target.value));
@@ -398,6 +460,15 @@ export function wireImageBox(root, { initialBg, book = null }) {
     };
     reader.readAsDataURL(file);
   });
+
+  const setTextColor = (color) => {
+    currentTextColor = color;
+    root.querySelector("[data-bg-box]")?.style.setProperty("--overlay-text-color", color);
+    root.querySelectorAll("[data-text-color-swatch]").forEach((btn) => btn.classList.toggle("bp-swatch--active", btn.dataset.color === color));
+    scheduleAutosave();
+  };
+  root.querySelectorAll("[data-text-color-swatch]").forEach((btn) => btn.addEventListener("click", () => setTextColor(btn.dataset.color)));
+  root.querySelector("[data-text-color-custom]")?.addEventListener("input", (event) => setTextColor(event.target.value));
 
   const headlineInput = root.querySelector("#post-headline");
   const subtextInput = root.querySelector("#post-subtext");
@@ -416,6 +487,7 @@ export function wireImageBox(root, { initialBg, book = null }) {
 
     if (!headline && !subtext && !extras.length) {
       overlay?.remove();
+      scheduleAutosave();
       return;
     }
     if (!overlay) {
@@ -436,6 +508,7 @@ export function wireImageBox(root, { initialBg, book = null }) {
       el.textContent = line;
       overlay.appendChild(el);
     }
+    scheduleAutosave();
   };
 
   /** Add one editable "extra text" row, wired to re-sync the overlay as it's typed or removed. */
@@ -480,6 +553,7 @@ export function wireImageBox(root, { initialBg, book = null }) {
 
   scaleInput?.addEventListener("input", (event) => {
     box.style.setProperty("--book-scale", event.target.value);
+    scheduleAutosave();
   });
   const rotateRow = root.querySelector("[data-rotate-row]");
   const rotateInput = root.querySelector("#post-book-rotate");
@@ -489,7 +563,32 @@ export function wireImageBox(root, { initialBg, book = null }) {
     rotateInput.addEventListener("input", (event) => {
       const url = rotateBookMockup(book, Number(event.target.value));
       if (url) bookEl.src = url;
+      scheduleAutosave();
     });
+  }
+  if (bookEl) {
+    bookEl.addEventListener("pointerup", scheduleAutosave);
+    bookEl.addEventListener("pointercancel", scheduleAutosave);
+  }
+
+  const styleRow = root.querySelector("[data-style-row]");
+  const styleButtons = [...root.querySelectorAll("[data-mockup-style]")];
+  let currentStyle = "standing";
+  if (styleRow) styleRow.hidden = !canRotate;
+  function setActiveStyleButton() {
+    for (const btn of styleButtons) btn.classList.toggle("bp-btn--active", btn.dataset.mockupStyle === currentStyle);
+  }
+  if (canRotate && bookEl) {
+    for (const btn of styleButtons) {
+      btn.addEventListener("click", () => {
+        currentStyle = btn.dataset.mockupStyle;
+        const url = applyMockupStyle(book, currentStyle);
+        if (url) bookEl.src = url;
+        setActiveStyleButton();
+        scheduleAutosave();
+      });
+    }
+    setActiveStyleButton();
   }
 
   root.querySelector("[data-reset-position]")?.addEventListener("click", () => {
@@ -503,23 +602,33 @@ export function wireImageBox(root, { initialBg, book = null }) {
       const url = rotateBookMockup(book, 30);
       if (url) bookEl.src = url;
     }
+    if (canRotate) {
+      currentStyle = "standing";
+      setActiveStyleButton();
+    }
+    scheduleAutosave();
   });
 
   /**
-   * Reproduce a previously-saved state: background, book offset/scale/angle,
-   * headline, subtext and extra lines. Called once, right after wiring —
-   * order matters, since the offset restore reads the book's current
-   * (already-scaled) size to place it correctly.
+   * Reproduce a previously-saved state: background, text colour, book
+   * offset/scale/angle, headline, subtext and extra lines. Called once,
+   * right after wiring — order matters, since the offset restore reads the
+   * book's current (already-scaled) size to place it correctly.
    */
   function applyState(state) {
     if (!state) return;
     if (state.bg) setBg(state.bg);
+    if (state.textColor) setTextColor(state.textColor);
     if (headlineInput && typeof state.headline === "string") headlineInput.value = state.headline;
     if (subtextInput && typeof state.subtext === "string") subtextInput.value = state.subtext;
     for (const line of state.extraLines || []) addExtraLine(line);
     if (scaleInput && state.scale) {
       scaleInput.value = String(state.scale);
       box.style.setProperty("--book-scale", String(state.scale));
+    }
+    if (canRotate && state.mockupStyle) {
+      currentStyle = state.mockupStyle;
+      setActiveStyleButton();
     }
     if (canRotate && rotateInput && Number.isFinite(state.rotate)) {
       rotateInput.value = String(state.rotate);
@@ -530,8 +639,24 @@ export function wireImageBox(root, { initialBg, book = null }) {
     syncOverlay();
   }
 
+  /** Everything worth remembering about this composer, gathered in one place. */
+  function collectState() {
+    return {
+      bg: currentBg,
+      textColor: currentTextColor,
+      headline: headlineInput?.value.trim() || "",
+      subtext: subtextInput?.value.trim() || "",
+      extraLines: extraLineInputs.map((input) => input.value.trim()).filter(Boolean),
+      offset: drag?.getOffset() || { x: 0, y: 0 },
+      scale: Number(scaleInput?.value) || 1,
+      rotate: canRotate ? Number(rotateInput?.value) : null,
+      mockupStyle: canRotate ? currentStyle : null,
+    };
+  }
+
   return {
     getBg: () => currentBg,
+    getTextColor: () => currentTextColor,
     getHeadline: () => headlineInput?.value.trim() || "",
     getSubtext: () => subtextInput?.value.trim() || "",
     getExtraLines: () => extraLineInputs.map((input) => input.value.trim()).filter(Boolean),
@@ -603,7 +728,7 @@ function wrapText(ctx, text, maxWidth) {
  * back to the plain background — with a clear notice, never a silently
  * wrong file.
  */
-export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtext, size, filename, button, { offset = { x: 0, y: 0 }, scale = 1, extraLines = [] } = {}) {
+export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtext, size, filename, button, { offset = { x: 0, y: 0 }, scale = 1, extraLines = [], textColor = "#ffffff" } = {}) {
   setBusy(button, true, "Preparing…");
   try {
     const canvas = document.createElement("canvas");
@@ -680,7 +805,7 @@ export async function downloadPostImage(bg, imageUrl, isMockup, headline, subtex
       ctx.fillStyle = scrim;
       ctx.fillRect(0, size.height - scrimHeight, size.width, scrimHeight);
 
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = textColor;
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
 

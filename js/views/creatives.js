@@ -7,10 +7,10 @@ import { notify, confirmDialog, openModal } from "../core/toast.js";
 import { navigate } from "../core/router.js";
 import { refreshAccount } from "../core/session.js";
 import { FORMATS, PLATFORMS } from "./options.js";
-import { CREATIVE_TEMPLATES, creativeFromTemplate, sampleImagePath } from "./creative-templates.js";
+import { CREATIVE_TEMPLATES, creativeFromTemplate } from "./creative-templates.js";
 import { pageHead, emptyState, scoreBadge, fmt, demoBadge, loading, bullets, creativePreview } from "./shared.js";
 import {
-  bookImage, imageBoxMarkup, bgSwatchesMarkup, positionControlsMarkup, textFieldsMarkup, wireImageBox,
+  bookImage, imageBoxMarkup, bgSwatchesMarkup, positionControlsMarkup, textFieldsMarkup, textColorMarkup, wireImageBox,
   downloadPostImage, ensureBookMockup3D, saveComposerState, loadComposerState,
 } from "./post-image.js";
 
@@ -19,15 +19,17 @@ const FORMAT_LABEL = Object.fromEntries(FORMATS.map((f) => [f.value, f.label]));
 // A soft pastel tint per ad format for the customize-and-download box — the
 // same hue family as the format's accent colour (bp-creative--tone-* in
 // app.css), just light enough to sit behind a book without fighting it.
+// No background by default — just the book, on nothing. A colour or a
+// photographed backdrop is one click away in the composer.
 const FORMAT_BG = {
-  static: "#e6e5fb",
-  carousel: "#fbe3ef",
-  story: "#fdf0dc",
-  reel: "#dff5ec",
-  video_script: "#dff6f9",
-  mockup: "#ece4fb",
-  quote: "#fbe2e2",
-  promo: "#fde7d8",
+  static: "transparent",
+  carousel: "transparent",
+  story: "transparent",
+  reel: "transparent",
+  video_script: "transparent",
+  mockup: "transparent",
+  quote: "transparent",
+  promo: "transparent",
 };
 
 // Pixel sizes for the downloadable image, in the absence of a real ad
@@ -70,6 +72,12 @@ export async function renderLibrary(container, params, query) {
       });
     return;
   }
+
+  // Pre-render every book's 3D mockup before the first paint, so the grid's
+  // own card previews show it immediately rather than the flat cover (or
+  // nothing) while "Customize & download" is the only thing that triggers a
+  // render otherwise.
+  await Promise.all([...bookById.values()].map((b) => ensureBookMockup3D(b)));
 
   const bookFilter = query?.get("book") || "";
   container.innerHTML = html`
@@ -157,7 +165,7 @@ export async function renderLibrary(container, params, query) {
 function creativeCard(creative, book) {
   return html`
     <article class="bp-card bp-card--flush bp-card--interactive bp-creative bp-creative--tone-${creative.format}">
-      ${raw(creativePreview(creative, { label: FORMAT_LABEL[creative.format] || creative.format, book, showCover: false }))}
+      ${raw(creativePreview(creative, { label: FORMAT_LABEL[creative.format] || creative.format, book, ignoreMedia: true }))}
       <div class="bp-creative__body">
         <p class="bp-small bp-muted bp-clamp-3" style="margin:0">${creative.primary_text || ""}</p>
         <div class="bp-row bp-row--between">
@@ -336,6 +344,7 @@ export async function renderDetail(container, params) {
   const persona = strategy.personas.find((p) => p.id === creative.persona_id);
   const slides = creative.body?.slides || [];
   const beats = creative.body?.beats || [];
+  await ensureBookMockup3D(book);
 
   container.innerHTML = html`
     <div class="bp-row bp-row--between" style="margin-bottom:var(--bp-5)">
@@ -350,6 +359,7 @@ export async function renderDetail(container, params) {
             label: FORMAT_LABEL[creative.format] || creative.format,
             tall: creative.format === "reel" || creative.format === "story",
             book,
+            ignoreMedia: true,
           }))}
         </div>
         <div class="bp-card">
@@ -432,7 +442,8 @@ export async function renderDetail(container, params) {
           <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="edit-btn">Edit copy</button>
           <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="duplicate-btn">Duplicate</button>
           ${creative.body?.social_post ? "" : raw(html`
-            <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="variation-btn">Create variation</button>`)}
+            <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="variation-btn">Create variation</button>
+            <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" id="customize-btn">Customize &amp; download</button>`)}
           ${creative.body?.social_post ? raw(html`
             <button type="button" class="bp-btn bp-btn--ghost bp-btn--sm" id="copy-caption-btn">Copy caption</button>
             <button type="button" class="bp-btn bp-btn--ghost bp-btn--sm" id="download-image-btn">
@@ -515,6 +526,17 @@ export async function renderDetail(container, params) {
   });
 
   $("#download-btn").addEventListener("click", () => downloadCreative(creative, book));
+
+  $("#customize-btn")?.addEventListener("click", () => {
+    openImageComposer({
+      title: creative.headline || FORMAT_LABEL[creative.format] || "Creative",
+      format: creative.format,
+      book,
+      headline: creative.headline || "",
+      subtext: creative.description || book?.subtitle || "",
+      filenamePrefix: `creative-${creative.id.slice(0, 8)}`,
+    });
+  });
 
   $("#delete-btn").addEventListener("click", async () => {
     const confirmed = await confirmDialog({
@@ -713,17 +735,22 @@ async function downloadSocialImage(creative, button) {
  * generation, no credits: the draft opens in the editor pre-filled from
  * the book, with bracketed gaps where only the author can decide.
  */
-/** A template's sample image, with this book's cover and headline on it. */
+/**
+ * The default card in the templates gallery: no stock sample photo (that
+ * read as generic stock art, not this book's own creative) — the book's
+ * own real cover if it has one, or nothing. "Customize & download" is
+ * where an actual picture — the book's mockup on a chosen backdrop — gets
+ * built and exported.
+ */
 function templatePreview(template, book) {
   const headline = template.build(book || {}).headline || "";
   return creativePreview(
     {
       format: template.format,
-      media_url: sampleImagePath(template.id),
       // Some templates open with a bracketed gap for the author to fill; show the name instead.
       headline: headline.startsWith("[") ? template.name : headline,
     },
-    { label: FORMAT_LABEL[template.format] || template.format, book, showCover: false },
+    { label: FORMAT_LABEL[template.format] || template.format, book, ignoreMedia: true },
   );
 }
 
@@ -744,6 +771,7 @@ export async function renderTemplates(container, params, query) {
   }
 
   const preselected = query?.get("book") || books[0].id;
+  await ensureBookMockup3D(books.find((b) => b.id === preselected));
 
   container.innerHTML = html`
     ${raw(pageHead({
@@ -784,8 +812,9 @@ export async function renderTemplates(container, params, query) {
 
   // The sample images are generic; the book's own cover and headline go on top,
   // so picking a different book shows what that book's ad would look like.
-  $("#template-book").addEventListener("change", () => {
+  $("#template-book").addEventListener("change", async () => {
     const book = books.find((b) => b.id === $("#template-book").value);
+    await ensureBookMockup3D(book);
     container.querySelectorAll("[data-preview]").forEach((slot) => {
       const t = CREATIVE_TEMPLATES.find((x) => x.id === slot.dataset.preview);
       if (t) slot.innerHTML = templatePreview(t, book);
@@ -846,18 +875,20 @@ function openImageComposer({ title, format, book, headline, subtext, filenamePre
   const initialBg = saved?.bg || FORMAT_BG[format] || FORMAT_BG.static;
   const initialHeadline = saved?.headline ?? (headline || "");
   const initialSubtext = saved?.subtext ?? (subtext || "");
+  const initialTextColor = saved?.textColor || "#ffffff";
 
   const { root, close } = openModal(
     html`
       <div class="bp-modal__header"><h3>${title}</h3></div>
       <div class="bp-stack">
         <div class="bp-card bp-card--flush bp-creative" style="border-radius:var(--bp-radius, 8px);overflow:hidden">
-          ${raw(imageBoxMarkup({ label, book, initialBg, initialHeadline, initialSubtext, height: 340 }))}
+          ${raw(imageBoxMarkup({ label, book, initialBg, initialHeadline, initialSubtext, initialTextColor, height: 340 }))}
         </div>
 
         ${raw(bgSwatchesMarkup(initialBg))}
         ${raw(positionControlsMarkup())}
         ${raw(textFieldsMarkup(initialHeadline, initialSubtext))}
+        ${raw(textColorMarkup(initialTextColor))}
 
         <p class="bp-tiny bp-subtle">${size.width}×${size.height}px</p>
         ${saved ? raw(html`<p class="bp-tiny bp-subtle">Restored from your last save.</p>`) : ""}
@@ -877,19 +908,19 @@ function openImageComposer({ title, format, book, headline, subtext, filenamePre
     { wide: false }
   );
 
-  const { getBg, getHeadline, getSubtext, getExtraLines, getOffset, getScale, getRotate, getImageUrl, applyState } =
-    wireImageBox(root, { initialBg, book });
+  const { getBg, getTextColor, getHeadline, getSubtext, getExtraLines, getOffset, getScale, getRotate, getImageUrl, applyState } =
+    wireImageBox(root, { initialBg, book, initialTextColor, autosaveKey: filenamePrefix });
   applyState(saved);
   const { url: bookImageUrl, isMockup } = bookImage(book);
 
   root.querySelector("[data-download]").addEventListener("click", (event) =>
     downloadPostImage(getBg(), getImageUrl() || bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${filenamePrefix}.png`, event.currentTarget,
-      { offset: getOffset(), scale: getScale(), extraLines: getExtraLines() })
+      { offset: getOffset(), scale: getScale(), extraLines: getExtraLines(), textColor: getTextColor() })
   );
 
   root.querySelector("[data-save-composer]").addEventListener("click", () => {
     saveComposerState(book, filenamePrefix, {
-      bg: getBg(), headline: getHeadline(), subtext: getSubtext(), extraLines: getExtraLines(),
+      bg: getBg(), textColor: getTextColor(), headline: getHeadline(), subtext: getSubtext(), extraLines: getExtraLines(),
       offset: getOffset(), scale: getScale(), rotate: getRotate(),
     });
     notify.success("Saved — this will be here next time you open this post.");

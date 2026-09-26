@@ -5,6 +5,7 @@ import * as fmt from "../core/format.js";
 import { isDemo } from "../core/api.js";
 import { isSampleImage as isCreativeSample, sampleAltFor as creativeSampleAltFor } from "./creative-templates.js";
 import { isSampleImage as isSocialSample, sampleAltFor as socialSampleAltFor } from "./social-templates.js";
+import { bookImage } from "./post-image.js";
 
 const isSampleImage = (url) => isCreativeSample(url) || isSocialSample(url);
 const sampleAltFor = (url) => creativeSampleAltFor(url) || socialSampleAltFor(url);
@@ -76,9 +77,13 @@ export function cover(book, { className = "" } = {}) {
  *   3. Failing that, the plain gradient, and, when we know the book, a
  *      link to add its cover. Never a stand-in dressed up as artwork.
  */
-export function creativePreview(creative, { label = "", tall = false, aspect = "", coverPosition = "", book = null, showCover = true } = {}) {
+export function creativePreview(creative, { label = "", tall = false, aspect = "", coverPosition = "", book = null, showCover = true, ignoreMedia = false } = {}) {
   // media_url is a free URL column; only show it when it looks like a picture.
-  const mediaUrl = safeUrl(creative.media_url);
+  // `ignoreMedia` skips it outright — used where a stock sample photo or a
+  // generic AI-concept image would be shown instead of the book's own real
+  // cover (or nothing), which reads as unprofessional stock art rather than
+  // this book's actual creative.
+  const mediaUrl = ignoreMedia ? "" : safeUrl(creative.media_url);
   const image = /\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(mediaUrl) ? "" : mediaUrl;
   // `showCover: false` keeps the box to the creative's own picture only — used
   // in grid galleries, where the same small book-cover badge stamped on every
@@ -110,11 +115,16 @@ export function creativePreview(creative, { label = "", tall = false, aspect = "
       </div>`;
   }
 
-  if (coverUrl) {
+  // No AI concept image and no real ad artwork yet: the book's own real
+  // picture (a 3D mockup if `ensureBookMockup3D` has already rendered one
+  // for this book, else its flat cover) sitting plainly in the box — not a
+  // cropped rectangle over a blurred duplicate of itself, which read as a
+  // stock placeholder rather than this book's actual creative.
+  const mockup = coverUrl ? bookImage(book) : { url: "" };
+  if (mockup.url) {
     return html`
-      <div class="bp-creative__preview bp-creative__preview--image${tallClass}">
-        <img class="bp-creative__img bp-creative__img--blur" src="${coverUrl}" alt="" loading="lazy" decoding="async">
-        ${cover("hero")}
+      <div class="bp-creative__preview bp-creative__preview--mockup${tallClass}">
+        <img class="bp-creative__mockup" src="${mockup.url}" alt="Cover of ${book?.title || "the book"}" loading="lazy" decoding="async">
         ${heading}
       </div>`;
   }

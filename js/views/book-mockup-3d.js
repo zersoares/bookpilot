@@ -67,6 +67,19 @@ const assets = new Map(); // coverUrl -> { cover, back, spine, boardColor } — 
 
 const DEFAULT_YAW = 30;
 
+// A handful of named poses for the same rendered book — not more art
+// direction, just different camera/book parameters over the one asset
+// (cover/back/spine) already built, the way `paintMockupAtYaw` already
+// repaints cheaply for the rotate slider. `flat` uses `closedBook`'s own
+// "lying on the table" pose (see mockup-engine.js); the rest are the
+// `upright` pose at different yaws.
+export const MOCKUP_STYLES = [
+  { id: "standing", label: "Standing", lay: "upright", yaw: 30 },
+  { id: "straight", label: "Straight-on", lay: "upright", yaw: 0 },
+  { id: "leaning", label: "Leaning", lay: "upright", yaw: 55 },
+  { id: "flat", label: "Lying flat", lay: "flat", yaw: 15 },
+];
+
 /** A cached render, if one already finished — for callers that can't await (sync markup builders). */
 export function getMockup3D(coverUrl) {
   return resolved.get(coverUrl) || null;
@@ -84,14 +97,19 @@ export function getBookAsset(coverUrl) {
  * already canvases). Yaw 0 is face-on; `renderMockup3D`'s default (30) is
  * the "displayed, not flat" angle everything opens on.
  */
-export function paintMockupAtYaw(asset, yaw) {
+export function paintMockupAtYaw(asset, yaw, lay = "upright") {
   const W = 1000, H = 1200;
   const canvas = canvasOf(W, H);
   const ctx = canvas.getContext("2d");
   const bh = H * 0.72, k = bh / 1080, bw = 720 * k;
   const d = 40 * k;
-  const cam = makeCamera({ W, H, yaw, pitch: 15, cx: W * 0.5, cy: H * 0.86, zoom: 1 });
-  closedBook(ctx, cam, asset, { w: bw, h: bh, d, lay: "upright", yaw: 0, at: [0, 0], pal: { shadow: "#1a1410", dark: false }, S: 1 });
+  // Lying flat reads best a little further back and higher in frame than
+  // standing upright does, or it fills the canvas edge-to-edge with no air
+  // around it — same camera style, tuned per pose rather than fixed.
+  const cam = lay === "flat"
+    ? makeCamera({ W, H, yaw: 0, pitch: 15, cx: W * 0.5, cy: H * 0.62, zoom: 0.78 })
+    : makeCamera({ W, H, yaw, pitch: 15, cx: W * 0.5, cy: H * 0.86, zoom: 1 });
+  closedBook(ctx, cam, asset, { w: bw, h: bh, d, lay, yaw: lay === "flat" ? yaw : 0, at: [0, 0], pal: { shadow: "#1a1410", dark: false }, S: 1 });
 
   // A soft diagonal key-light sweep over the book's own pixels only — the
   // difference between a flat render and one that reads as lit. Fixed to

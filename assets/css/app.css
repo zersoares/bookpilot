@@ -432,6 +432,14 @@
    first one started) — smaller and higher leaves clear air above the text. */
 .bp-creative__preview--gallery .bp-creative__cover--hero { top: 6%; width: 34%; }
 .bp-creative__preview { position: relative; }
+/* The book's own real picture (3D mockup or flat cover), shown plainly —
+   no crop, no blurred duplicate of itself standing in as "art". */
+.bp-creative__preview--mockup { align-items: center; justify-content: center; }
+.bp-creative__preview--mockup .bp-creative__headline,
+.bp-creative__preview--mockup .bp-badge { position: absolute; }
+.bp-creative__preview--mockup .bp-badge { top: var(--bp-4); left: var(--bp-4); }
+.bp-creative__preview--mockup .bp-creative__headline { bottom: var(--bp-4); left: var(--bp-4); right: var(--bp-4); }
+.bp-creative__mockup { max-width: 62%; max-height: 68%; object-fit: contain; filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.35)); }
 .bp-creative__nocover {
   position: absolute;
   top: 34%;
@@ -540,7 +548,7 @@
   bottom: 0;
   padding: 28px 20px 16px;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.55), transparent);
-  color: #fff;
+  color: var(--overlay-text-color, #fff);
   font-weight: 700;
   font-size: 1.15rem;
   line-height: 1.3;
@@ -591,9 +599,26 @@
   justify-content: center;
   background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
 }
+/* A plain checkerboard so "no background" reads as a deliberate choice,
+   not a broken swatch that failed to load a colour. */
+.bp-swatch--transparent {
+  background-image:
+    linear-gradient(45deg, #888 25%, transparent 25%), linear-gradient(-45deg, #888 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #888 75%), linear-gradient(-45deg, transparent 75%, #888 75%);
+  background-size: 10px 10px;
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+  background-color: #ccc;
+}
 /* A photographed backdrop reads as a smear of colour in a 30px circle —
    square, a little larger, tells you it's a photo before you click it. */
 .bp-swatch--photo { width: 36px; height: 36px; border-radius: 7px; background-size: cover; background-position: center; }
+
+/* Which mockup pose is currently selected, among the row of style buttons. */
+.bp-btn--active {
+  background: var(--bp-primary);
+  color: var(--bp-text-inverse);
+  border-color: var(--bp-primary);
+}
 .bp-swatch--upload {
   position: relative;
   display: flex;

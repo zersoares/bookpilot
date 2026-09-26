@@ -23,7 +23,7 @@ import { notify, openModal } from "../core/toast.js";
 import { SOCIAL_TEMPLATES, PLATFORM_SIZES, sizeLabel } from "./social-templates.js";
 import { pageHead, emptyState, demoBadge } from "./shared.js";
 import {
-  bookImage, imageBoxMarkup, bgSwatchesMarkup, positionControlsMarkup, textFieldsMarkup, wireImageBox,
+  bookImage, imageBoxMarkup, bgSwatchesMarkup, positionControlsMarkup, textFieldsMarkup, textColorMarkup, wireImageBox,
   downloadPostImage, defaultBgFor, ensureBookMockup3D, saveComposerState, loadComposerState,
 } from "./post-image.js";
 
@@ -42,16 +42,16 @@ function openShareWindow(url) {
   window.open(url, "_blank", "noopener,width=600,height=640");
 }
 
-// A photographed studio backdrop per network by default — the mood each
-// one's brand and post style suggests — with every other backdrop and the
-// plain colours still one click away in the composer (bgSwatchesMarkup).
+// No background by default, for every network — just the book, on nothing.
+// A photographed backdrop or a plain colour is one click away in the
+// composer (bgSwatchesMarkup) for whoever wants one.
 const PLATFORM_BG = {
-  instagram: "/assets/social/bg/bg-04-blush-pastel.webp",
-  facebook: "/assets/social/bg/bg-15-cool-blue.webp",
-  linkedin: "/assets/social/bg/bg-13-grey-pedestal.webp",
-  tiktok: "/assets/social/bg/bg-11-navy-spotlight.webp",
-  x: "/assets/social/bg/bg-05-concrete-corner.webp",
-  bluesky: "/assets/social/bg/bg-12-sunlit-curtain.webp",
+  instagram: "transparent",
+  facebook: "transparent",
+  linkedin: "transparent",
+  tiktok: "transparent",
+  x: "transparent",
+  bluesky: "transparent",
 };
 
 function socialPreview(template, book) {
@@ -157,18 +157,20 @@ function openComposer(template, book) {
   const initialBg = saved?.bg || defaultBgFor(book, PLATFORM_BG[template.platform]);
   const initialHeadline = saved?.headline ?? (built.headline?.startsWith("[") ? "" : (built.headline || ""));
   const initialSubtext = saved?.subtext ?? (book?.subtitle || "");
+  const initialTextColor = saved?.textColor || "#ffffff";
 
   const { root, close } = openModal(
     html`
       <div class="bp-modal__header"><h3>${template.name}</h3></div>
       <div class="bp-stack">
         <div class="bp-card bp-card--flush bp-creative" style="border-radius:var(--bp-radius, 8px);overflow:hidden">
-          ${raw(imageBoxMarkup({ label: PLATFORM_SIZES[template.platform].label, book, initialBg, initialHeadline, initialSubtext }))}
+          ${raw(imageBoxMarkup({ label: PLATFORM_SIZES[template.platform].label, book, initialBg, initialHeadline, initialSubtext, initialTextColor }))}
         </div>
 
         ${raw(bgSwatchesMarkup(initialBg))}
         ${raw(positionControlsMarkup())}
         ${raw(textFieldsMarkup(initialHeadline, initialSubtext))}
+        ${raw(textColorMarkup(initialTextColor))}
 
         <div class="bp-field">
           <label class="bp-label" for="post-caption">Caption</label>
@@ -218,18 +220,18 @@ function openComposer(template, book) {
     }
   });
 
-  const { getBg, getHeadline, getSubtext, getExtraLines, getOffset, getScale, getRotate, getImageUrl, applyState } =
-    wireImageBox(root, { initialBg, book });
+  const { getBg, getTextColor, getHeadline, getSubtext, getExtraLines, getOffset, getScale, getRotate, getImageUrl, applyState } =
+    wireImageBox(root, { initialBg, book, initialTextColor, autosaveKey: template.id });
   applyState(saved);
 
   root.querySelector("[data-download]").addEventListener("click", (event) =>
     downloadPostImage(getBg(), getImageUrl() || bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${template.platform}-${template.id}.png`, event.currentTarget,
-      { offset: getOffset(), scale: getScale(), extraLines: getExtraLines() })
+      { offset: getOffset(), scale: getScale(), extraLines: getExtraLines(), textColor: getTextColor() })
   );
 
   root.querySelector("[data-save-composer]").addEventListener("click", () => {
     saveComposerState(book, template.id, {
-      bg: getBg(), headline: getHeadline(), subtext: getSubtext(), extraLines: getExtraLines(),
+      bg: getBg(), textColor: getTextColor(), headline: getHeadline(), subtext: getSubtext(), extraLines: getExtraLines(),
       offset: getOffset(), scale: getScale(), rotate: getRotate(),
     });
     notify.success("Saved — this will be here next time you open this post.");

@@ -22,11 +22,11 @@ const BOOK = { id: "b1", title: "The Modern Woman's Guide", cover_url: "https://
 const NO_COVER = { id: "b2", title: "No Cover Yet", cover_url: null };
 const box = (creative, opts) => creativePreview({ headline: "Headline", format: "static", ...creative }, { label: "Static image", ...opts });
 
-test("a creative with no picture shows the book's cover, large, over a blur of itself", () => {
+test("a creative with no picture shows the book's own picture plainly, no crop or blur", () => {
   const out = box({}, { book: BOOK });
-  assert.match(out, /bp-creative__preview--image/);
-  assert.match(out, /bp-creative__img--blur"[^>]*src="https:\/\/cdn\.example\/cover\.jpg"/, "blurred backdrop");
-  assert.match(out, /bp-creative__cover--hero"[^>]*src="https:\/\/cdn\.example\/cover\.jpg"/, "the cover itself");
+  assert.match(out, /bp-creative__preview--mockup/);
+  assert.match(out, /bp-creative__mockup"[^>]*src="https:\/\/cdn\.example\/cover\.jpg"/, "the book's picture, uncropped");
+  assert.doesNotMatch(out, /bp-creative__img--blur|bp-creative__cover--hero/, "no blurred duplicate, no cropped rectangle");
   assert.match(out, /alt="Cover of The Modern Woman&#39;s Guide"/, "described for screen readers, and escaped");
   assert.doesNotMatch(out, /bp-creative__concept/, "it is the real cover: no AI or sample tag");
 });
