@@ -20,10 +20,10 @@ import { html, raw, $ } from "../core/dom.js";
 import { API } from "../core/api.js";
 import * as store from "../core/store.js";
 import { notify, openModal } from "../core/toast.js";
-import { SOCIAL_TEMPLATES, PLATFORM_SIZES, sizeLabel } from "./social-templates.js";
+import { SOCIAL_TEMPLATES, PLATFORM_SIZES, sizeLabel, blankTemplateFor } from "./social-templates.js";
 import { pageHead, emptyState, demoBadge } from "./shared.js";
 import {
-  bookImage, imageBoxMarkup, bgSwatchesMarkup, positionControlsMarkup, textFieldsMarkup, textColorMarkup, wireImageBox,
+  bookImage, imageBoxMarkup, bgSwatchesMarkup, positionControlsMarkup, mediaControlsMarkup, textFieldsMarkup, textColorMarkup, wireImageBox,
   downloadPostImage, defaultBgFor, ensureBookMockup3D, saveComposerState, loadComposerState,
 } from "./post-image.js";
 
@@ -84,7 +84,7 @@ export async function renderGallery(container, params, query) {
       description: "A caption and a correctly-sized image for each network, pre-filled from your book. "
         + "Nothing publishes on its own: copy the caption, download the image, and post it yourself — or use "
         + "a share button where the network supports one.",
-      actions: demoBadge(),
+      actions: `${demoBadge()}<button type="button" class="bp-btn bp-btn--primary" id="new-post">New post</button>`,
     }))}
 
     <div class="bp-row bp-row--wrap" style="margin-bottom:var(--bp-5);gap:var(--bp-2);align-items:center">
@@ -135,6 +135,39 @@ export async function renderGallery(container, params, query) {
       openComposer(template, book);
     });
   });
+
+  $("#new-post").addEventListener("click", () => {
+    const book = books.find((b) => b.id === $("#social-book").value);
+    if (book) openPlatformPicker(book);
+  });
+}
+
+function openPlatformPicker(book) {
+  const { root, close } = openModal(html`
+    <div class="bp-modal__header"><h3>Start a new post</h3></div>
+    <p class="bp-muted bp-small">
+      Pick a network. You'll get a blank caption and an image sized to what it actually shows —
+      the same composer as the templates, just with nothing written in yet.
+    </p>
+    <div class="bp-grid bp-grid--3" style="gap:var(--bp-3)">
+      ${raw(Object.entries(PLATFORM_SIZES).map(([platform, spec]) => html`
+        <button type="button" class="bp-btn bp-btn--secondary" data-platform="${platform}" style="width:100%">
+          ${spec.label}
+        </button>`).join(""))}
+    </div>
+    <div class="bp-modal__footer">
+      <button type="button" class="bp-btn bp-btn--ghost" data-close>Cancel</button>
+    </div>
+  `);
+
+  root.querySelectorAll("[data-platform]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const platform = button.dataset.platform;
+      close();
+      await ensureBookMockup3D(book);
+      openComposer(blankTemplateFor(platform), book);
+    });
+  });
 }
 
 function openComposer(template, book) {
@@ -169,12 +202,22 @@ function openComposer(template, book) {
 
         ${raw(bgSwatchesMarkup(initialBg))}
         ${raw(positionControlsMarkup())}
+        ${raw(mediaControlsMarkup())}
         ${raw(textFieldsMarkup(initialHeadline, initialSubtext))}
         ${raw(textColorMarkup(initialTextColor))}
 
         <div class="bp-field">
           <label class="bp-label" for="post-caption">Caption</label>
           <textarea class="bp-textarea" id="post-caption" rows="7">${caption}</textarea>
+        </div>
+
+        <div class="bp-field">
+          <label class="bp-label" for="post-link">Link <span class="bp-subtle">(optional)</span></label>
+          <input class="bp-input" id="post-link" type="url" value="${shareUrl}" placeholder="https://your-sales-page-or-amazon-link">
+          <p class="bp-hint">
+            Where the post should point to. Filled in from the book's Sales URL if it has one —
+            paste a different link here (an Amazon listing, a link tree) without leaving this composer.
+          </p>
         </div>
         <p class="bp-tiny bp-subtle">${sizeLabel(template.platform)}</p>
 
@@ -191,11 +234,11 @@ function openComposer(template, book) {
         ${hasIntent ? raw(html`
           <div class="bp-row bp-row--wrap" style="gap:var(--bp-2)">
             <button type="button" class="bp-btn bp-btn--primary bp-btn--sm" data-intent-share ${intentNeedsLink ? "disabled" : ""}
-              title="${intentNeedsLink ? "Add your book's sales link on the book's edit page to enable this." : ""}">
+              title="${intentNeedsLink ? "Add a link above to enable this." : ""}">
               Share to ${PLATFORM_SIZES[template.platform].label}
             </button>
           </div>
-          ${intentNeedsLink ? raw(html`<p class="bp-tiny bp-subtle">Add your book's sales link to enable one-click sharing here.</p>`) : ""}
+          <p class="bp-tiny bp-subtle" data-intent-hint ${intentNeedsLink ? "" : "hidden"}>Add a link above to enable one-click sharing here.</p>
         `) : raw(html`
           <p class="bp-tiny bp-subtle">
             ${PLATFORM_SIZES[template.platform].label} doesn't offer a direct web-share link — copy the caption
@@ -220,12 +263,12 @@ function openComposer(template, book) {
     }
   });
 
-  const { getBg, getTextColor, getHeadline, getSubtext, getExtraLines, getOffset, getScale, getRotate, getImageUrl, applyState } =
-    wireImageBox(root, { initialBg, book, initialTextColor, autosaveKey: template.id });
+  const { getBg, getTextColor, getHeadline, getSubtext, getExtraLines, getOffset, getScale, getRotate, getImageUrl, getIsMockup, applyState } =
+    wireImageBox(root, { initialBg, book, initialTextColor, autosaveKey: template.id, initialIsMockup: isMockup });
   applyState(saved);
 
   root.querySelector("[data-download]").addEventListener("click", (event) =>
-    downloadPostImage(getBg(), getImageUrl() || bookImageUrl, isMockup, getHeadline(), getSubtext(), size, `bookpilot-${template.platform}-${template.id}.png`, event.currentTarget,
+    downloadPostImage(getBg(), getImageUrl() || bookImageUrl, getIsMockup(), getHeadline(), getSubtext(), size, `bookpilot-${template.platform}-${template.id}.png`, event.currentTarget,
       { offset: getOffset(), scale: getScale(), extraLines: getExtraLines(), textColor: getTextColor() })
   );
 
@@ -237,19 +280,39 @@ function openComposer(template, book) {
     notify.success("Saved — this will be here next time you open this post.");
   });
 
+  const linkInput = root.querySelector("#post-link");
+  const intentBtn = root.querySelector("[data-intent-share]");
+  const intentHint = root.querySelector("[data-intent-hint]");
+
+  // The link field can change after the composer opens (a book with no
+  // Sales URL, fixed without leaving this modal), so a link-only network's
+  // share button enables and disables live rather than being fixed at open.
+  function refreshIntentAvailability() {
+    if (!hasIntent || !intentBtn) return;
+    const enabled = Boolean(SHARE_INTENTS[template.platform]({ text: "x", url: linkInput?.value.trim() || "" }));
+    intentBtn.disabled = !enabled;
+    intentBtn.title = enabled ? "" : "Add a link above to enable this.";
+    if (intentHint) intentHint.hidden = enabled;
+  }
+  linkInput?.addEventListener("input", refreshIntentAvailability);
+
   root.querySelector("[data-intent-share]")?.addEventListener("click", () => {
-    if (!intentUrl) return;
-    openShareWindow(SHARE_INTENTS[template.platform]({ text: root.querySelector("#post-caption").value, url: shareUrl }));
+    if (intentBtn?.disabled) return;
+    const url = linkInput?.value.trim() || "";
+    const built = SHARE_INTENTS[template.platform]({ text: root.querySelector("#post-caption").value, url });
+    if (!built) return;
+    openShareWindow(built);
     notify.info(`${PLATFORM_SIZES[template.platform].label} only pre-fills your caption — it can't carry the image. `
       + `Download the image below and attach it in the compose window before you post.`);
   });
 
   root.querySelector("[data-device-share]")?.addEventListener("click", async () => {
+    const url = linkInput?.value.trim() || "";
     try {
       await navigator.share({
         title: template.name,
         text: root.querySelector("#post-caption").value,
-        ...(shareUrl ? { url: shareUrl } : {}),
+        ...(url ? { url } : {}),
       });
     } catch (err) {
       if (err?.name !== "AbortError") notify.error("Couldn't open the share sheet.");

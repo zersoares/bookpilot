@@ -162,6 +162,28 @@ export const SOCIAL_TEMPLATES = [
   },
 ];
 
+/**
+ * A blank starting point for a given network — no preset caption or
+ * hashtags, just the right canvas size and the composer's usual tools
+ * (background, book position, text overlay, download). For when none of
+ * the six fixed templates above is the post someone wants to make.
+ */
+export function blankTemplateFor(platform) {
+  const label = PLATFORM_SIZES[platform]?.label || platform;
+  return {
+    id: `blank-${platform}`,
+    name: `New ${label} post`,
+    platform,
+    blurb: "A blank caption and image, sized for this network.",
+    build: (book) => ({
+      headline: dash(book?.title, ""),
+      primary_text: "",
+      hashtags: [],
+      visual_prompt: "",
+    }),
+  };
+}
+
 // Every template's background is a generic scene — a studio backdrop, at
 // most a couple of plain unbranded "other books" as props — with no book
 // cover ever baked into the art itself. The actual selected book's own

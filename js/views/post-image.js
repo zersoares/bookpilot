@@ -215,7 +215,7 @@ export function imageBoxMarkup({ label, book, initialBg, initialHeadline = "", i
     <div class="bp-social-box" data-bg-box style="${bgStyle};height:${height}px;--overlay-text-color:${initialTextColor}">
       ${url
         ? raw(html`<img class="bp-social-box__book${isMockup ? "" : " bp-social-box__book--flat"}" src="${url}" alt="Cover of ${book?.title || "the book"}" loading="lazy" decoding="async">`)
-        : (isFullArt ? "" : raw(html`<span class="bp-social-box__nocover">${book?.id ? `<a href="#/books/${book.id}/edit">Add your book cover</a>` : "No cover yet"}</span>`))}
+        : (isFullArt ? "" : raw(html`<span class="bp-social-box__nocover" data-nocover>${book?.id ? `<a href="#/books/${book.id}/edit">Add your book cover</a>` : "No cover yet"}</span>`))}
       <span class="bp-badge bp-badge--accent bp-social-box__label">${label}</span>
       ${raw(textOverlayMarkup(initialHeadline, initialSubtext))}
     </div>
@@ -280,6 +280,31 @@ export function positionControlsMarkup() {
           <button type="button" class="bp-btn bp-btn--secondary bp-btn--sm" data-mockup-style="${style.id}">${style.label}</button>
         `).join(""))}
       </div>
+    </div>
+  `;
+}
+
+/**
+ * Lets the book picture itself — not just the background — be swapped for
+ * an uploaded photo: a real shot of the physical book, a different edition,
+ * or something that isn't the book at all. Meant to sit under
+ * `positionControlsMarkup`. The "use the original" link only does anything
+ * once an upload has replaced the picture, so it starts hidden.
+ */
+export function mediaControlsMarkup() {
+  return html`
+    <div class="bp-field">
+      <div class="bp-row bp-row--between" style="align-items:center">
+        <label class="bp-label" style="margin:0">Image</label>
+        <button type="button" class="bp-small bp-link" data-reset-media hidden>Use the book's own cover</button>
+      </div>
+      <label class="bp-btn bp-btn--secondary bp-btn--sm" style="display:inline-flex;cursor:pointer">
+        Upload a different image
+        <input type="file" accept="image/*" data-media-upload style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden">
+      </label>
+      <p class="bp-tiny bp-subtle" style="margin:6px 0 0" data-media-hint hidden>
+        Replaces the picture above with your own photo. Not saved anywhere — pick it again next time you open this.
+      </p>
     </div>
   `;
 }
@@ -415,9 +440,10 @@ function makeBookDraggable(box, bookEl) {
  * `{ getBg, getHeadline, getSubtext, getTextColor, getOffset, getScale }`
  * for the caller's own download handler to read from.
  */
-export function wireImageBox(root, { initialBg, book = null, initialTextColor = "#ffffff", autosaveKey = null }) {
+export function wireImageBox(root, { initialBg, book = null, initialTextColor = "#ffffff", autosaveKey = null, initialIsMockup = false }) {
   let currentBg = initialBg;
   let currentTextColor = initialTextColor;
+  let currentIsMockup = initialIsMockup;
   let autosaveTimer = null;
 
   const scheduleAutosave = () => {
@@ -547,9 +573,9 @@ export function wireImageBox(root, { initialBg, book = null, initialTextColor = 
   subtextInput?.addEventListener("input", syncOverlay);
 
   const box = root.querySelector("[data-bg-box]");
-  const bookEl = box?.querySelector(".bp-social-box__book");
+  let bookEl = box?.querySelector(".bp-social-box__book");
   const scaleInput = root.querySelector("#post-book-scale");
-  const drag = bookEl ? makeBookDraggable(box, bookEl) : null;
+  let drag = bookEl ? makeBookDraggable(box, bookEl) : null;
 
   scaleInput?.addEventListener("input", (event) => {
     box.style.setProperty("--book-scale", event.target.value);
@@ -591,6 +617,80 @@ export function wireImageBox(root, { initialBg, book = null, initialTextColor = 
     setActiveStyleButton();
   }
 
+  // Swap the picture itself — not just the backdrop behind it — for an
+  // upload: a real photo of the physical book, a different edition, or
+  // something that isn't the book at all. Rotate/mockup-style controls
+  // repaint the *original* asset from `book`, so they'd silently overwrite
+  // an upload; hide them while a custom image is active and bring them
+  // back on reset.
+  const mediaUploadInput = root.querySelector("[data-media-upload]");
+  const resetMediaBtn = root.querySelector("[data-reset-media]");
+  const mediaHint = root.querySelector("[data-media-hint]");
+  const originalImageUrl = bookEl?.src || "";
+  const originalIsMockup = currentIsMockup;
+  let hasCustomImage = false;
+
+  function attachBookImage(src) {
+    if (!bookEl) {
+      bookEl = document.createElement("img");
+      bookEl.className = "bp-social-box__book";
+      bookEl.alt = book?.title ? `Cover of ${book.title}` : "";
+      box?.querySelector("[data-nocover]")?.remove();
+      box?.insertBefore(bookEl, box.firstChild);
+      drag = makeBookDraggable(box, bookEl);
+      bookEl.addEventListener("pointerup", scheduleAutosave);
+      bookEl.addEventListener("pointercancel", scheduleAutosave);
+    }
+    bookEl.src = src;
+  }
+
+  function setCustomImage(src) {
+    attachBookImage(src);
+    bookEl.classList.add("bp-social-box__book--flat");
+    currentIsMockup = false;
+    hasCustomImage = true;
+    if (rotateRow) rotateRow.hidden = true;
+    if (styleRow) styleRow.hidden = true;
+    if (resetMediaBtn) resetMediaBtn.hidden = false;
+    if (mediaHint) mediaHint.hidden = false;
+  }
+
+  mediaUploadInput?.addEventListener("change", (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCustomImage(reader.result);
+      scheduleAutosave();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  resetMediaBtn?.addEventListener("click", () => {
+    hasCustomImage = false;
+    currentIsMockup = originalIsMockup;
+    if (originalImageUrl && bookEl) {
+      bookEl.src = originalImageUrl;
+      bookEl.classList.toggle("bp-social-box__book--flat", !originalIsMockup);
+    } else if (bookEl) {
+      const nocover = document.createElement("span");
+      nocover.className = "bp-social-box__nocover";
+      nocover.dataset.nocover = "";
+      nocover.innerHTML = book?.id ? `<a href="#/books/${book.id}/edit">Add your book cover</a>` : "No cover yet";
+      box?.insertBefore(nocover, bookEl);
+      bookEl.remove();
+      bookEl = null;
+      drag = null;
+    }
+    if (canRotate) {
+      if (rotateRow) rotateRow.hidden = false;
+      if (styleRow) styleRow.hidden = false;
+    }
+    resetMediaBtn.hidden = true;
+    if (mediaHint) mediaHint.hidden = true;
+    scheduleAutosave();
+  });
+
   root.querySelector("[data-reset-position]")?.addEventListener("click", () => {
     drag?.reset();
     if (scaleInput) {
@@ -619,6 +719,7 @@ export function wireImageBox(root, { initialBg, book = null, initialTextColor = 
     if (!state) return;
     if (state.bg) setBg(state.bg);
     if (state.textColor) setTextColor(state.textColor);
+    if (state.customImage) setCustomImage(state.customImage);
     if (headlineInput && typeof state.headline === "string") headlineInput.value = state.headline;
     if (subtextInput && typeof state.subtext === "string") subtextInput.value = state.subtext;
     for (const line of state.extraLines || []) addExtraLine(line);
@@ -651,6 +752,7 @@ export function wireImageBox(root, { initialBg, book = null, initialTextColor = 
       scale: Number(scaleInput?.value) || 1,
       rotate: canRotate ? Number(rotateInput?.value) : null,
       mockupStyle: canRotate ? currentStyle : null,
+      customImage: hasCustomImage ? (bookEl?.src || null) : null,
     };
   }
 
@@ -664,6 +766,7 @@ export function wireImageBox(root, { initialBg, book = null, initialTextColor = 
     getScale: () => Number(scaleInput?.value) || 1,
     getRotate: () => (canRotate ? Number(rotateInput?.value) : null),
     getImageUrl: () => bookEl?.src || "",
+    getIsMockup: () => currentIsMockup,
     applyState,
   };
 }
