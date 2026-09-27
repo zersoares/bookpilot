@@ -215,7 +215,7 @@ export function imageBoxMarkup({ label, book, initialBg, initialHeadline = "", i
     <div class="bp-social-box" data-bg-box style="${bgStyle};height:${height}px;--overlay-text-color:${initialTextColor}">
       ${url
         ? raw(html`<img class="bp-social-box__book${isMockup ? "" : " bp-social-box__book--flat"}" src="${url}" alt="Cover of ${book?.title || "the book"}" loading="lazy" decoding="async">`)
-        : (isFullArt ? "" : raw(html`<span class="bp-social-box__nocover" data-nocover>${book?.id ? `<a href="#/books/${book.id}/edit">Add your book cover</a>` : "No cover yet"}</span>`))}
+        : (isFullArt ? "" : raw(html`<span class="bp-social-box__nocover" data-nocover>${book?.id ? raw(`<a href="#/books/${book.id}/edit">Add your book cover</a>`) : "No cover yet"}</span>`))}
       <span class="bp-badge bp-badge--accent bp-social-box__label">${label}</span>
       ${raw(textOverlayMarkup(initialHeadline, initialSubtext))}
     </div>
