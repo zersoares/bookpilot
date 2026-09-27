@@ -9,44 +9,44 @@
 // description, just without a play control, rather than a broken or
 // stubbed-out clip.
 
-import { html, raw, $ } from "./dom.js";
+import { html, raw, $, safeUrl } from "./dom.js";
 
 const LESSONS = [
   {
     icon: "▤",
     title: "Bring in your book",
-    text: "Import your listing straight from Amazon — title, cover, categories and blurb — or add it by hand. This is the one thing every other page in BookPilot builds on.",
-    video: null,
+    text: "Add your book by hand — title, subtitle, price and the description the AI reads. This is the one thing every other page in BookPilot builds on.",
+    video: "/assets/video/learn/bring-in-your-book.mp4",
   },
   {
     icon: "✦",
     title: "Build your marketing strategy",
-    text: "BookPilot reads your book and its category to propose personas, angles and positioning before you write a single ad.",
-    video: null,
+    text: "BookPilot reads your book and its category to propose a positioning, reader personas and marketing angles before you write a single ad.",
+    video: "/assets/video/learn/build-your-marketing-strategy.mp4",
   },
   {
     icon: "◐",
     title: "Generate ad creatives",
     text: "Turn an angle into on-brand creative — headline, copy and imagery — ready to review before anything goes near an ad account.",
-    video: null,
+    video: "/assets/video/learn/generate-ad-creatives.mp4",
   },
   {
     icon: "▶",
     title: "Launch a campaign",
-    text: "Push a creative live on Meta with a budget and audience you set, or let BookPilot suggest a starting point.",
-    video: null,
+    text: "Ten steps — book, audience, angles, creatives, budget — and nothing spends until the last one, which asks twice.",
+    video: "/assets/video/learn/launch-a-campaign.mp4",
   },
   {
     icon: "◒",
     title: "Track what's working",
-    text: "Analytics and attribution follow a click from the ad through to the sale, so 'what's working' has an actual answer.",
-    video: null,
+    text: "Sales, spend, ROAS and conversion rate for every campaign, so 'what's working' has an actual answer.",
+    video: "/assets/video/learn/track-whats-working.mp4",
   },
   {
     icon: "✧",
     title: "Ask your AI advisor",
     text: "When the data's ambiguous, ask — the advisor reads your account's own numbers before it answers.",
-    video: null,
+    video: "/assets/video/learn/ask-your-ai-advisor.mp4",
   },
 ];
 
@@ -68,10 +68,8 @@ function lessonCard(lesson, index) {
 
 function playLesson(card, lesson) {
   const preview = $(".bp-lesson__preview", card);
-  preview.innerHTML = `<video src="${lesson.video}" controls autoplay playsinline></video>`;
+  preview.innerHTML = `<video src="${safeUrl(lesson.video)}" controls autoplay muted loop playsinline></video>`;
   card.classList.add("bp-lesson--playing");
-  const video = $("video", preview);
-  video.addEventListener("ended", () => card.classList.remove("bp-lesson--playing"));
 }
 
 /** Opens the learning drawer. Returns a close() function. */
