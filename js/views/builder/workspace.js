@@ -6,7 +6,7 @@
 
 import { html, raw, delegate, setBusy } from "../../core/dom.js";
 import { BB, downloadExport, saveFile } from "../../core/builder-api.js";
-import { notify } from "../../core/toast.js";
+import { notify, confirmDialog } from "../../core/toast.js";
 import { navigate } from "../../core/router.js";
 import { projectHeader, fmt, readingTime, scoreBar } from "./shared.js";
 import { coverPreview } from "./cover-render.js";
@@ -206,6 +206,17 @@ export async function render(container, params) {
             positioning already filled in.
           </p>
         </div>
+
+        ${project.status === "draft" ? raw(html`
+          <div class="bp-card">
+            <h3 class="bb-side-title">Not the right idea?</h3>
+            <p class="bp-small bp-muted">
+              A draft with no chapters written yet is easy to walk away from — nothing has been
+              published or spent against it.
+            </p>
+            <button type="button" class="bp-btn bp-btn--danger bp-btn--sm bp-btn--block"
+                    style="margin-top:var(--bp-3)" data-action="delete-draft">Delete this draft</button>
+          </div>`) : ""}
       </aside>
     </div>
   `;
@@ -233,6 +244,24 @@ export async function render(container, params) {
         const { book } = await BB.promote(project.id);
         notify.success("It's in your marketing library, with its positioning carried across.");
         navigate(`/books/${book.id}`);
+      } catch (err) {
+        notify.error(err.message);
+        setBusy(trigger, false);
+      }
+    },
+    async "delete-draft"(trigger) {
+      const ok = await confirmDialog({
+        title: "Delete this draft?",
+        message: "The idea, its plan and anything written so far all go with it. This cannot be undone.",
+        confirmLabel: "Delete permanently",
+        tone: "danger",
+      });
+      if (!ok) return;
+      setBusy(trigger, true, "Deleting…");
+      try {
+        await BB.deleteProject(project.id);
+        notify.info("Deleted.");
+        navigate("/studio");
       } catch (err) {
         notify.error(err.message);
         setBusy(trigger, false);
