@@ -240,6 +240,8 @@ function openComposer(template, book) {
   root.querySelector("[data-intent-share]")?.addEventListener("click", () => {
     if (!intentUrl) return;
     openShareWindow(SHARE_INTENTS[template.platform]({ text: root.querySelector("#post-caption").value, url: shareUrl }));
+    notify.info(`${PLATFORM_SIZES[template.platform].label} only pre-fills your caption — it can't carry the image. `
+      + `Download the image below and attach it in the compose window before you post.`);
   });
 
   root.querySelector("[data-device-share]")?.addEventListener("click", async () => {
