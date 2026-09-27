@@ -16,7 +16,7 @@
   box-shadow: var(--bp-shadow-lg);
   transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.3s;
 }
-.bp-sample--photo img { display: block; width: 100%; height: auto; aspect-ratio: 484 / 718; }
+.bp-sample--photo img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
 .bp-sample--photo:hover { transform: translateY(-6px); }
 @media (prefers-reduced-motion: reduce) {
   .bp-sample--photo { transition: none; }
