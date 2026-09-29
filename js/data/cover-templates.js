@@ -168,7 +168,7 @@ export const COVER_TEMPLATES = [
     "name": "Watercolour Garden",
     "blurb": "Soft, floral and feminine.",
     "genres": [
-      "Romance & lifestyle",
+      "Romance",
       "Wellness"
     ],
     "image": "/assets/covers/templates/watercolor-florals.webp",
@@ -324,7 +324,7 @@ export const COVER_TEMPLATES = [
     "name": "Lavender Fields",
     "blurb": "Dreamy and gentle.",
     "genres": [
-      "Romance & lifestyle",
+      "Romance",
       "Fiction"
     ],
     "image": "/assets/covers/templates/lavender-field.webp",
@@ -1328,6 +1328,533 @@ export const COVER_TEMPLATES = [
       "type_style": "condensed",
       "title_case": "upper",
       "rule": false,
+      "scrim": "light",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "venice-canals",
+    "name": "Venetian Hours",
+    "blurb": "Golden light on quiet water.",
+    "genres": [
+      "Travel",
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/venice-canals.webp",
+    "thumb": "/assets/covers/templates/thumbs/venice-canals.webp",
+    "palette": {
+      "background": "#8f604b",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#882a16"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "paris-dusk",
+    "name": "Paris at Dusk",
+    "blurb": "Rose-lit rooftops and a city about to glow.",
+    "genres": [
+      "Travel",
+      "Romance"
+    ],
+    "image": "/assets/covers/templates/paris-dusk.webp",
+    "thumb": "/assets/covers/templates/thumbs/paris-dusk.webp",
+    "palette": {
+      "background": "#804672",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#42194a"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "bali-terraces",
+    "name": "Green Terraces",
+    "blurb": "Misty, restful and lush.",
+    "genres": [
+      "Travel",
+      "Wellness"
+    ],
+    "image": "/assets/covers/templates/bali-terraces.webp",
+    "thumb": "/assets/covers/templates/thumbs/bali-terraces.webp",
+    "palette": {
+      "background": "#6d823c",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#64b008"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "cappadocia-balloons",
+    "name": "Above the Valley",
+    "blurb": "Balloons at sunrise: pure wanderlust.",
+    "genres": [
+      "Travel",
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/cappadocia-balloons.webp",
+    "thumb": "/assets/covers/templates/thumbs/cappadocia-balloons.webp",
+    "palette": {
+      "background": "#c27b70",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#c2623e"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": false,
+      "scrim": "dark"
+    }
+  },
+  {
+    "id": "amalfi-coast",
+    "name": "Amalfi Summer",
+    "blurb": "Sun, lemons and a bright blue sea.",
+    "genres": [
+      "Travel",
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/amalfi-coast.webp",
+    "thumb": "/assets/covers/templates/thumbs/amalfi-coast.webp",
+    "palette": {
+      "background": "#6e8375",
+      "title": "#16161a",
+      "subtitle": "#16161a",
+      "author": "#ffffff",
+      "accent": "#588573"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "light",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "iceland-falls",
+    "name": "Wild Iceland",
+    "blurb": "Raw, moody and epic.",
+    "genres": [
+      "Travel",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/iceland-falls.webp",
+    "thumb": "/assets/covers/templates/thumbs/iceland-falls.webp",
+    "palette": {
+      "background": "#4b4f37",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#727a1f"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "airplane-window",
+    "name": "Departures",
+    "blurb": "The moment the journey begins.",
+    "genres": [
+      "Travel",
+      "Self-help"
+    ],
+    "image": "/assets/covers/templates/airplane-window.webp",
+    "thumb": "/assets/covers/templates/thumbs/airplane-window.webp",
+    "palette": {
+      "background": "#96625a",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#e37447"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "upper",
+      "rule": true,
+      "scrim": "dark"
+    }
+  },
+  {
+    "id": "velvet-roses",
+    "name": "Velvet Roses",
+    "blurb": "Dark, lush and full of desire.",
+    "genres": [
+      "Romance",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/velvet-roses.webp",
+    "thumb": "/assets/covers/templates/thumbs/velvet-roses.webp",
+    "palette": {
+      "background": "#2f1616",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#710618"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": true
+    }
+  },
+  {
+    "id": "blush-peonies",
+    "name": "Blush",
+    "blurb": "Soft, delicate and hopeful.",
+    "genres": [
+      "Romance",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/blush-peonies.webp",
+    "thumb": "/assets/covers/templates/thumbs/blush-peonies.webp",
+    "palette": {
+      "background": "#cfb2a8",
+      "title": "#16161a",
+      "subtitle": "#16161a",
+      "author": "#16161a",
+      "accent": "#b4796c"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "light"
+    }
+  },
+  {
+    "id": "candlelit-dinner",
+    "name": "Candlelight",
+    "blurb": "An intimate evening for two.",
+    "genres": [
+      "Romance",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/candlelit-dinner.webp",
+    "thumb": "/assets/covers/templates/thumbs/candlelit-dinner.webp",
+    "palette": {
+      "background": "#402311",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#823c07"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false
+    }
+  },
+  {
+    "id": "moonlit-balcony",
+    "name": "Moonlit Promise",
+    "blurb": "A hush, a full moon and fairy lights.",
+    "genres": [
+      "Romance",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/moonlit-balcony.webp",
+    "thumb": "/assets/covers/templates/thumbs/moonlit-balcony.webp",
+    "palette": {
+      "background": "#555a56",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#0f2e4d"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "love-letters",
+    "name": "Love Letters",
+    "blurb": "Pressed flowers and words kept for years.",
+    "genres": [
+      "Romance",
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/love-letters.webp",
+    "thumb": "/assets/covers/templates/thumbs/love-letters.webp",
+    "palette": {
+      "background": "#b2957b",
+      "title": "#16161a",
+      "subtitle": "#16161a",
+      "author": "#16161a",
+      "accent": "#5c352c"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "light",
+      "author_scrim": "light"
+    }
+  },
+  {
+    "id": "cherry-blossom",
+    "name": "Cherry Blossom Lane",
+    "blurb": "Sweet, dreamy first-love spring.",
+    "genres": [
+      "Romance",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/cherry-blossom.webp",
+    "thumb": "/assets/covers/templates/thumbs/cherry-blossom.webp",
+    "palette": {
+      "background": "#b58e89",
+      "title": "#16161a",
+      "subtitle": "#16161a",
+      "author": "#ffffff",
+      "accent": "#88744a"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "sunset-pier",
+    "name": "Sunset Pier",
+    "blurb": "A slow, golden-hour ending.",
+    "genres": [
+      "Romance",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/sunset-pier.webp",
+    "thumb": "/assets/covers/templates/thumbs/sunset-pier.webp",
+    "palette": {
+      "background": "#a65074",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#c7515f"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "scrim": "dark"
+    }
+  },
+  {
+    "id": "glass-towers",
+    "name": "Glass Towers",
+    "blurb": "Sharp, modern and corporate.",
+    "genres": [
+      "Business",
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/glass-towers.webp",
+    "thumb": "/assets/covers/templates/thumbs/glass-towers.webp",
+    "palette": {
+      "background": "#587c9d",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#16161a",
+      "accent": "#2f79b3"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "sans",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "light"
+    }
+  },
+  {
+    "id": "chess-strategy",
+    "name": "King's Move",
+    "blurb": "Strategy, leadership and the long game.",
+    "genres": [
+      "Business",
+      "Self-help"
+    ],
+    "image": "/assets/covers/templates/chess-strategy.webp",
+    "thumb": "/assets/covers/templates/thumbs/chess-strategy.webp",
+    "palette": {
+      "background": "#433826",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#715015"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "upper",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "blueprint-plan",
+    "name": "The Blueprint",
+    "blurb": "Structure, planning and method.",
+    "genres": [
+      "Business",
+      "Education"
+    ],
+    "image": "/assets/covers/templates/blueprint-plan.webp",
+    "thumb": "/assets/covers/templates/thumbs/blueprint-plan.webp",
+    "palette": {
+      "background": "#334762",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#19304f"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "executive-desk",
+    "name": "The Executive Desk",
+    "blurb": "Warm, professional and ready to work.",
+    "genres": [
+      "Business",
+      "Self-help"
+    ],
+    "image": "/assets/covers/templates/executive-desk.webp",
+    "thumb": "/assets/covers/templates/thumbs/executive-desk.webp",
+    "palette": {
+      "background": "#635448",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#4b301c"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false
+    }
+  },
+  {
+    "id": "summit-dawn",
+    "name": "Summit",
+    "blurb": "Leadership and reaching the top.",
+    "genres": [
+      "Business",
+      "Self-help"
+    ],
+    "image": "/assets/covers/templates/summit-dawn.webp",
+    "thumb": "/assets/covers/templates/thumbs/summit-dawn.webp",
+    "palette": {
+      "background": "#a58f7e",
+      "title": "#16161a",
+      "subtitle": "#16161a",
+      "author": "#ffffff",
+      "accent": "#df945a"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "brass-compass",
+    "name": "True North",
+    "blurb": "Direction, judgement and strategy.",
+    "genres": [
+      "Business",
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/brass-compass.webp",
+    "thumb": "/assets/covers/templates/thumbs/brass-compass.webp",
+    "palette": {
+      "background": "#7e6647",
+      "title": "#16161a",
+      "subtitle": "#16161a",
+      "author": "#ffffff",
+      "accent": "#4e3521"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": true,
       "scrim": "light",
       "author_scrim": "dark"
     }

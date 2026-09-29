@@ -1,4 +1,4 @@
-// Cover templates: fifty ready-made cover designs offered on the Create a book
+// Cover templates: seventy ready-made cover designs offered on the Create a book
 // page, turned into a real cover on the Cover step.
 //
 // What is pinned: the data is sound and its measurements agree with themselves;
@@ -38,10 +38,10 @@ const CASES = ["upper", "lower", "none"];
 
 // ---- the data ---------------------------------------------------------------
 
-test("there are fifty templates, each with a unique id and name", () => {
-  assert.equal(COVER_TEMPLATES.length, 50);
-  assert.equal(new Set(COVER_TEMPLATES.map((t) => t.id)).size, 50);
-  assert.equal(new Set(COVER_TEMPLATES.map((t) => t.name)).size, 50);
+test("there are seventy templates, each with a unique id and name", () => {
+  assert.equal(COVER_TEMPLATES.length, 70);
+  assert.equal(new Set(COVER_TEMPLATES.map((t) => t.id)).size, 70);
+  assert.equal(new Set(COVER_TEMPLATES.map((t) => t.name)).size, 70);
   for (const t of COVER_TEMPLATES) {
     assert.match(t.id, /^[a-z0-9-]{1,40}$/, `${t.id}: id is URL- and database-safe`);
     assert.ok(t.name.length >= 3 && t.blurb.length >= 10, `${t.id}: needs a name and a line about it`);
@@ -64,8 +64,8 @@ test("every template has full-size artwork and a small gallery thumbnail, both c
     const kb = statSync(file).size / 1024;
     assert.ok(kb > 2 && kb < 200, `${t.id}: ${Math.round(kb)} KB is outside what a thumbnail gallery should carry`);
   }
-  // Browsing all fifty is what the gallery is for: the thumbnails together must stay light.
-  assert.ok(thumbTotal < 1500, `all thumbnails together are ${Math.round(thumbTotal)} KB`);
+  // Browsing all seventy is what the gallery is for: the thumbnails together must stay light.
+  assert.ok(thumbTotal < 2000, `all thumbnails together are ${Math.round(thumbTotal)} KB`);
 });
 
 test("palettes and layouts use only what the cover renderer understands", () => {
@@ -97,12 +97,16 @@ test("the type colour was chosen so it can be read: ink and scrim always oppose 
   }
 });
 
-test("travel, kids and marketing each have ten, and lead the filters in that order", () => {
-  for (const collection of ["Travel", "Kids", "Marketing"]) {
-    assert.equal(COVER_TEMPLATES.filter((t) => t.genres.includes(collection)).length, 10, `${collection} has ten templates`);
-  }
-  assert.deepEqual(templateGenres().slice(0, 3), ["Travel", "Kids", "Marketing"]);
-  assert.deepEqual(FEATURED_COLLECTIONS, ["Travel", "Kids", "Marketing"]);
+test("travel, romance, business, kids and marketing are collections, and lead the filters in that order", () => {
+  const count = (c) => COVER_TEMPLATES.filter((t) => t.genres.includes(c)).length;
+  assert.equal(count("Travel"), 17, "ten original travel covers plus seven");
+  assert.equal(count("Romance"), 10, "two lifestyle covers retagged, seven new, and Paris at Dusk");
+  assert.ok(count("Business") >= 16, "ten general plus six new");
+  assert.equal(count("Kids"), 10);
+  assert.equal(count("Marketing"), 10);
+  assert.deepEqual(templateGenres().slice(0, 5), ["Travel", "Romance", "Business", "Kids", "Marketing"]);
+  assert.deepEqual(FEATURED_COLLECTIONS, ["Travel", "Romance", "Business", "Kids", "Marketing"]);
+  assert.ok(!templateGenres().includes("Romance & lifestyle"), "one Romance chip, not two");
   // the collections are distinct: no template is both a kids book and a marketing book
   const kids = COVER_TEMPLATES.filter((t) => t.genres.includes("Kids")).map((t) => t.id);
   assert.ok(!COVER_TEMPLATES.some((t) => kids.includes(t.id) && (t.genres.includes("Marketing") || t.genres.includes("Travel"))));
@@ -190,16 +194,16 @@ test("the title goes where the cover says: top, middle or bottom of the space ab
   assert.ok(at("lower").indexOf("bb-cover__zone") < at("lower").indexOf("bb-cover__author"), "and the author line stays below the title zone");
 });
 
-test("the gallery lists all fifty, marks the chosen one, shows counts, and posts with the form beside it", () => {
+test("the gallery lists all seventy, marks the chosen one, shows counts, and posts with the form beside it", () => {
   const out = coverGallery({ selected: "gold-geometry", author: "Ann <b>" });
-  assert.equal((out.match(/data-template="[a-z0-9-]+"/g) || []).length, 50);
-  assert.match(out, /data-genre="Travel"[^>]*>Travel <span class="bb-tpl-chip__n">10<\/span>/, "each filter shows how many it holds");
-  assert.ok(out.indexOf('data-genre="Travel"') < out.indexOf('data-genre="Kids"') && out.indexOf('data-genre="Kids"') < out.indexOf('data-genre="Marketing"'));
+  assert.equal((out.match(/data-template="[a-z0-9-]+"/g) || []).length, 70);
+  assert.match(out, /data-genre="Travel"[^>]*>Travel <span class="bb-tpl-chip__n">17<\/span>/, "each filter shows how many it holds");
+  assert.ok(out.indexOf('data-genre="Travel"') < out.indexOf('data-genre="Romance"') && out.indexOf('data-genre="Business"') < out.indexOf('data-genre="Kids"') && out.indexOf('data-genre="Kids"') < out.indexOf('data-genre="Marketing"'));
   assert.match(out, /data-template=""[^>]*data-genres="\*"/, "and a 'no template' choice");
   assert.match(out, /value="gold-geometry"[^>]*form="new-book"\s+checked/);
   assert.equal((out.match(/checked/g) || []).length, 1, "exactly one choice is selected");
-  assert.equal((out.match(/type="radio" name="cover_template"/g) || []).length, 51);
-  assert.ok((out.match(/form="new-book"/g) || []).length >= 51, "every choice belongs to the form though it sits outside it");
+  assert.equal((out.match(/type="radio" name="cover_template"/g) || []).length, 71);
+  assert.ok((out.match(/form="new-book"/g) || []).length >= 71, "every choice belongs to the form though it sits outside it");
   assert.doesNotMatch(out, /Ann <b>/, "the author's name is escaped");
   assert.match(out, /Ann &lt;b&gt;/);
 

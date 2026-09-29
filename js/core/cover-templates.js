@@ -1,6 +1,6 @@
 // Cover templates: ready-made cover designs an author can start from.
 //
-// The data (js/data/cover-templates.js) is twenty pieces of text-free artwork,
+// The data (js/data/cover-templates.js) is seventy pieces of text-free artwork,
 // each with the palette and type treatment that reads well over it. This file is
 // the logic around that data, shared by the browser (the gallery on the Create a
 // book page, the Cover step), the server (which turns a chosen template into a
@@ -24,7 +24,7 @@ export function coverTemplateById(id) {
 }
 
 /** Collections shown first in the filters, in this order, then the rest by size. */
-export const FEATURED_COLLECTIONS = ["Travel", "Kids", "Marketing"];
+export const FEATURED_COLLECTIONS = ["Travel", "Romance", "Business", "Kids", "Marketing"];
 
 /** How many templates carry each tag: [["Travel", 10], ...] in the order the chips appear. */
 export function templateGenreCounts(templates = COVER_TEMPLATES) {
