@@ -135,7 +135,7 @@ async function runAiJob(route, body) {
   if (finished.status === "failed") {
     throw new ApiError(finished.error?.code || "error", finished.error?.message || "Something went wrong. Please try again.", 503);
   }
-  return { creditsUsed: finished.credits_used };
+  return { creditsUsed: finished.credits_used, job: finished };
 }
 
 // --- Endpoints --------------------------------------------------------
@@ -215,7 +215,16 @@ export const API = {
   generatePersonas: (bookId, count) => runAiJob("personas", { book_id: bookId, count }),
   generateAngles: (bookId, count) => runAiJob("angles", { book_id: bookId, count }),
   generateCopy: (payload) => api.post("/api/bp-ai/copy", payload),
-  generateCreatives: (payload) => api.post("/api/bp-ai/creatives", payload),
+  // Writing creatives takes longer than a web request may, so it runs as a
+  // background job like the strategy steps; the new rows are then read back.
+  generateCreatives: async (payload) => {
+    if (demoAdapter) return api.post("/api/bp-ai/creatives", payload);
+    const { creditsUsed, job } = await runAiJob("creatives", payload);
+    const query = `?book_id=${payload.book_id}&platform=${payload.platform}&format=${payload.format}`;
+    const { creatives } = await api.get(`/api/bp/creatives${query}`);
+    const since = Date.parse(job.created_at) - 2000;
+    return { creatives: creatives.filter((c) => Date.parse(c.created_at) >= since).slice(0, payload.count), creditsUsed };
+  },
   generateVideoScript: (payload) => api.post("/api/bp-ai/video-script", payload),
   scoreCreative: (creativeId) => api.post("/api/bp-ai/score", { creative_id: creativeId }),
   analyzeCampaign: (campaignId) => api.post("/api/bp-ai/analyze-campaign", { campaign_id: campaignId }),

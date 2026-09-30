@@ -76,8 +76,8 @@ const respond = (body) => new Response(JSON.stringify(body), { headers: { "Conte
 // ---- createJob ------------------------------------------------------------
 
 test("only the three AI Strategy steps can be run as jobs", () => {
-  assert.deepEqual(Object.keys(JOB_ROUTES).sort(), ["analyze", "angles", "personas"]);
-  assert.deepEqual(JOB_ROUTES, { analyze: "book_analysis", personas: "reader_personas", angles: "marketing_angles" });
+  assert.deepEqual(Object.keys(JOB_ROUTES).sort(), ["analyze", "angles", "creatives", "personas"]);
+  assert.deepEqual(JOB_ROUTES, { analyze: "book_analysis", personas: "reader_personas", angles: "marketing_angles", creatives: "creative_concept" });
 });
 
 test("a bad request fails now, with the same kind of message a normal route gives", async () => {

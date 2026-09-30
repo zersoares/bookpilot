@@ -29,6 +29,7 @@ export const JOB_ROUTES = {
   analyze: "book_analysis",
   personas: "reader_personas",
   angles: "marketing_angles",
+  creatives: "creative_concept",
 };
 
 // A job nobody picked up (the page failed to start it) is not left spinning.
@@ -54,6 +55,14 @@ export function publicJob(row) {
 }
 
 function paramsFor(route, body) {
+  if (route === "creatives") {
+    return {
+      platform: v.oneOf(body.platform, "Platform", v.PLATFORMS, { required: true }),
+      format: v.oneOf(body.format, "Format", v.CREATIVE_FORMATS, { required: true }),
+      count: v.int(body.count ?? 2, "Count", { min: 1, max: 4 }),
+      angle_id: body.angle_id ? v.uuid(body.angle_id, "Angle") : null,
+    };
+  }
   if (route === "personas") return { count: v.int(body.count ?? 4, "Count", { min: 3, max: 5 }) };
   if (route === "angles") return { count: v.int(body.count ?? 10, "Count", { min: 10, max: 14 }) };
   return {};
@@ -66,12 +75,14 @@ function paramsFor(route, body) {
 export async function createJob(ctx, body, { service = dbAsService(), now = Date.now() } = {}) {
   const route = String(body.route || "");
   if (!Object.hasOwn(JOB_ROUTES, route)) throw Errors.invalid("That can't be run in the background.");
-  const operation = JOB_ROUTES[route];
+  let operation = JOB_ROUTES[route];
 
   const bookId = v.uuid(body.book_id, "Book");
   const book = await ctx.db.selectOne("books", { eq: { id: bookId } });
   if (!book) throw Errors.notFound("book");
   const params = paramsFor(route, body);
+  // Video concepts are billed at their own rate (see generateCreatives).
+  if (route === "creatives" && (params.format === "video_script" || params.format === "reel")) operation = "video_concept";
 
   // Someone who clicks twice, or reloads mid-way, must not be charged twice.
   const since = new Date(now - IN_FLIGHT_WINDOW_MS).toISOString();

@@ -632,6 +632,7 @@ export const JOB_RUNNERS = {
   analyze: analyzeBook,
   personas: generatePersonas,
   angles: generateAngles,
+  creatives: generateCreatives,
 };
 
 // POST /api/bp-ai/jobs       create a job (returns at once)
