@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Building Skills for Claude Code: A Step-by-Step Guide</title>
+<style>
+  @page { size: 6in 9in; margin: 0.8in 0.7in; }
+  @page :first { margin: 0; }
+  * { box-sizing: border-box; }
+  body { font-family: Georgia, "Times New Roman", serif; font-size: 10.5pt; line-height: 1.55; color: #1f1d1a; margin: 0; }
+  h1, h2, h3, .sans { font-family: "Helvetica Neue", Arial, sans-serif; }
+  h1 { font-size: 24pt; line-height: 1.15; margin: 0 0 0.4in; color: #141413; }
+  h2 { font-size: 14pt; margin: 0.35in 0 0.1in; color: #b4512f; }
+  h3 { font-size: 11.5pt; margin: 0.25in 0 0.05in; color: #141413; }
+  h1, h2, h3 { break-after: avoid; page-break-after: avoid; }
+  p { margin: 0 0 0.12in; }
+  .chapter { page-break-before: always; }
+  .chapter .num { font-family: "Helvetica Neue", Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.15em; font-size: 9pt; color: #d97757; margin-bottom: 0.08in; }
+  .cover { page-break-after: always; height: 9in; width: 6in; background: #141413; color: #faf9f5; padding: 1in 0.7in; position: relative; }
+  .cover .kicker { font-family: "Helvetica Neue", Arial, sans-serif; letter-spacing: 0.2em; text-transform: uppercase; font-size: 9pt; color: #d97757; }
+  .cover h1 { color: #faf9f5; font-size: 34pt; margin-top: 1.6in; }
+  .cover .sub { font-size: 14pt; color: #e8e6dc; font-style: italic; }
+  .cover .bar { width: 1.2in; height: 6px; background: #d97757; margin: 0.4in 0; }
+  .cover .foot { position: absolute; bottom: 0.8in; left: 0.7in; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 9pt; color: #b0aea5; }
+  pre { background: #f3f1ea; border-left: 4px solid #d97757; padding: 0.1in 0.14in; font-family: "Courier New", monospace; font-size: 8.4pt; line-height: 1.4; white-space: pre-wrap; word-break: break-word; page-break-inside: avoid; margin: 0.1in 0 0.16in; }
+  code { font-family: "Courier New", monospace; font-size: 9pt; background: #f3f1ea; padding: 0 2px; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  ul, ol { margin: 0 0 0.12in 0.2in; padding-left: 0.15in; }
+  li { margin-bottom: 0.04in; }
+  .box { border: 1px solid #d97757; background: #fdf4ef; padding: 0.1in 0.15in; margin: 0.14in 0 0.18in; page-break-inside: avoid; font-size: 10pt; }
+  .box strong.t { font-family: "Helvetica Neue", Arial, sans-serif; color: #b4512f; display: block; margin-bottom: 2px; }
+  .bad { color: #a33; } .good { color: #2f6b3a; }
+  table { border-collapse: collapse; width: 100%; margin: 0.1in 0 0.16in; font-size: 9.5pt; page-break-inside: avoid; }
+  th, td { border: 1px solid #d9d6cb; padding: 4px 7px; text-align: left; vertical-align: top; }
+  th { background: #f3f1ea; font-family: "Helvetica Neue", Arial, sans-serif; }
+  .toc li { list-style: none; margin-bottom: 0.07in; }
+  .toc ol { margin-left: 0; padding-left: 0; }
+  .small { font-size: 9pt; color: #5b5850; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="kicker">A practical guide</div>
+  <h1>Building Skills for Claude Code</h1>
+  <div class="bar"></div>
+  <div class="sub">A step-by-step guide to teaching Claude your workflows, from your first SKILL.md to a tested, shareable skill library.</div>
+  <div class="foot">Based on Anthropic's guide “How to create Skills”, expanded for Claude Code.</div>
+</div>
+
+<div class="chapter" style="page-break-before: auto;">
+  <h1>Contents</h1>
+  <div class="toc"><ol>
+    <li><strong>1.</strong> What a skill is, and why it beats re-explaining yourself</li>
+    <li><strong>2.</strong> Before you write anything: pick the right task</li>
+    <li><strong>3.</strong> Step 1 — Define the requirements</li>
+    <li><strong>4.</strong> Step 2 — Name your skill</li>
+    <li><strong>5.</strong> Step 3 — Write the description (the part that matters most)</li>
+    <li><strong>6.</strong> Step 4 — Write the instructions</li>
+    <li><strong>7.</strong> Step 5 — Install the skill in Claude Code</li>
+    <li><strong>8.</strong> Step 6 — Test it: normal, edge and out-of-scope</li>
+    <li><strong>9.</strong> Scaling up: progressive disclosure and bundled files</li>
+    <li><strong>10.</strong> Limitations and gotchas</li>
+    <li><strong>11.</strong> Three real-world skills, dissected</li>
+    <li><strong>12.</strong> Sharing skills with a team</li>
+    <li><strong>13.</strong> Troubleshooting and FAQ</li>
+    <li><strong>14.</strong> Quick-reference checklist and templates</li>
+    <li><strong>A.</strong> Resources</li>
+  </ol></div>
+  <div class="box"><strong class="t">A note on sources</strong>
+  The structure, examples and best practices in this book come from Anthropic's blog post <em>How to create Skills: key steps, limitations, and examples</em>. Material marked <em>“Claude Code specifics”</em> adds practical detail about working in Claude Code; check the official Claude Code documentation for the latest behaviour, as features evolve quickly.</div>
+</div>
+
+<!-- ============ CH 1 ============ -->
+<div class="chapter">
+  <div class="num">Chapter 1</div>
+  <h1>What a skill is</h1>
+  <p>A <strong>skill</strong> is a folder containing a file named <code>SKILL.md</code>: a set of specialised instructions that extends what Claude can do for a specific task or domain. When your request matches the skill, Claude pulls the skill in and follows it. When it doesn't, the skill stays out of the way.</p>
+  <p>Think of it as writing an onboarding document for a very capable new colleague, once, instead of repeating the same briefing at the start of every conversation.</p>
+  <h2>What skills give you</h2>
+  <ul>
+    <li><strong>Institutional knowledge, encoded.</strong> Your conventions, formats and house style live in one place.</li>
+    <li><strong>Standardised outputs.</strong> The tenth report looks like the first.</li>
+    <li><strong>Multi-step workflows without repetition.</strong> You describe the process once; Claude runs it on demand.</li>
+  </ul>
+  <h2>Skills vs. a pasted prompt</h2>
+  <table>
+    <tr><th></th><th>Pasted prompt</th><th>Skill</th></tr>
+    <tr><td>Reuse</td><td>Copy and paste each time</td><td>Loaded automatically when relevant</td></tr>
+    <tr><td>Size</td><td>Eats context every time</td><td>Description is always visible; the body loads only when needed</td></tr>
+    <tr><td>Resources</td><td>Text only</td><td>Can reference scripts, templates and reference files</td></tr>
+    <tr><td>Sharing</td><td>Ad hoc</td><td>A folder you can version and distribute</td></tr>
+  </table>
+  <p>The same skill format works across Claude's surfaces: the Claude apps, Claude Code, and the Claude Developer Platform (API). This book focuses on Claude Code.</p>
+</div>
+
+<!-- ============ CH 2 ============ -->
+<div class="chapter">
+  <div class="num">Chapter 2</div>
+  <h1>Before you write anything</h1>
+  <h2>Only build skills for repeated work</h2>
+  <p>The guide's rule of thumb is a simple test: <em>“Have I done this five times? Will I do it ten more times?”</em> If both answers are yes, a skill will pay for itself. If it's a one-off, just prompt.</p>
+  <h2>Good candidates</h2>
+  <ul>
+    <li>Applying a brand or style guide to outputs</li>
+    <li>Producing a specific file type the same way every time (reports, spreadsheets, decks)</li>
+    <li>Code review against your team's checklist</li>
+    <li>A release, deploy or incident procedure</li>
+    <li>Domain workflows such as SEO optimisation for blog posts</li>
+  </ul>
+  <h2>Poor candidates</h2>
+  <ul>
+    <li>One-time tasks</li>
+    <li>Tasks too vague to describe a good result for</li>
+    <li>Knowledge Claude already has and you don't need to constrain</li>
+  </ul>
+  <h2>Pick the right granularity</h2>
+  <p>Single-purpose skills work best. <em>“SEO optimisation for blog posts”</em> is a good size: specific enough to trigger reliably, general enough to reuse. “Everything about marketing” is too broad; “fix the typo in last Tuesday's post” is too narrow.</p>
+  <div class="box"><strong class="t">Shortcut: the skill-creator skill</strong>
+  Anthropic publishes a <code>skill-creator</code> skill (in the <code>anthropics/skills</code> repository and in Claude.ai) that interviews you with clarifying questions and drafts a skill for you. It's a fast way to get a first draft. You'll still want to read this book to review and improve what it produces.</div>
+</div>
+
+<!-- ============ CH 3 ============ -->
+<div class="chapter">
+  <div class="num">Step 1</div>
+  <h1>Define the requirements</h1>
+  <p>Start with the problem, not the file. State what the skill accomplishes with a measurable outcome. Specific beats vague:</p>
+  <p><span class="bad">✗ “Help with PDFs.”</span><br><span class="good">✓ “Extract financial data from PDFs and format it as CSV.”</span></p>
+  <h2>Four questions to answer first</h2>
+  <ol>
+    <li><strong>What specific task does this accomplish?</strong></li>
+    <li><strong>What should trigger it?</strong> Which phrases, file types or situations?</li>
+    <li><strong>What does success look like?</strong> Required sections, formats, validation checks, quality thresholds.</li>
+    <li><strong>What edge cases exist?</strong> Missing data, odd formats, ambiguous requests.</li>
+  </ol>
+  <h2>Define success criteria explicitly</h2>
+  <p>Tell Claude what a good output looks like. Include required sections, formatting standards, validation checks and quality thresholds. Without them, Claude has to guess where “done” is.</p>
+  <h3>Worked example: a weekly-report skill</h3>
+  <pre>Task:     Turn raw weekly notes into a status report for leadership.
+Triggers: "weekly report", "status update", "summarise my week"
+Success:  One page. Sections: Wins, Risks, Next week.
+          Every risk has an owner. No jargon.
+Edge:     Notes with no risks; notes with duplicate items;
+          notes in bullet fragments.</pre>
+  <p>Keep this note. In the next steps it becomes the name, description and body of the skill.</p>
+</div>
+
+<!-- ============ CH 4 ============ -->
+<div class="chapter">
+  <div class="num">Step 2</div>
+  <h1>Name your skill</h1>
+  <p>The name is a clear identifier. Follow three rules:</p>
+  <ul>
+    <li>Use <strong>lowercase letters with hyphens</strong>.</li>
+    <li>Keep it <strong>short</strong>.</li>
+    <li>Make it <strong>descriptive</strong> of the job.</li>
+  </ul>
+  <table>
+    <tr><th>Good</th><th>Avoid</th></tr>
+    <tr><td><code>pdf-editor</code></td><td><code>PDF Helper Tool v2</code></td></tr>
+    <tr><td><code>brand-guidelines</code></td><td><code>stuff</code></td></tr>
+    <tr><td><code>weekly-report</code></td><td><code>Marketing_Everything</code></td></tr>
+  </table>
+  <div class="box"><strong class="t">Claude Code specifics</strong>
+  In Claude Code the skill's folder name and the <code>name</code> field normally match, and the name is also how you can invoke a skill explicitly, by typing <code>/skill-name</code>. A short, memorable name is therefore a usability feature, not only a label.</div>
+</div>
+
+<!-- ============ CH 5 ============ -->
+<div class="chapter">
+  <div class="num">Step 3</div>
+  <h1>Write the description</h1>
+  <p>The description is <strong>the most critical component of a skill</strong>, because it determines when the skill activates. Claude keeps every skill's name and description in view and decides, from the meaning of your request, whether any skill applies. If the description is weak, the skill never fires, no matter how good the instructions below it are.</p>
+  <h2>Weak vs. strong</h2>
+  <p><span class="bad"><strong>Weak:</strong> “This skill helps with PDFs and documents.”</span></p>
+  <p><span class="good"><strong>Strong:</strong> “Comprehensive PDF manipulation toolkit for extracting text and tables, creating new PDFs, merging/splitting documents, and handling forms. When Claude needs to fill in a PDF form or programmatically process, generate, or analyze PDF documents at scale.”</span></p>
+  <h2>What strong descriptions contain</h2>
+  <ul>
+    <li><strong>Specific verbs:</strong> extract, create, merge, split, fill.</li>
+    <li><strong>Concrete use cases and file types:</strong> “.docx files”, “PDF forms”, “blog posts”.</li>
+    <li><strong>Clear boundaries:</strong> what the skill is for, and implicitly what it is not for.</li>
+    <li><strong>A “when” clause:</strong> “Use when the user asks to…”, “When Claude needs to…”.</li>
+  </ul>
+  <h2>A formula you can reuse</h2>
+  <pre>[What it does, with 2-4 specific verbs]. [Outputs or file types].
+Use when [situations / phrases / file types that should trigger it].
+Not for [nearby tasks it should ignore].</pre>
+  <h3>Example</h3>
+  <pre>Turns raw weekly notes into a one-page leadership status report
+with Wins, Risks and Next-week sections. Use when the user asks for
+a weekly report, status update or summary of their week. Not for
+daily stand-up notes or long-form project retrospectives.</pre>
+  <div class="box"><strong class="t">Semantic matching, not keywords</strong>
+  Claude evaluates descriptions by <em>meaning</em>, not by keyword matching. You don't need to stuff every synonym in, but vague wording lowers triggering accuracy. Focus on capabilities and scenarios.</div>
+</div>
+
+<!-- ============ CH 6 ============ -->
+<div class="chapter">
+  <div class="num">Step 4</div>
+  <h1>Write the instructions</h1>
+  <p>Below the frontmatter (the name and description) is the body of <code>SKILL.md</code>. This is loaded only when the skill is triggered, so it can be detailed. Make it easy to scan and hard to misread.</p>
+  <h2>Structure that works</h2>
+  <ul>
+    <li><strong>Markdown headers</strong> for hierarchy.</li>
+    <li><strong>Bullet points</strong> for options and rules.</li>
+    <li><strong>Code blocks</strong> for exact examples and commands.</li>
+    <li><strong>Clear sections:</strong> overview, prerequisites, execution steps, examples, error handling, limitations.</li>
+  </ul>
+  <h2>Key principle: discrete phases</h2>
+  <p>Break complex workflows into discrete phases, each with clear <strong>inputs and outputs</strong>. “Phase 2 takes the cleaned list from Phase 1 and produces a draft” is far more reliable than a paragraph of prose.</p>
+  <h2>A complete example</h2>
+<pre>---
+name: weekly-report
+description: Turns raw weekly notes into a one-page leadership
+  status report with Wins, Risks and Next-week sections. Use when
+  the user asks for a weekly report, status update or summary of
+  their week. Not for daily stand-ups or long retrospectives.
+---
+
+# Weekly Report
+
+## Overview
+Convert unstructured notes into a one-page status report that a
+busy executive can read in under two minutes.
+
+## Inputs
+- Raw notes (pasted text or a file path)
+- Optional: the reporting period
+
+## Steps
+1. **Collect.** Read all the notes. List every distinct item.
+2. **Classify.** Tag each item as Win, Risk or Next-week.
+3. **De-duplicate.** Merge items that describe the same thing.
+4. **Draft.** Write the report using the template below.
+5. **Check.** Run the quality checklist; fix anything that fails.
+
+## Template
+**Wins** - up to 5 bullets, outcome first
+**Risks** - each with an owner and a mitigation
+**Next week** - top 3 priorities
+
+## Quality checklist
+- [ ] Fits on one page
+- [ ] Every risk has an owner
+- [ ] No unexplained acronyms
+
+## Edge cases
+- No risks in the notes: write "None identified", don't invent any.
+- Notes are fragments: ask one clarifying question if the
+  meaning is unclear, otherwise proceed.
+
+## Limitations
+Does not pull data from other systems; works only from the
+notes provided.</pre>
+  <h2>Writing tips</h2>
+  <ul>
+    <li>Give Claude information it <em>doesn't already have</em>: your formats, your thresholds, your names. Don't explain things it knows.</li>
+    <li>Show a good and a bad example when quality is subjective.</li>
+    <li>Tell it what to do when something is missing or ambiguous.</li>
+    <li>Keep the file lean. If it's getting long, split it (see Chapter 9).</li>
+  </ul>
+</div>
+
+<!-- ============ CH 7 ============ -->
+<div class="chapter">
+  <div class="num">Step 5</div>
+  <h1>Install the skill in Claude Code</h1>
+  <p>In Claude Code, a skill is a directory containing <code>SKILL.md</code>. Create the directory structure and the file is picked up.</p>
+  <pre>my-project/
+└── skills/
+    └── my-skill/
+        └── SKILL.md</pre>
+  <div class="box"><strong class="t">Claude Code specifics — where skills live</strong>
+  In practice Claude Code discovers skills from a <code>.claude/skills/</code> directory. Two common locations:
+  <ul>
+    <li><strong>Personal:</strong> <code>~/.claude/skills/&lt;skill-name&gt;/SKILL.md</code> — available in every project.</li>
+    <li><strong>Project:</strong> <code>.claude/skills/&lt;skill-name&gt;/SKILL.md</code> inside a repository — commit it so your whole team gets it.</li>
+  </ul>
+  Skills can also arrive through <strong>plugins and plugin marketplaces</strong>. Confirm the exact paths for your version in the Claude Code docs.</div>
+  <h2>Step by step</h2>
+  <ol>
+    <li>Create the folder: <code>mkdir -p .claude/skills/weekly-report</code></li>
+    <li>Create <code>SKILL.md</code> inside it with the frontmatter and body from the previous chapter.</li>
+    <li>Start (or restart) Claude Code in the project so it loads the skill.</li>
+    <li>Ask for something that matches the description, e.g. “Turn these notes into my weekly report”, and watch for Claude to use the skill.</li>
+  </ol>
+  <h2>Other surfaces (for reference)</h2>
+  <p><strong>Claude apps (Claude.ai).</strong> Add a custom skill in Settings. This requires a Pro, Max, Team or Enterprise plan with code execution enabled. Skills added there are individual to each user, not organisation-wide.</p>
+  <p><strong>Claude Developer Platform (API).</strong> Upload skills through the Skills endpoint:</p>
+<pre>curl -X POST "https://api.anthropic.com/v1/skills" \
+  -H "x-api-key: $ANTHROPIC_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "anthropic-beta: skills-2025-10-02" \
+  -F "display_title=My Skill Name" \
+  -F "files[]=@my-skill/SKILL.md;filename=my-skill/SKILL.md"</pre>
+  <p class="small">The API call and beta header are as published in Anthropic's guide; check the current API docs before relying on them.</p>
+</div>
+
+<!-- ============ CH 8 ============ -->
+<div class="chapter">
+  <div class="num">Step 6</div>
+  <h1>Test it</h1>
+  <p>A skill is software for a language model, and it needs tests. Test <strong>triggering</strong> and <strong>execution</strong> separately: a skill can fail to activate, or activate and do the wrong thing, and the fixes are different.</p>
+  <h2>The three-scenario test matrix</h2>
+  <table>
+    <tr><th>Scenario</th><th>What you try</th><th>What you want</th></tr>
+    <tr><td><strong>Normal operations</strong></td><td>Typical requests the skill should handle perfectly</td><td>Skill fires; output meets every success criterion</td></tr>
+    <tr><td><strong>Edge cases</strong></td><td>Incomplete, unusual or messy input; missing data; unexpected formats</td><td>Graceful handling per your edge-case section; no invented data</td></tr>
+    <tr><td><strong>Out-of-scope requests</strong></td><td>Unrelated tasks, and tasks near the skill's territory</td><td>Skill stays dormant</td></tr>
+  </table>
+  <h2>Triggering tests</h2>
+  <ul>
+    <li>Does it activate when you phrase the request in several different ways?</li>
+    <li>Does it stay inactive when the request is irrelevant?</li>
+  </ul>
+  <h2>Functional tests</h2>
+  <ul>
+    <li>Is the output consistent across repeated runs?</li>
+    <li>Is it usable without manual fixing?</li>
+    <li>Does the documentation inside the skill match what actually happens?</li>
+  </ul>
+  <h2>Build a test-case library</h2>
+  <p>Keep a short list of prompts, with expected behaviour, next to the skill. Re-run it every time you edit the skill.</p>
+<pre>weekly-report / test cases
+1. [normal]   "Make my weekly report from these notes: ..."      -> fires
+2. [normal]   "Status update for leadership, notes below"        -> fires
+3. [edge]     Notes with zero risks                              -> "None identified"
+4. [edge]     Notes as 3-word fragments                          -> one clarifying question
+5. [out]      "Write my daily stand-up"                          -> does NOT fire
+6. [out]      "Summarise this research paper"                    -> does NOT fire</pre>
+  <h2>Iterate</h2>
+  <ul>
+    <li><strong>Doesn't activate?</strong> Broaden or sharpen the description: add verbs, file types, scenarios.</li>
+    <li><strong>Activates but results vary?</strong> Add specificity to the instructions: templates, examples, checklists.</li>
+    <li><strong>Activates when it shouldn't?</strong> Add a “Not for…” clause to the description.</li>
+  </ul>
+</div>
+
+<!-- ============ CH 9 ============ -->
+<div class="chapter">
+  <div class="num">Chapter 9</div>
+  <h1>Scaling up: progressive disclosure</h1>
+  <p>Once a skill handles several processes, one giant <code>SKILL.md</code> becomes slow and confusing. Use a <strong>menu approach</strong>: keep <code>SKILL.md</code> short, describe the available options, and point to separate files for each distinct process. Claude loads only the file that is relevant.</p>
+<pre>report-suite/
+├── SKILL.md              # overview + decision tree (short)
+├── weekly.md             # weekly report process
+├── monthly.md            # monthly report process
+├── templates/
+│   └── executive-summary.md
+└── scripts/
+    └── validate.py       # deterministic checks</pre>
+  <h3>Example SKILL.md body</h3>
+<pre># Report Suite
+
+Choose the process that matches the request, then read that file:
+
+- Weekly status report  -> read weekly.md
+- Monthly business review -> read monthly.md
+
+Always finish by running scripts/validate.py on the output.</pre>
+  <h2>Why this works</h2>
+  <ul>
+    <li><strong>Context stays lean.</strong> Unused processes cost nothing.</li>
+    <li><strong>Maintenance is easier.</strong> Edit one process without touching the others.</li>
+    <li><strong>Scripts make checks deterministic.</strong> Use code for things code does well, such as validation, and language for judgment.</li>
+  </ul>
+  <p>The official <code>docx</code> skill is a good model: a lean main file with a decision tree that routes Claude to the right workflow.</p>
+</div>
+
+<!-- ============ CH 10 ============ -->
+<div class="chapter">
+  <div class="num">Chapter 10</div>
+  <h1>Limitations and gotchas</h1>
+  <h2>Triggering is probabilistic and semantic</h2>
+  <ul>
+    <li>Claude matches descriptions by meaning, not by exact keywords, so a vague description reduces accuracy.</li>
+    <li><strong>Multiple skills can activate at once</strong> for a complex request. Design skills so they cooperate rather than collide.</li>
+  </ul>
+  <h2>Size matters</h2>
+  <p>A single bloated skill is harder for Claude to follow and costs more context. Split multi-process skills with the menu approach from Chapter 9.</p>
+  <h2>Availability varies by surface</h2>
+  <ul>
+    <li>In the Claude apps, custom skills need a paid plan with code execution enabled, and are <strong>per user</strong>, not organisation-wide (organisation-wide management was described as coming).</li>
+    <li>Skills in Claude Code are file-based, so they can be shared through version control or plugins.</li>
+  </ul>
+  <h2>A skill is guidance, not a guarantee</h2>
+  <p>Instructions steer Claude; they don't hard-enforce behaviour. For anything that must be exactly right, bundle a script that checks the result, and review outputs while the skill is new.</p>
+  <div class="box"><strong class="t">Security</strong>
+  Skills can include instructions and executable scripts. Treat a skill like software you install: only use skills from sources you trust, and read third-party skills before enabling them.</div>
+</div>
+
+<!-- ============ CH 11 ============ -->
+<div class="chapter">
+  <div class="num">Chapter 11</div>
+  <h1>Three real-world skills, dissected</h1>
+  <p>These examples come from Anthropic's published skills. Study how each balances a precise description, a lean body and concrete detail.</p>
+
+  <h2>1. <code>docx</code> — document creation and editing</h2>
+  <p><strong>Description (abridged):</strong> “Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. When Claude needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments…”</p>
+  <p><strong>What the instructions cover:</strong></p>
+  <ul>
+    <li>Reading and analysing content (text extraction with Pandoc; raw XML access)</li>
+    <li>Creating new Word documents (with the docx-js library)</li>
+    <li>Editing existing documents (a Python Document library)</li>
+    <li>A redlining workflow for document review</li>
+    <li>Converting documents to images (DOCX → PDF → JPEG)</li>
+  </ul>
+  <p><strong>Why it works:</strong> a clear decision tree routes Claude to the right workflow; progressive disclosure keeps the main file lean; it includes good and bad implementation examples. The description enumerates numbered use cases, which makes triggering reliable.</p>
+
+  <h2>2. <code>brand-guidelines</code> — applying a visual identity</h2>
+  <p><strong>Description:</strong> “Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit from having Anthropic's look-and-feel.”</p>
+  <p><strong>Technical details inside:</strong></p>
+  <table>
+    <tr><th>Item</th><th>Value</th></tr>
+    <tr><td>Main colours</td><td>Dark #141413 · Light #faf9f5 · Mid gray #b0aea5 · Light gray #e8e6dc</td></tr>
+    <tr><td>Accent colours</td><td>Orange #d97757 · Blue #6a9bcc · Green #788c5d</td></tr>
+    <tr><td>Typography</td><td>Poppins for headings · Lora for body text</td></tr>
+    <tr><td>Also covered</td><td>Font management and fallbacks; applying colours via RGB values</td></tr>
+  </table>
+  <p><strong>Why it works:</strong> it gives Claude precise, actionable information it doesn't inherently possess, and the description is a clear trigger. This is the archetype of “encode what only you know”.</p>
+
+  <h2>3. <code>frontend-design</code> — creative work with guardrails</h2>
+  <p><strong>Description:</strong> “Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, or applications.”</p>
+  <p><strong>Design thinking it requires:</strong> understand the purpose and audience; pick a bold aesthetic direction (brutally minimal, maximalist, retro-futuristic, organic, luxury, playful, editorial, brutalist, art deco, soft, industrial…); commit to intentional execution.</p>
+  <p><strong>Aesthetic guidelines:</strong></p>
+  <ul>
+    <li><strong>Typography:</strong> distinctive fonts; pair display fonts with refined body fonts.</li>
+    <li><strong>Colour and theme:</strong> a cohesive aesthetic with CSS variables; dominant colours with sharp accents.</li>
+    <li><strong>Motion:</strong> prefer CSS-only; focus on high-impact moments like page load.</li>
+    <li><strong>Spatial composition:</strong> asymmetry, overlap, diagonal flow, unexpected layouts.</li>
+    <li><strong>Backgrounds and detail:</strong> atmosphere and depth via gradients, noise, patterns, transparency, shadows.</li>
+  </ul>
+  <p><strong>What it tells Claude to avoid:</strong> generic aesthetics such as overused fonts (Inter, Roboto, Arial), clichéd colour schemes, predictable layouts and cookie-cutter design.</p>
+  <p><strong>Why it works:</strong> it leaves room for creativity while setting clear boundaries, quality standards and technical scaffolding. Note the explicit “avoid” list: negative examples are as useful as positive ones.</p>
+</div>
+
+<!-- ============ CH 12 ============ -->
+<div class="chapter">
+  <div class="num">Chapter 12</div>
+  <h1>Sharing skills with a team</h1>
+  <h2>By team size</h2>
+  <table>
+    <tr><th>Team</th><th>Approach</th></tr>
+    <tr><td><strong>Small</strong></td><td>Use a shared template with name, description, instructions and version info.</td></tr>
+    <tr><td><strong>Medium / large</strong></td><td>Establish governance: designated skill owners, a central wiki or shared drive, usage examples, versioning with a changelog, and quarterly reviews.</td></tr>
+    <tr><td><strong>All sizes</strong></td><td>Document the business purpose, assign clear ownership, create onboarding materials, and track the value the skill delivers.</td></tr>
+  </table>
+  <div class="box"><strong class="t">Claude Code specifics</strong>
+  The simplest way to share is to commit <code>.claude/skills/&lt;name&gt;/</code> to your repository: skills then follow the code, get reviewed in pull requests and are versioned by git. For wider distribution, package skills in a plugin and publish it to a marketplace your team can install from.</div>
+  <h2>A skill's metadata template</h2>
+<pre>Name:           weekly-report
+Owner:          jane.doe
+Purpose:        Standardise leadership status updates
+Version:        1.2.0
+Last reviewed:  2026-09-30
+Changelog:      1.2.0 - added "None identified" rule for empty risks
+Test cases:     see tests.md</pre>
+</div>
+
+<!-- ============ CH 13 ============ -->
+<div class="chapter">
+  <div class="num">Chapter 13</div>
+  <h1>Troubleshooting and FAQ</h1>
+  <h3>How do I write descriptions that actually trigger?</h3>
+  <p>Focus on capabilities and scenarios. Include action verbs, specific file types and clear use cases.</p>
+  <h3>How does Claude decide which skills to invoke?</h3>
+  <p>By semantic understanding of the request and each skill's description, not keyword matching. Multiple skills can activate together for complex requests.</p>
+  <h3>What's the right granularity?</h3>
+  <p>Single-purpose. “SEO optimisation for blog posts” balances specificity with reusability.</p>
+  <h3>How do I debug a skill?</h3>
+  <p>Separate the two failure modes. If it doesn't activate, broaden or sharpen the description. If it activates but results vary, add specificity to the instructions. Maintain a test-case library and re-run it after each change.</p>
+  <h3>The skill fires too often.</h3>
+  <p>Narrow the description and add a “Not for…” clause. Check whether another skill overlaps.</p>
+  <h3>The output ignores part of my instructions.</h3>
+  <p>The body may be too long or buried. Move critical rules to the top, use a checklist, and split rarely used material into separate files.</p>
+  <h3>Do skills work across Claude Code, the apps and the API?</h3>
+  <p>The skill format is shared, but each surface installs skills differently, and availability and limits vary. See Chapter 7.</p>
+</div>
+
+<!-- ============ CH 14 ============ -->
+<div class="chapter">
+  <div class="num">Chapter 14</div>
+  <h1>Quick-reference checklist</h1>
+  <h2>The six steps</h2>
+  <ol>
+    <li><strong>Define</strong> the task, triggers, success criteria and edge cases.</li>
+    <li><strong>Name</strong> it: lowercase, hyphenated, short, descriptive.</li>
+    <li><strong>Describe</strong> it: specific verbs, concrete use cases, clear boundaries.</li>
+    <li><strong>Instruct</strong>: headers, phases with inputs/outputs, examples, error handling.</li>
+    <li><strong>Install</strong>: <code>.claude/skills/&lt;name&gt;/SKILL.md</code>.</li>
+    <li><strong>Test</strong>: normal, edge, out-of-scope; then iterate.</li>
+  </ol>
+  <h2>Pre-flight checklist</h2>
+  <ul>
+    <li>☐ I've done this task 5+ times and will do it 10+ more</li>
+    <li>☐ The name is lowercase-with-hyphens</li>
+    <li>☐ The description has verbs, use cases and a “when” clause</li>
+    <li>☐ Success criteria are explicit</li>
+    <li>☐ Edge cases and errors are covered</li>
+    <li>☐ Long content is split into separate files</li>
+    <li>☐ I have a test-case library with normal, edge and out-of-scope prompts</li>
+    <li>☐ The skill has an owner and a version</li>
+  </ul>
+  <h2>Starter template</h2>
+<pre>---
+name: your-skill-name
+description: [Specific verbs + outputs]. Use when [triggers].
+  Not for [exclusions].
+---
+
+# Your Skill Name
+
+## Overview
+[One paragraph: purpose and outcome]
+
+## Prerequisites
+[Inputs, tools, access]
+
+## Steps
+1. [Phase 1: input -> output]
+2. [Phase 2: input -> output]
+
+## Examples
+[One good example, optionally one bad]
+
+## Error handling and edge cases
+[What to do when X is missing or Y is odd]
+
+## Limitations
+[What this skill does not do]</pre>
+</div>
+
+<!-- ============ APPENDIX ============ -->
+<div class="chapter">
+  <div class="num">Appendix A</div>
+  <h1>Resources</h1>
+  <ul>
+    <li><strong>Source article:</strong> claude.com/blog/how-to-create-skills-key-steps-limitations-and-examples</li>
+    <li><strong>Skills repository and skill-creator:</strong> github.com/anthropics/skills (including <code>skill-creator</code>)</li>
+    <li><strong>Claude Code documentation:</strong> code.claude.com/docs/en/overview</li>
+    <li><strong>Skills cookbook:</strong> platform.claude.com/cookbook/skills-notebooks-01-skills-introduction</li>
+    <li><strong>API documentation:</strong> docs.anthropic.com</li>
+    <li><strong>Claude Academy:</strong> academy.claude.com</li>
+  </ul>
+  <p class="small">This is an independent study guide summarising and extending Anthropic's public guidance. Product behaviour and file locations may change; the official documentation is authoritative.</p>
+</div>
+
+</body>
+</html>
