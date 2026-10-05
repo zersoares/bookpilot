@@ -23,6 +23,10 @@
   560,
   840
  ],
+ "claude-code-beginners": [
+  525,
+  840
+ ],
  "claude-code": [
   525,
   840
@@ -35,8 +39,16 @@
   525,
   840
  ],
+ "claude-tag": [
+  525,
+  840
+ ],
  "claude-teachers": [
   525,
+  840
+ ],
+ "comfyui": [
+  627,
   840
  ],
  "emergency-guide": [
@@ -143,6 +155,10 @@
   560,
   840
  ],
+ "meta-ai-complete": [
+  560,
+  840
+ ],
  "modern-womans-guide": [
   560,
   840
@@ -177,6 +193,10 @@
  ],
  "series-saas": [
   649,
+  840
+ ],
+ "space-for-yourself": [
+  538,
   840
  ],
  "stop-thinking-negative": [
