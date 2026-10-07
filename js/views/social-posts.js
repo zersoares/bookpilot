@@ -177,7 +177,10 @@ function openComposer(template, book) {
     .join("\n\n");
   const size = PLATFORM_SIZES[template.platform];
   const { url: bookImageUrl, isMockup } = bookImage(book);
-  const shareUrl = book?.sales_url || "";
+  // A catalogue deep link (/books/#b-<id>) is invisible to link-preview crawlers (they drop the
+  // #fragment), so every book would show the page's generic image. Each book has its own share page
+  // at /books/<id>/ with that book's cover as og:image.
+  const shareUrl = (book?.sales_url || "").replace(/^(https?:\/\/[^/]+\/books)\/?#b-([\w-]+)$/, "$1/$2/");
   const hasIntent = template.platform in SHARE_INTENTS;
   const intentUrl = hasIntent ? SHARE_INTENTS[template.platform]({ text: caption, url: shareUrl }) : "";
   const intentNeedsLink = hasIntent && !intentUrl;
