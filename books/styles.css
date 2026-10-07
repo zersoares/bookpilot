@@ -113,6 +113,7 @@ h2 { font-size: clamp(1.9rem, 4vw, 2.7rem); }
 .top__in { display: flex; align-items: center; gap: 24px; min-height: 64px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.01em; }
 .brand:hover { color: var(--text); }
+.brand img { display: block; height: 32px; width: auto; }
 .brand__mark { width: 30px; height: 30px; color: var(--primary); flex: none; }
 .nav { display: flex; gap: 4px; margin-left: auto; }
 .nav a { padding: 8px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
