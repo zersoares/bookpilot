@@ -1,0 +1,35 @@
+{
+  "name": "bfsg-check",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "BFSG Check – Nachweis-Werkzeug für digitale Barrierefreiheit (MVP)",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "axe-core": "^4.14.0",
+    "next": "^16.4.0",
+    "playwright-core": "^1.64.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.6.1",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.0",
+    "postcss": "^8.5.29",
+    "tailwindcss": "3.4",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.3"
+  }
+}
