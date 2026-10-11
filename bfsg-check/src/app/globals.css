@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem; /* Anker nicht unter dem Kopfbereich verstecken */
+  }
+  body {
+    @apply bg-white text-navy-900 antialiased;
+    line-height: 1.6;
+  }
+  /* Sichtbarer Fokus für alle interaktiven Elemente (WCAG 2.4.7, 2.4.11) */
+  :focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  .on-dark :focus-visible {
+    outline-color: #ffffff;
+  }
+  h1, h2, h3, h4 {
+    @apply font-semibold tracking-tight text-navy-900;
+    text-wrap: balance;
+  }
+  ::selection {
+    background: #dbe6fe;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+  .prose-de {
+    @apply max-w-prose text-navy-800;
+  }
+  .prose-de p + p {
+    @apply mt-4;
+  }
+  .prose-de h2 {
+    @apply mt-10 mb-3 text-2xl;
+  }
+  .prose-de h3 {
+    @apply mt-6 mb-2 text-lg;
+  }
+  .prose-de ul {
+    @apply my-4 list-disc space-y-2 pl-6;
+  }
+  .prose-de ol {
+    @apply my-4 list-decimal space-y-2 pl-6;
+  }
+  .prose-de a {
+    @apply font-medium text-primary-700 underline underline-offset-2 hover:text-primary-800;
+  }
+  .link {
+    @apply font-medium text-primary-700 underline underline-offset-2 hover:text-primary-800;
+  }
+}
+
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Druck / PDF ---------- */
+@page {
+  size: A4;
+  margin: 16mm 14mm;
+}
+@media print {
+  html {
+    font-size: 11pt;
+  }
+  body {
+    background: #fff !important;
+    color: #000;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .report-section {
+    break-inside: auto;
+  }
+  .avoid-break,
+  .report-section h2,
+  .report-section h3 {
+    break-inside: avoid;
+    break-after: avoid;
+  }
+  .avoid-break {
+    break-inside: avoid;
+  }
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+  .print-colors {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+.print-only {
+  display: none;
+}
