@@ -15,11 +15,14 @@ export default function DatenschutzPage() {
       intro="Kurz gesagt: Wir verarbeiten die eingegebene Adresse nur für den angeforderten Scan. Adresse, Seiteninhalt und Bericht werden nicht dauerhaft gespeichert. Eine Registrierung ist nicht nötig."
     >
       <Alert tone="warning" title="Vorlage für Betreiber" headingLevel={2}>
-        Dieser Text beschreibt das Verhalten der Software im MVP. Betreiber müssen die mit [eckigen Klammern] markierten Angaben (Verantwortlicher, Region und Aufbewahrungsdauer der Dienstleister, Übermittlungsgrundlage, ggf. Datenschutzbeauftragte) ergänzen und die Hinweise rechtlich prüfen lassen, bevor sie die Anwendung öffentlich betreiben.
+        Dieser Text beschreibt das Verhalten der Software im MVP. Betreiber müssen die mit [eckigen Klammern] markierten Angaben (Straßenanschrift des Verantwortlichen, Region und Aufbewahrungsdauer der Dienstleister, Übermittlungsgrundlage) ergänzen und die Hinweise rechtlich prüfen lassen, bevor sie die Anwendung öffentlich betreiben.
       </Alert>
 
       <h2>Verantwortlicher</h2>
-      <p>[Name und Anschrift des Verantwortlichen], [E-Mail-Adresse], [ggf. Datenschutzbeauftragte/r]</p>
+      <p>
+        GDPRGard.eu, betrieben von Zirlandia Milkovic (freiberufliche DSGVO-Beratung), Rijeka, Kroatien (EU). [Straße und Hausnummer, PLZ ergänzen]<br />
+        Kontakt in Datenschutzangelegenheiten: <a href="mailto:privacy@gdprgard.eu">privacy@gdprgard.eu</a>
+      </p>
 
       <h2>Was passiert bei einem Scan?</h2>
       <ol>
@@ -62,7 +65,7 @@ export default function DatenschutzPage() {
 
       <h2>Ihre Rechte</h2>
       <p>
-        Sie haben nach der DSGVO Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch sowie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren. Da keine Daten dauerhaft gespeichert werden, können wir Auskunft in der Regel nur zu Daten geben, die uns bei den oben genannten Dienstleistern technisch vorliegen.
+        Sie haben nach der DSGVO Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch sowie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren, in Kroatien bei der Agencija za zaštitu osobnih podataka (AZOP, azop.hr). Zur Ausübung Ihrer Rechte schreiben Sie an privacy@gdprgard.eu. Da keine Daten dauerhaft gespeichert werden, können wir Auskunft in der Regel nur zu Daten geben, die uns bei den oben genannten Dienstleistern technisch vorliegen.
       </p>
 
       <p className="text-sm text-navy-600">Stand: 12. Oktober 2026 (Entwurf, noch nicht rechtlich geprüft).</p>
