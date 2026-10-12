@@ -5,6 +5,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+# Unterpfad zur Build-Zeit festlegen (leer = Root). Für gdprgard.eu/bfsg-check:
+#   docker build --build-arg NEXT_PUBLIC_BASE_PATH=/bfsg-check .
+ARG NEXT_PUBLIC_BASE_PATH=
+ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 RUN npm run build
 
 FROM mcr.microsoft.com/playwright:v1.64.0-noble

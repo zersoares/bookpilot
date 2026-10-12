@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
+// Optionaler Unterpfad (z. B. "/bfsg-check" hinter gdprgard.eu). Zur BUILD-Zeit setzen.
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || undefined;
 
 // Content-Security-Policy. Next.js injects small inline bootstrap scripts, so
 // 'unsafe-inline' is required for script-src unless a per-request nonce is
@@ -20,10 +22,15 @@ const csp = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  basePath,
   poweredByHeader: false,
   reactStrictMode: true,
   // Loaded from node_modules at runtime (Chromium driver + axe source file).
   serverExternalPackages: ["playwright-core", "axe-core"],
+  // Das Datei-Tracing der Standalone-Ausgabe übersieht Dateien wie playwright-core/browsers.json.
+  outputFileTracingIncludes: {
+    "/api/scan": ["./node_modules/playwright-core/**/*", "./node_modules/axe-core/**/*"],
+  },
   async headers() {
     return [
       {

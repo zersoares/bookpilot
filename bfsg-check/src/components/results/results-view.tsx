@@ -52,7 +52,7 @@ export function ResultsView() {
     controller.current = ctl;
     const timer = setTimeout(() => ctl.abort("timeout"), CLIENT_TIMEOUT_MS);
     try {
-      const res = await fetch("/api/scan", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/scan`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ url: target }),

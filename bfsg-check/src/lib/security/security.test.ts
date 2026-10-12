@@ -66,4 +66,13 @@ describe("isSameOrigin", () => {
     expect(isSameOrigin(new Headers({ origin: "https://app.example", host: "internal:3000", "x-forwarded-host": "app.example" }))).toBe(true);
     expect(isSameOrigin(new Headers({ origin: "null", host: "app.example" }))).toBe(false);
   });
+  it("erlaubt explizit konfigurierte Herkünfte (Reverse-Proxy), aber keine anderen", () => {
+    const env = { BFSG_ALLOWED_ORIGINS: "https://gdprgard.eu, https://www.gdprgard.eu/" };
+    const h = (origin: string) => new Headers({ origin, host: "bfsg-abc.run.app" });
+    expect(isSameOrigin(h("https://gdprgard.eu"), env)).toBe(true);
+    expect(isSameOrigin(h("https://www.gdprgard.eu"), env)).toBe(true);
+    expect(isSameOrigin(h("https://evil.example"), env)).toBe(false);
+    expect(isSameOrigin(h("http://gdprgard.eu"), env)).toBe(false);
+    expect(isSameOrigin(h("https://gdprgard.eu"), {})).toBe(false);
+  });
 });
