@@ -15,7 +15,7 @@ export default function DatenschutzPage() {
       intro="Kurz gesagt: Wir verarbeiten die eingegebene Adresse nur für den angeforderten Scan. Adresse, Seiteninhalt und Bericht werden nicht dauerhaft gespeichert. Eine Registrierung ist nicht nötig."
     >
       <Alert tone="warning" title="Vorlage für Betreiber" headingLevel={2}>
-        Dieser Text beschreibt das Verhalten der Software im MVP. Betreiber müssen die mit [eckigen Klammern] markierten Angaben (Straßenanschrift des Verantwortlichen, Region und Aufbewahrungsdauer der Dienstleister, Übermittlungsgrundlage) ergänzen und die Hinweise rechtlich prüfen lassen, bevor sie die Anwendung öffentlich betreiben.
+        Dieser Text beschreibt das Verhalten der Software im MVP. Betreiber müssen die mit [eckigen Klammern] markierten Angaben (Straßenanschrift des Verantwortlichen, Aufbewahrungsdauer der Zugriffsprotokolle bei Netlify) ergänzen und die Hinweise rechtlich prüfen lassen, bevor sie die Anwendung öffentlich betreiben.
       </Alert>
 
       <h2>Verantwortlicher</h2>
@@ -49,14 +49,25 @@ export default function DatenschutzPage() {
       </ul>
 
       <h2>Empfänger und Auftragsverarbeiter</h2>
-      <p>Zur Bereitstellung des Dienstes setzen wir folgende Dienstleister ein. Beide verarbeiten dabei technisch notwendige Verbindungsdaten wie Ihre IP-Adresse:</p>
+      <p>Zur Bereitstellung des Dienstes setzen wir folgende Dienstleister als Auftragsverarbeiter ein. Beide verarbeiten dabei technisch notwendige Verbindungsdaten wie Ihre IP-Adresse:</p>
       <ul>
-        <li><strong>Netlify, Inc.</strong> (USA) – Auslieferung der Domain gdprgard.eu und Weiterleitung der Anfragen an den Scan-Server. [Aufbewahrungsdauer der Zugriffsprotokolle eintragen]</li>
-        <li><strong>Google Cloud EMEA Limited / Google LLC</strong> – Betrieb des Scan-Servers (Google Cloud Run), Region [Region eintragen, geplant: europe-west1 (Belgien)]. Cloud Run protokolliert Anfragen standardmäßig in Cloud Logging. [Aufbewahrungsdauer prüfen und eintragen; nach Google-Standard derzeit vermutlich 30 Tage – bitte verifizieren]</li>
+        <li>
+          <strong>Netlify, Inc.</strong> (USA) – Auslieferung der Domain gdprgard.eu und Weiterleitung der Anfragen an den Scan-Server. Es besteht eine Datenverarbeitungsvereinbarung (DPA), die Bestandteil der Netlify-Vertragsbedingungen ist. Netlify ist nach eigenen Angaben unter dem EU-US Data Privacy Framework zertifiziert. [Aufbewahrungsdauer der Zugriffsprotokolle bei Netlify eintragen]
+        </li>
+        <li>
+          <strong>Google Cloud EMEA Limited</strong> (Irland, ggf. gemeinsam mit Google LLC, USA, als Unterauftragsverarbeiter) – Betrieb des Scan-Servers auf Google Cloud Run in der Region <strong>europe-west1 (Belgien)</strong>. Es gilt das Cloud Data Processing Addendum von Google. Cloud Run protokolliert Anfragen (u. a. IP-Adresse, Zeitpunkt, Pfad, Browserkennung) in Cloud Logging; die Standard-Aufbewahrungsdauer beträgt dort <strong>30 Tage</strong>, danach werden die Einträge gelöscht.
+        </li>
       </ul>
+
+      <h2>Übermittlung in Drittländer</h2>
       <p>
-        Mit beiden Dienstleistern besteht bzw. besteht vor Inbetriebnahme ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO. [Bitte bestätigen.] Da die Anbieter ihren Sitz oder Konzernmütter in den USA haben, kann eine Übermittlung in ein Drittland stattfinden. Grundlage: [Übermittlungsgrundlage eintragen und rechtlich prüfen, z. B. Angemessenheitsbeschluss (EU-US Data Privacy Framework) oder Standardvertragsklauseln].
+        Der Scan-Server und seine Protokolle liegen in der EU (Belgien). Ein Zugriff durch Konzerngesellschaften oder Unterauftragsverarbeiter in den USA, etwa im Rahmen von Support, kann nicht vollständig ausgeschlossen werden. Netlify hat seinen Sitz in den USA. Als Grundlage für Übermittlungen dienen:
       </p>
+      <ul>
+        <li>bei Netlify: der Angemessenheitsbeschluss der EU-Kommission zum EU-US Data Privacy Framework (Art. 45 DSGVO), soweit das Unternehmen zertifiziert ist;</li>
+        <li>bei Google Cloud: die Standardvertragsklauseln der EU-Kommission (Art. 46 Abs. 2 lit. c DSGVO), die Bestandteil des Cloud Data Processing Addendum sind.</li>
+      </ul>
+      <p>Eine Kopie der Garantien können Sie unter privacy@gdprgard.eu anfordern.</p>
 
       <h2>Auswirkungen auf die geprüfte Website</h2>
       <p>
