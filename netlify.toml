@@ -86,6 +86,16 @@
   status = 404
   force = true
 
+# bfsg-check/ is a separate Next.js app (deployed elsewhere, see its
+# README). Netlify publishes the repo root, so without this rule its
+# source files would be served as static files. `force` is required for
+# the same reason as above.
+[[redirects]]
+  from = "/bfsg-check/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
 # ---------------------------------------------------------------------
 # Functions
 # ---------------------------------------------------------------------
