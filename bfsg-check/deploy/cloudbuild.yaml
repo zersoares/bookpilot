@@ -1,0 +1,16 @@
+# Baut das Image mit Unterpfad /bfsg-check (Build-Argument; bei `gcloud run deploy --source`
+# nicht möglich, deshalb Cloud Build). Aufruf siehe README, Abschnitt "Cloud Run".
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --build-arg=NEXT_PUBLIC_BASE_PATH=/bfsg-check
+      - -t
+      - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/bfsg/bfsg-check:latest
+      - .
+images:
+  - ${_REGION}-docker.pkg.dev/${PROJECT_ID}/bfsg/bfsg-check:latest
+substitutions:
+  _REGION: europe-west1
+options:
+  machineType: E2_HIGHCPU_8

@@ -32,7 +32,7 @@ Lokal gegen `localhost` scannen (nur Entwicklung, nur Loopback): `BFSG_ALLOW_PRI
 
 ## Deployment
 
-Der Scan braucht einen echten Browser-Prozess. Empfohlen: Container (siehe `Dockerfile`, Playwright-Basis-Image, Next „standalone“) auf einer Plattform mit Dauerprozess (Fly.io, Render, Cloud Run, eigener Server). Reine Serverless-Umgebungen ohne Chromium können nicht scannen und zeigen den Fehlerzustand. Das Dockerfile wurde hier nicht gebaut/getestet.
+Der Scan braucht einen echten Browser-Prozess. Empfohlen: Container (siehe `Dockerfile`, Playwright-Basis-Image, Next „standalone“) auf einer Plattform mit Dauerprozess (Fly.io, Render, Cloud Run, eigener Server). Reine Serverless-Umgebungen ohne Chromium können nicht scannen und zeigen den Fehlerzustand. Das Dockerfile wurde hier nicht gebaut/getestet; der Standalone-Build (`next build` mit Unterpfad) wurde lokal gestartet und geprüft.
 
 Betriebsempfehlungen:
 - **Egress-Firewall**: Container nur ins öffentliche Internet lassen (kein Zugriff auf private Netze/Metadaten) – zweite Verteidigungslinie hinter dem eingebauten Schutz.
@@ -41,6 +41,51 @@ Betriebsempfehlungen:
 - Platzhalter in `/datenschutz` und `/impressum` ausfüllen und rechtlich prüfen lassen.
 
 Konfiguration: siehe `.env.example`.
+
+## Cloud Run (gdprgard.eu/bfsg-check)
+
+Die Domain liegt bei Netlify (statisch). Die App läuft als Container auf Google Cloud Run; Netlify leitet `/bfsg-check/*` per Rewrite dorthin. Kostenlose Kontingente und Preise ändern sich – vorher auf der [Cloud-Run-Preisseite](https://cloud.google.com/run/pricing) prüfen (Abrechnungskonto mit Zahlungsmittel ist nötig).
+
+Einmalig, z. B. in der Google Cloud Shell (Projekt auswählen, `cd bfsg-check`):
+
+```bash
+REGION=europe-west1
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
+gcloud artifacts repositories create bfsg --repository-format=docker --location=$REGION
+
+# Image bauen (mit Unterpfad /bfsg-check)
+gcloud builds submit --config deploy/cloudbuild.yaml --substitutions=_REGION=$REGION .
+
+# Deployen
+gcloud run deploy bfsg-check \
+  --image $REGION-docker.pkg.dev/$(gcloud config get-value project)/bfsg/bfsg-check:latest \
+  --region $REGION --allow-unauthenticated \
+  --execution-environment gen2 --memory 2Gi --cpu 1 \
+  --concurrency 2 --max-instances 2 --min-instances 0 --timeout 90 \
+  --set-env-vars BFSG_CHROMIUM_NO_SANDBOX=1,BFSG_ALLOWED_ORIGINS=https://gdprgard.eu,BFSG_RATE_LIMIT_MAX=30
+```
+
+Hinweise:
+- `--max-instances` und `--concurrency` begrenzen Kosten und Last (jeder Scan startet einen Chromium-Prozess).
+- Hinter dem Netlify-Rewrite sieht die App nicht die Besucher-IP. Ohne `BFSG_TRUST_PROXY` gilt deshalb **ein gemeinsamer** Rate-Limit-Zähler für alle (hier 30 Scans / 10 Min.). Nicht blind `BFSG_TRUST_PROXY=1` setzen: der letzte `X-Forwarded-For`-Eintrag ist dann Netlify, nicht der Besucher.
+- Die Cloud-Run-URL ist auch direkt erreichbar (`https://bfsg-check-….run.app/bfsg-check`). Das ist unkritisch (gleiche Schutzmechanismen), die Seite sollte aber nur über gdprgard.eu verlinkt werden.
+- Cloud Run hat kein VPC-Netz; der Metadaten-Server (`169.254.169.254`, `metadata.google.internal`) ist durch den eingebauten Schutz blockiert.
+
+Netlify-Rewrite in der `netlify.toml` von gdprgard.eu (erst aktivieren, wenn der Dienst läuft; `<CLOUD_RUN_URL>` durch die ausgegebene Dienst-URL ersetzen):
+
+```toml
+[[redirects]]
+  from = "/bfsg-check/*"
+  to = "<CLOUD_RUN_URL>/bfsg-check/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/bfsg-check"
+  to = "<CLOUD_RUN_URL>/bfsg-check"
+  status = 200
+  force = true
+```
 
 ## Sicherheit & Datenschutz
 
