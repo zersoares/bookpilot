@@ -7,7 +7,19 @@
   588,
   840
  ],
+ "agentes-ia": [
+  525,
+  840
+ ],
  "ai-cybercrime": [
+  525,
+  840
+ ],
+ "ai-privacy-handbook": [
+  560,
+  840
+ ],
+ "ai-privacy-trap": [
   525,
   840
  ],
@@ -169,6 +181,10 @@
  ],
  "master-your-mind": [
   560,
+  840
+ ],
+ "mastering-grok": [
+  568,
   840
  ],
  "meta-ai-complete": [
