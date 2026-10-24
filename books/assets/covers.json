@@ -31,6 +31,10 @@
   560,
   840
  ],
+ "claude-code-2": [
+  525,
+  840
+ ],
  "claude-code-beginners": [
   525,
   840
@@ -243,6 +247,10 @@
   512,
   800
  ],
+ "what-is-truth": [
+  525,
+  840
+ ],
  "women-founders": [
   560,
   840
@@ -257,6 +265,10 @@
  ],
  "you-plus-ai": [
   525,
+  840
+ ],
+ "your-ai-second-brain": [
+  560,
   840
  ]
 }
