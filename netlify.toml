@@ -105,3 +105,14 @@
 # whether or not the bundler follows the relative import on its own.
 [functions]
   included_files = ["js/doc/**", "js/core/cover-templates.js", "js/data/cover-templates.js"]
+
+# Mastering the GDPR Complete Edition - delivery files (token gc-c0a75aacb3)
+[[headers]]
+  for = "/books/thanks-gdpr-complete-gc-c0a75aacb3.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Mastering-the-GDPR-Complete-Edition-gc-c0a75aacb3.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
