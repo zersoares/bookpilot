@@ -313,3 +313,19 @@
   for = "/books/thanks-stop-thinking-negative-bk-14c8cba963.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+# After Hours delivery
+[[headers]]
+  for = "/books/After-Hours-bk-f827bd26da.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/After-Hours-bk-f827bd26da.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-after-hours-bk-f827bd26da.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

@@ -51,6 +51,97 @@ export const BOOKS = {
       ["EPUB", "O-Guia-da-Mulher-Moderna-para-Recomecar-bk-8efcbfd48f.epub"],
     ],
   },
+  plink_1UUsW3LfqCbvloYwcMnEZfMz: {
+    lang: "en",
+    name: "Building a Sustainable Business",
+    page: "thanks-sustainable-business-bk-df8dbe78db.html",
+    files: [
+      ["PDF", "Building-a-Sustainable-Business-bk-df8dbe78db.pdf"],
+    ],
+  },
+  plink_1UUsXxLfqCbvloYwkjBEYh8a: {
+    lang: "en",
+    name: "Business Plan 2030",
+    page: "thanks-business-plan-2030-bk-12b610cc1c.html",
+    files: [
+      ["PDF", "Business-Plan-2030-bk-12b610cc1c.pdf"],
+      ["EPUB", "Business-Plan-2030-bk-12b610cc1c.epub"],
+      ["PDF · Português", "Plano-de-Negocios-2030-bk-12b610cc1c.pdf"],
+      ["EPUB · Português", "Plano-de-Negocios-2030-bk-12b610cc1c.epub"],
+    ],
+  },
+  plink_1UUsb2LfqCbvloYwHVrvzKDQ: {
+    lang: "en",
+    name: "Future Skills 2030",
+    page: "thanks-future-skills-2030-bk-09e35aeb88.html",
+    files: [
+      ["PDF", "Future-Skills-2030-bk-09e35aeb88.pdf"],
+      ["EPUB", "Future-Skills-2030-bk-09e35aeb88.epub"],
+    ],
+  },
+  plink_1UUsd1LfqCbvloYwIiHsPYZe: {
+    lang: "en",
+    name: "Unleash Your Inner Girlboss",
+    page: "thanks-girlboss-bk-9a5a9c5936.html",
+    files: [
+      ["PDF", "Unleash-Your-Inner-Girlboss-bk-9a5a9c5936.pdf"],
+    ],
+  },
+  plink_1UUsecLfqCbvloYwVzxwEtPH: {
+    lang: "en",
+    name: "Glow Diary",
+    page: "thanks-glow-diary-bk-a668adbced.html",
+    files: [
+      ["PDF", "Glow-Diary-bk-a668adbced.pdf"],
+      ["EPUB", "Glow-Diary-bk-a668adbced.epub"],
+    ],
+  },
+  plink_1UUsgELfqCbvloYwxVw7GbwZ: {
+    lang: "en",
+    name: "Master Your Finances",
+    page: "thanks-master-your-finances-bk-53dfd10d73.html",
+    files: [
+      ["PDF", "Master-Your-Finances-bk-53dfd10d73.pdf"],
+      ["EPUB", "Master-Your-Finances-bk-53dfd10d73.epub"],
+      ["PDF · Português", "Domine-Suas-Financas-bk-53dfd10d73.pdf"],
+      ["EPUB · Português", "Domine-Suas-Financas-bk-53dfd10d73.epub"],
+    ],
+  },
+  plink_1UUshkLfqCbvloYweEHR5Ujk: {
+    lang: "en",
+    name: "Money Hack",
+    page: "thanks-money-hack-bk-78df02c7b7.html",
+    files: [
+      ["PDF", "Money-Hack-bk-78df02c7b7.pdf"],
+    ],
+  },
+  plink_1UUsjLLfqCbvloYwDgrAVrEI: {
+    lang: "en",
+    name: "Online Business: From Zero to Success",
+    page: "thanks-online-business-bk-8dcf83580f.html",
+    files: [
+      ["PDF", "Online-Business-From-Zero-to-Success-bk-8dcf83580f.pdf"],
+      ["EPUB", "Online-Business-From-Zero-to-Success-bk-8dcf83580f.epub"],
+    ],
+  },
+  plink_1UUskvLfqCbvloYwi4hIPtZD: {
+    lang: "en",
+    name: "Rise Above",
+    page: "thanks-rise-above-bk-ac3c045577.html",
+    files: [
+      ["PDF", "Rise-Above-bk-ac3c045577.pdf"],
+      ["EPUB", "Rise-Above-bk-ac3c045577.epub"],
+      ["PDF · Português (BR)", "Rise-Above-PT-BR-bk-ac3c045577.pdf"],
+    ],
+  },
+  plink_1UUsmTLfqCbvloYw2Q3du7Fm: {
+    lang: "en",
+    name: "Stop Thinking Negative",
+    page: "thanks-stop-thinking-negative-bk-14c8cba963.html",
+    files: [
+      ["PDF", "Stop-Thinking-Negative-bk-14c8cba963.pdf"],
+    ],
+  },
 };
 
 const TEXT = {
