@@ -142,6 +142,15 @@ export const BOOKS = {
       ["PDF", "Stop-Thinking-Negative-bk-14c8cba963.pdf"],
     ],
   },
+  plink_1UUspzLfqCbvloYw3Ued2rwt: {
+    lang: "en",
+    name: "After Hours",
+    page: "thanks-after-hours-bk-f827bd26da.html",
+    files: [
+      ["PDF", "After-Hours-bk-f827bd26da.pdf"],
+      ["EPUB", "After-Hours-bk-f827bd26da.epub"],
+    ],
+  },
 };
 
 const TEXT = {
