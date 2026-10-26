@@ -116,3 +116,44 @@
   for = "/books/Mastering-the-GDPR-Complete-Edition-gc-c0a75aacb3.pdf"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+# Direct-sale delivery pages for the three EUR 9.99 Stripe books
+[[headers]]
+  for = "/books/Master-Your-Mind-bk-97cd6c87bc.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Master-Your-Mind-bk-97cd6c87bc.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-master-your-mind-bk-97cd6c87bc.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Invisible-Effect-of-AI-bk-6c6e5784b9.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-invisible-effect-bk-6c6e5784b9.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/O-Guia-da-Mulher-Moderna-para-Recomecar-bk-8efcbfd48f.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/O-Guia-da-Mulher-Moderna-para-Recomecar-bk-8efcbfd48f.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-guia-mulher-moderna-bk-8efcbfd48f.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
