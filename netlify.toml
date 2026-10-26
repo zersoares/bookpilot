@@ -157,3 +157,159 @@
   for = "/books/thanks-guia-mulher-moderna-bk-8efcbfd48f.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+# Delivery pages for the non-GDPR direct-sale books moved to the Bookpilot Stripe account
+[[headers]]
+  for = "/books/Building-a-Sustainable-Business-bk-df8dbe78db.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-sustainable-business-bk-df8dbe78db.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Business-Plan-2030-bk-12b610cc1c.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Business-Plan-2030-bk-12b610cc1c.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Plano-de-Negocios-2030-bk-12b610cc1c.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Plano-de-Negocios-2030-bk-12b610cc1c.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-business-plan-2030-bk-12b610cc1c.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Future-Skills-2030-bk-09e35aeb88.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Future-Skills-2030-bk-09e35aeb88.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-future-skills-2030-bk-09e35aeb88.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Unleash-Your-Inner-Girlboss-bk-9a5a9c5936.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-girlboss-bk-9a5a9c5936.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Glow-Diary-bk-a668adbced.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Glow-Diary-bk-a668adbced.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-glow-diary-bk-a668adbced.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Master-Your-Finances-bk-53dfd10d73.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Master-Your-Finances-bk-53dfd10d73.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Domine-Suas-Financas-bk-53dfd10d73.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Domine-Suas-Financas-bk-53dfd10d73.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-master-your-finances-bk-53dfd10d73.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Money-Hack-bk-78df02c7b7.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-money-hack-bk-78df02c7b7.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Online-Business-From-Zero-to-Success-bk-8dcf83580f.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Online-Business-From-Zero-to-Success-bk-8dcf83580f.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-online-business-bk-8dcf83580f.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Rise-Above-bk-ac3c045577.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Rise-Above-bk-ac3c045577.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Rise-Above-PT-BR-bk-ac3c045577.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-rise-above-bk-ac3c045577.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Stop-Thinking-Negative-bk-14c8cba963.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-stop-thinking-negative-bk-14c8cba963.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
