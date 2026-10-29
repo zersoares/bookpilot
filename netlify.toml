@@ -329,3 +329,159 @@
   for = "/books/thanks-after-hours-bk-f827bd26da.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+# Direct-sale delivery, 2026-10-29 batch (AI privacy and security books, EUR 14.99)
+[[headers]]
+  for = "/books/100-Prompts-for-Meta-AI-bk-0c068db84e.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/100-Prompts-for-Meta-AI-bk-0c068db84e.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-100-prompts-meta-ai-bk-0c068db84e.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-AI-Data-Leak-bk-5f3e872344.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-AI-Data-Leak-bk-5f3e872344.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-ai-data-leak-bk-5f3e872344.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Hidden-Cost-of-AI-bk-420a654b0c.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Hidden-Cost-of-AI-bk-420a654b0c.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-hidden-cost-of-ai-bk-420a654b0c.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Your-Data-Is-the-Target-bk-ec7b432d59.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Your-Data-Is-the-Target-bk-ec7b432d59.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-your-data-is-the-target-bk-ec7b432d59.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Who-Are-You-Hiring-bk-4d3d5e57b5.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Who-Are-You-Hiring-bk-4d3d5e57b5.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-who-are-you-hiring-bk-4d3d5e57b5.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-AI-Invoice-Scam-Survival-Guide-bk-b66809f4b1.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-AI-Invoice-Scam-Survival-Guide-bk-b66809f4b1.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-ai-invoice-scam-bk-b66809f4b1.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Before-You-Give-AI-the-Keys-bk-cd9cb960c1.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Before-You-Give-AI-the-Keys-bk-cd9cb960c1.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-before-you-give-ai-the-keys-bk-cd9cb960c1.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Hidden-Risk-of-Connected-Apps-bk-18f2dd868d.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Hidden-Risk-of-Connected-Apps-bk-18f2dd868d.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Connected-App-Audit-Workbook-bk-18f2dd868d.xlsx"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-hidden-risk-connected-apps-bk-18f2dd868d.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Dont-Trust-The-Voice-bk-841b07846f.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Dont-Trust-The-Voice-bk-841b07846f.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-dont-trust-the-voice-bk-841b07846f.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/When-Your-AI-Chatbot-Leaks-Data-bk-d2124e29aa.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/When-Your-AI-Chatbot-Leaks-Data-bk-d2124e29aa.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-chatbot-leaks-data-bk-d2124e29aa.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

@@ -1,4 +1,8 @@
 {
+ "100-prompts-meta-ai": [
+  525,
+  840
+ ],
  "abundance-os": [
   525,
   840
@@ -15,6 +19,14 @@
   525,
   840
  ],
+ "ai-data-leak": [
+  525,
+  840
+ ],
+ "ai-invoice-scam": [
+  525,
+  840
+ ],
  "ai-privacy-handbook": [
   560,
   840
@@ -27,6 +39,10 @@
   560,
   840
  ],
+ "before-you-give-ai-the-keys": [
+  525,
+  840
+ ],
  "being-well-abridged": [
   525,
   840
@@ -37,6 +53,10 @@
  ],
  "business-plan-2030": [
   538,
+  840
+ ],
+ "chatbot-leaks-data": [
+  525,
   840
  ],
  "chatgpt-web": [
@@ -77,6 +97,10 @@
  ],
  "comfyui": [
   627,
+  840
+ ],
+ "dont-trust-the-voice": [
+  525,
   840
  ],
  "emergency-guide": [
@@ -169,6 +193,14 @@
  ],
  "guide-vendor-vetting": [
   600,
+  840
+ ],
+ "hidden-cost-of-ai": [
+  525,
+  840
+ ],
+ "hidden-risk-connected-apps": [
+  525,
   840
  ],
  "invisible-effect": [
@@ -267,6 +299,10 @@
   525,
   840
  ],
+ "who-are-you-hiring": [
+  525,
+  840
+ ],
  "women-founders": [
   560,
   840
@@ -285,6 +321,10 @@
  ],
  "your-ai-second-brain": [
   560,
+  840
+ ],
+ "your-data-is-the-target": [
+  525,
   840
  ]
 }

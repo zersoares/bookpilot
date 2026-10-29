@@ -151,6 +151,97 @@ export const BOOKS = {
       ["EPUB", "After-Hours-bk-f827bd26da.epub"],
     ],
   },
+  plink_1UVs3tLfqCbvloYw1Oj48Pvz: {
+    lang: "en",
+    name: "100 Prompts for Meta AI",
+    page: "thanks-100-prompts-meta-ai-bk-0c068db84e.html",
+    files: [
+      ["PDF", "100-Prompts-for-Meta-AI-bk-0c068db84e.pdf"],
+      ["EPUB", "100-Prompts-for-Meta-AI-bk-0c068db84e.epub"],
+    ],
+  },
+  plink_1UVs4uLfqCbvloYwVuVnj7mK: {
+    lang: "en",
+    name: "The AI Data Leak",
+    page: "thanks-ai-data-leak-bk-5f3e872344.html",
+    files: [
+      ["PDF", "The-AI-Data-Leak-bk-5f3e872344.pdf"],
+      ["EPUB", "The-AI-Data-Leak-bk-5f3e872344.epub"],
+    ],
+  },
+  plink_1UVs5qLfqCbvloYw8hHaih9W: {
+    lang: "en",
+    name: "The Hidden Cost of AI",
+    page: "thanks-hidden-cost-of-ai-bk-420a654b0c.html",
+    files: [
+      ["PDF", "The-Hidden-Cost-of-AI-bk-420a654b0c.pdf"],
+      ["EPUB", "The-Hidden-Cost-of-AI-bk-420a654b0c.epub"],
+    ],
+  },
+  plink_1UVs8HLfqCbvloYwyLEENKa0: {
+    lang: "en",
+    name: "Your Data Is the Target",
+    page: "thanks-your-data-is-the-target-bk-ec7b432d59.html",
+    files: [
+      ["PDF", "Your-Data-Is-the-Target-bk-ec7b432d59.pdf"],
+      ["EPUB", "Your-Data-Is-the-Target-bk-ec7b432d59.epub"],
+    ],
+  },
+  plink_1UVs9SLfqCbvloYw9lXMLbmc: {
+    lang: "en",
+    name: "Who Are You Hiring?",
+    page: "thanks-who-are-you-hiring-bk-4d3d5e57b5.html",
+    files: [
+      ["PDF", "Who-Are-You-Hiring-bk-4d3d5e57b5.pdf"],
+      ["EPUB", "Who-Are-You-Hiring-bk-4d3d5e57b5.epub"],
+    ],
+  },
+  plink_1UVsAwLfqCbvloYwzv2FGiBf: {
+    lang: "en",
+    name: "The AI Invoice Scam Survival Guide",
+    page: "thanks-ai-invoice-scam-bk-b66809f4b1.html",
+    files: [
+      ["PDF", "The-AI-Invoice-Scam-Survival-Guide-bk-b66809f4b1.pdf"],
+      ["EPUB", "The-AI-Invoice-Scam-Survival-Guide-bk-b66809f4b1.epub"],
+    ],
+  },
+  plink_1UVsBqLfqCbvloYwP6G6ahaA: {
+    lang: "en",
+    name: "Before You Give AI the Keys",
+    page: "thanks-before-you-give-ai-the-keys-bk-cd9cb960c1.html",
+    files: [
+      ["PDF", "Before-You-Give-AI-the-Keys-bk-cd9cb960c1.pdf"],
+      ["EPUB", "Before-You-Give-AI-the-Keys-bk-cd9cb960c1.epub"],
+    ],
+  },
+  plink_1UVsCcLfqCbvloYwfowgPsb4: {
+    lang: "en",
+    name: "The Hidden Risk of Connected Apps",
+    page: "thanks-hidden-risk-connected-apps-bk-18f2dd868d.html",
+    files: [
+      ["PDF", "The-Hidden-Risk-of-Connected-Apps-bk-18f2dd868d.pdf"],
+      ["EPUB", "The-Hidden-Risk-of-Connected-Apps-bk-18f2dd868d.epub"],
+      ["XLSX", "Connected-App-Audit-Workbook-bk-18f2dd868d.xlsx"],
+    ],
+  },
+  plink_1UVsDRLfqCbvloYw3Vsk6VqZ: {
+    lang: "en",
+    name: "Don't Trust the Voice",
+    page: "thanks-dont-trust-the-voice-bk-841b07846f.html",
+    files: [
+      ["PDF", "Dont-Trust-The-Voice-bk-841b07846f.pdf"],
+      ["EPUB", "Dont-Trust-The-Voice-bk-841b07846f.epub"],
+    ],
+  },
+  plink_1UVsDzLfqCbvloYwAy4w25uF: {
+    lang: "en",
+    name: "When Your AI Chatbot Leaks Data",
+    page: "thanks-chatbot-leaks-data-bk-d2124e29aa.html",
+    files: [
+      ["PDF", "When-Your-AI-Chatbot-Leaks-Data-bk-d2124e29aa.pdf"],
+      ["EPUB", "When-Your-AI-Chatbot-Leaks-Data-bk-d2124e29aa.epub"],
+    ],
+  },
 };
 
 const TEXT = {
