@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What to Delegate to an AI Agent (and What Not To) — BookPilot AI Blog</title>
+<meta name="description" content="Not everything should be delegated to an AI agent. Use the frequency × risk matrix, four risk questions and three levels of human oversight to decide safely.">
+<meta name="keywords" content="AI agents, delegation, human in the loop, From the Book, LGPD">
+<link rel="canonical" href="https://bookpilot.org/blog/what-to-delegate-ai-agent/">
+<meta property="og:type" content="article"><meta property="og:site_name" content="BookPilot AI"><meta property="og:title" content="What to Delegate to an AI Agent (and What Not To)"><meta property="og:description" content="Not everything should be delegated to an AI agent. Use the frequency × risk matrix, four risk questions and three levels of human oversight to decide safely."><meta property="og:url" content="https://bookpilot.org/blog/what-to-delegate-ai-agent/"><meta property="og:image" content="https://bookpilot.org/assets/blog/what-to-delegate-ai-agent.jpg"><meta property="og:image:alt" content="Illustration of a frequency and risk matrix helping a professional decide which tasks to delegate to an AI agent and which to keep">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="What to Delegate to an AI Agent (and What Not To)"><meta name="twitter:description" content="Not everything should be delegated to an AI agent. Use the frequency × risk matrix, four risk questions and three levels of human oversight to decide safely."><meta name="twitter:image" content="https://bookpilot.org/assets/blog/what-to-delegate-ai-agent.jpg">
+<meta property="article:author" content="Zirlandia Milkovic"><meta property="article:section" content="From the Book"><meta property="article:published_time" content="2026-10-17">
+<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/fonts/fonts.css"><link rel="stylesheet" href="../../assets/css/blog.css">
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "What to Delegate to an AI Agent (and What Not To)",
+  "description": "Not everything should be delegated to an AI agent. Use the frequency \u00d7 risk matrix, four risk questions and three levels of human oversight to decide safely.",
+  "url": "https://bookpilot.org/blog/what-to-delegate-ai-agent/",
+  "mainEntityOfPage": "https://bookpilot.org/blog/what-to-delegate-ai-agent/",
+  "image": "https://bookpilot.org/assets/blog/what-to-delegate-ai-agent.jpg",
+  "author": {
+    "@type": "Person",
+    "name": "Zirlandia Milkovic",
+    "description": "Zirlandia Milkovic develops websites, software products and educational materials at the intersection of web development and applied artificial intelligence."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "BookPilot AI",
+    "url": "https://bookpilot.org/"
+  },
+  "datePublished": "2026-10-17",
+  "dateModified": "2026-10-17",
+  "articleSection": "From the Book",
+  "inLanguage": "en",
+  "wordCount": 1186,
+  "keywords": "AI agents, delegation, human in the loop, From the Book, LGPD"
+}</script><link rel="stylesheet" href="/assets/css/home-arrow.css">
+</head>
+<body><a class="bp-skip-link" href="#main">Skip to content</a>
+<header class="bp-nav"><div class="bp-nav__inner">
+<a class="bp-logo" href="https://bookpilot.org/"><span class="bp-logo__mark" aria-hidden="true"></span>BookPilot <span class="bp-logo__ai">AI</span></a>
+<nav class="bp-nav__links" aria-label="Sections">
+<a class="bp-nav__link" href="https://bookpilot.org/#write">Write a book</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#how">How it works</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#intelligence">Reader intelligence</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#performance">Performance</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#pricing">Pricing</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#faq">FAQ</a>
+<a class="bp-nav__link" href="https://bookpilot.org/books/">Books</a>
+<a class="bp-nav__link" href="../" aria-current="page">Blog</a>
+</nav>
+<div class="bp-nav__actions"><a class="bp-btn bp-btn--ghost bp-btn--sm" href="https://bookpilot.org/app#/signin">Sign in</a><a class="bp-btn bp-btn--primary bp-btn--sm" href="https://bookpilot.org/app#/signup">Start free</a></div>
+</div></header>
+<nav class="home-arrow home-arrow--top" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Home</a></nav>
+<main id="main"><article class="article">
+<p><a href="../">← All articles</a></p>
+<span class="badge">From the Book</span>
+<h1>What to Delegate to an AI Agent (and What Not To)</h1>
+<p class="lead">Adapted in English from Chapter 3 of Agentes de IA para quem não programa (“AI Agents for People Who Don’t Program”). This article is for general information only and is not legal advice.</p>
+<div class="byline"><span class="avatar" aria-hidden="true">ZM</span><span>By <strong>Zirlandia Milkovic</strong> · <time datetime="2026-10-17">2026-10-17</time> · 6 min read</span></div>
+<figure class="article-banner"><img src="/assets/blog/what-to-delegate-ai-agent.jpg" alt="Illustration of a frequency and risk matrix helping a professional decide which tasks to delegate to an AI agent and which to keep" width="1280" height="720" loading="eager" decoding="async"></figure><aside class="tldr" aria-label="TL;DR"><h2>TL;DR</h2><ul><li>Score every task by frequency and risk. Start where frequency is high and risk is low.</li>
+<li>Ask four questions: money? goes outside? sensitive data? hard to undo? Any “yes” means high risk.</li>
+<li>For high-risk recurring work, delegate the preparation — never the final decision.</li>
+<li>Increase autonomy in levels, and never put decisions about people on full autopilot.</li></ul></aside>
+<nav class="toc" aria-label="Table of contents"><strong>On this page</strong><ol><li><a href="#the-frequency-risk-matrix">The frequency × risk matrix</a></li>
+<li><a href="#measuring-risk-with-four-questions">Measuring “risk” with four questions</a></li>
+<li><a href="#what-the-tools-themselves-already-avoid">What the tools themselves already avoid</a></li>
+<li><a href="#human-in-the-loop-three-levels-of-autonomy">Human in the loop: three levels of autonomy</a></li>
+<li><a href="#when-the-law-also-asks-for-a-human">When the law also asks for a human</a></li>
+<li><a href="#three-professionals-three-choices">Three professionals, three choices</a></li>
+<li><a href="#your-4-week-delegation-plan">Your 4-week delegation plan</a></li>
+<li><a href="#sources">Sources</a></li></ol></nav>
+<p>Beginners usually make one of two mistakes. They <strong>delegate too much, too soon</strong> — an impressive demo, then the agent is answering an important client or checking payroll — or they <strong>delegate nothing</strong> after one “so-so” test, without realising the problem was the task, not the technology.</p>
+<p>The core idea: <strong>choosing what to delegate matters more than choosing the most powerful tool.</strong></p>
+<h2 id="the-frequency-risk-matrix">The frequency × risk matrix</h2>
+<p>Judge every task by <strong>frequency</strong> and <strong>risk</strong> (damage if it goes wrong unnoticed).</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Low risk</strong></th>
+<th><strong>High risk</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>High frequency</strong></td>
+<td>🟢 <strong>Start here.</strong> Delegate with light review.</td>
+<td>🟡 <strong>Delegate the preparation,</strong> not the decision. Review is mandatory.</td>
+</tr>
+<tr>
+<td><strong>Low frequency</strong></td>
+<td>🔵 <strong>Delegate if easy to instruct.</strong> Little gain, little risk.</td>
+<td>🔴 <strong>Do not delegate</strong> (for now). Do it yourself, with at most occasional chat help.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="high-frequency-low-risk-start-here">🟢 High frequency, low risk: start here</h3>
+<p>Mistakes here are easy to spot and cheap to fix: a Monday sector-news summary, organising attachments, drafting a recurring agenda, turning notes into minutes. You gain <strong>time and confidence</strong> together.</p>
+<h3 id="high-frequency-high-risk-delegate-the-preparation">🟡 High frequency, high risk: delegate the preparation</h3>
+<p>Client replies, reconciliations, and standard contract reviews happen often, but mistakes are expensive. The agent gathers, drafts, and flags; <strong>you decide and finish</strong>.</p>
+<blockquote>
+<p><strong>Example:</strong> instead of “reply to the billing emails”, ask: “Draft replies to the billing emails and flag any that mention disputes or different amounts.” You click “send”.</p>
+</blockquote>
+<h3 id="low-frequency-low-risk-and-low-frequency-high-risk">🔵 Low frequency, low risk, and 🔴 low frequency, high risk</h3>
+<p>A twice-yearly supplier search is a safe place to <strong>test new tools</strong>. Rare, high-impact decisions — dismissal, strategic proposal, court defence, tax filing — are <strong>not a place to learn</strong>: use AI at most to review or organise.</p>
+<h2 id="measuring-risk-with-four-questions">Measuring “risk” with four questions</h2>
+<p>If any answer is “yes”, treat the task as high risk:</p>
+<ol>
+<li><strong>Does it involve money?</strong> Payments, billing, prices, quotes, taxes.</li>
+<li><strong>Does it go outside?</strong> Anything reaching clients, suppliers, public bodies, or social media in your name.</li>
+<li><strong>Does it involve sensitive or confidential personal data?</strong> Health, clients’ financial data, lawsuits, employee information, company secrets.</li>
+<li><strong>Is it hard to undo?</strong> Deleting files, sending messages, signing, publishing, filing.</li>
+</ol>
+<p>Questions 2 and 4 are about <strong>action</strong>: when the agent only <em>prepares</em>, risk drops; when it <em>acts</em>, risk rises.</p>
+<h2 id="what-the-tools-themselves-already-avoid">What the tools themselves already avoid</h2>
+<p>Tool makers also classify by risk. In ChatGPT Work, per OpenAI’s July 2026 announcement, <strong>you decide what it can access</strong> and <strong>when it needs your approval</strong>; <strong>Auto-review</strong> reviews important actions involving connected tools <strong>before they happen</strong>, and Enterprise/Edu administrators can <strong>restrict sensitive actions</strong>. ChatGPT agent (2025) already used <strong>explicit confirmation</strong> before purchases, <strong>active supervision</strong> for sending emails, and <strong>refusal</strong> of bank transfers.</p>
+<p>No substitute for your matrix: tool safeguards are generic, and only you know that one email to one client is more delicate than a stationery purchase.</p>
+<blockquote>
+<p><strong>Practical rule:</strong> use the tool’s safeguards as a floor, never as a ceiling.</p>
+</blockquote>
+<h2 id="human-in-the-loop-three-levels-of-autonomy">Human in the loop: three levels of autonomy</h2>
+<ul>
+<li><strong>Level 1 — agent suggests, you do.</strong> It researches and proposes; you execute everything that goes out. Good for 🟡 tasks and anything new.</li>
+<li><strong>Level 2 — agent does, you approve.</strong> It prepares the complete action and <strong>stops before finishing</strong> for your “OK”. Good for 🟢 tasks involving sending or changing.</li>
+<li><strong>Level 3 — agent does, you check later.</strong> Only for internal, reversible 🟢 tasks, <strong>after</strong> weeks at Level 2.</li>
+</ul>
+<p>No “yes” task goes to Level 3. Set the level in the goal: “Do not send anything; just draft.” “If you find different amounts, stop and tell me.”</p>
+<h2 id="when-the-law-also-asks-for-a-human">When the law also asks for a human</h2>
+<p>Brazil’s <strong>LGPD (Law No. 13.709/2018)</strong>, Article 20, guarantees the right to <strong>request review of decisions taken solely on the basis of automated processing</strong> affecting a person’s interests, including personal, professional, consumer, or credit profiling. The controller must also, when asked, provide <strong>clear and adequate information about the criteria and procedures</strong> used, respecting commercial and industrial secrets.</p>
+<p>For decisions about people — CV screening, credit approval, client classification — plan the explanation and human review from the start. Such decisions stay in 🟡 or 🔴, never Level 3.</p>
+<h2 id="three-professionals-three-choices">Three professionals, three choices</h2>
+<p><em>Illustrative examples — the people below are fictional, not real cases.</em></p>
+<ul>
+<li><strong>Carla, HR analyst in Florianópolis — <em>fictional example</em>.</strong> CV screening: frequent, but personal data and decisions about people → 🟡. The agent only <strong>organises</strong> CVs by objective requirement, <strong>eliminating nobody</strong>; Carla decides (Level 1). Her monthly newsletter → 🟢 (Level 2).</li>
+<li><strong>Eduardo, garage owner in Ribeirão Preto — <em>fictional example</em>.</strong> Parts price research: frequent, internal, reversible → 🟢 (Level 2, then Level 3 after a month). Client quotes involve money and go outside → 🟡: agent prepares, Eduardo sends (Level 1).</li>
+<li><strong>Fernanda, labour lawyer in Salvador — <em>fictional example</em>.</strong> Weekly case-law news → 🟢, with links she checks (Level 2). An initial court petition is very high risk and confidential → 🔴 for final drafting; at most, AI organises the chronology <strong>without identifiable data</strong>.</li>
+</ul>
+<p>All three delegated from the first week — without risking what matters most.</p>
+<h2 id="your-4-week-delegation-plan">Your 4-week delegation plan</h2>
+<ul>
+<li><strong>Week 1:</strong> only the 🟢 task you circled in Chapter 1, at Level 2.</li>
+<li><strong>Week 2:</strong> improve its instruction; add a second 🟢 task.</li>
+<li><strong>Week 3:</strong> try one 🟡 task at Level 1, preparation only.</li>
+<li><strong>Week 4:</strong> review everything. What worked can move up a level; what caused trouble goes back to manual, or gets a better instruction.</li>
+</ul>
+<p>Record frequency, risk answers, quadrant, level, and start week.</p>
+<p><em>Editorial note: the matrix, four questions, three levels, and 4-week plan are teaching tools proposed by the book, not official rules or standards.</em></p>
+<h2 id="sources">Sources</h2>
+<p><em>Sources as listed in Chapter 3 of the book, consulted on 16 October 2026.</em></p>
+<ol>
+<li><a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm">Brazil, LGPD Law No. 13.709/2018, Article 20 — Planalto</a></li>
+<li><a href="https://openai.com/index/chatgpt-for-your-most-ambitious-work/">OpenAI: ChatGPT Work launch (9 Jul 2026)</a></li>
+<li><a href="https://openai.com/index/introducing-chatgpt-agent/">OpenAI: Introducing ChatGPT agent (17 Jul 2025)</a></li>
+</ol>
+<aside class="author-box"><span class="avatar" aria-hidden="true">ZM</span><div><h2 style="margin-top:0;font-size:1.1rem">About the author — Zirlandia Milkovic</h2><p>Zirlandia Milkovic develops websites, software products and educational materials at the intersection of web development and applied artificial intelligence.</p></div></aside>
+<aside class="cta"><h2>Turn your idea into a book — and find its readers</h2><p>BookPilot helps you build a professionally structured book from one idea, then find readers and run the campaign in the same place.</p><p><a class="bp-btn bp-btn--primary bp-btn--lg" href="https://bookpilot.org/books/">Browse books on BookPilot</a> <a class="bp-btn bp-btn--secondary bp-btn--lg" href="https://bookpilot.org/app#/signup">Start free</a></p><p class="meta">Free plan, no card required. Your manuscript is never used to train any AI model.</p>
+</aside>
+</article></main><nav class="home-arrow home-arrow--bottom" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Back to home</a></nav>
+<footer class="bp-footer"><div class="bp-footer__inner">
+<div><a class="bp-logo" href="https://bookpilot.org/"><span class="bp-logo__mark" aria-hidden="true"></span>BookPilot <span class="bp-logo__ai">AI</span></a><p>Your AI marketing manager for books. Upload your book, find your readers, create your ads, launch your campaign, and discover which ads actually sell.</p></div>
+<div><h4>Product</h4><ul><li><a href="https://bookpilot.org/#how">How it works</a></li><li><a href="https://bookpilot.org/books/">Books</a></li><li><a href="../">Blog</a></li></ul></div>
+<div><h4>Account</h4><ul><li><a href="https://bookpilot.org/app#/signup">Create an account</a></li><li><a href="https://bookpilot.org/app#/signin">Sign in</a></li></ul></div>
+<div><h4>Legal</h4><ul><li><a href="https://bookpilot.org/privacy.html">Privacy policy</a></li><li><a href="https://bookpilot.org/terms.html">Terms of service</a></li><li><a href="https://bookpilot.org/cookies.html">Cookie policy</a></li><li><a href="https://bookpilot.org/contact/">Contact</a></li></ul></div>
+</div><div class="bp-footer__legal">© 2026 BookPilot AI. Advertising results depend on your book, your market and your budget — nothing here is a promise of sales. <span>Built in Europe</span></div></footer></body></html>

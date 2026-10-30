@@ -25,6 +25,7 @@
   .bp-404__code { font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bp-text-subtle); }
   .bp-404__actions { display: flex; gap: var(--bp-3); justify-content: center; flex-wrap: wrap; margin-top: var(--bp-8); }
 </style>
+<link rel="stylesheet" href="/assets/css/home-arrow.css">
 </head>
 <body>
 <a class="bp-skip-link" href="#main">Skip to content</a>
@@ -32,11 +33,14 @@
   <div class="bp-nav__inner">
     <a class="bp-logo" href="/"><span class="bp-logo__mark" aria-hidden="true"></span> BookPilot <span class="bp-logo__ai">AI</span></a>
     <div class="bp-nav__actions">
+      <a class="bp-btn bp-btn--ghost bp-btn--sm" href="/blog/">Blog</a>
+      <a class="bp-btn bp-btn--ghost bp-btn--sm" href="/contact/">Contact</a>
       <a class="bp-btn bp-btn--ghost bp-btn--sm" href="/">Product</a>
       <a class="bp-btn bp-btn--primary bp-btn--sm" href="/app.html#/signup">Start free</a>
     </div>
   </div>
 </header>
+<nav class="home-arrow home-arrow--top" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Home</a></nav>
 <main id="main" class="bp-404">
   <p class="bp-404__code">Error 404</p>
   <h1 class="bp-display" style="font-size:2.1rem;margin:var(--bp-2) 0 var(--bp-3)">Page not found</h1>
@@ -47,5 +51,6 @@
   </div>
 </main>
 <script type="module" src="/js/cookie-notice.js"></script>
+<nav class="home-arrow home-arrow--bottom" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Back to home</a></nav>
 </body>
 </html>

@@ -330,3 +330,10 @@ body.is-locked { overflow: hidden; }
 .totop.is-visible { opacity: 1; transform: none; pointer-events: auto; }
 .totop:hover { background: var(--primary-soft); }
 .totop svg { width: 20px; height: 20px; }
+
+/* BookPilot AI logo in hero + footer */
+.bp-brandlogo{display:inline-flex;align-items:center;gap:8px;font-family:'DM Serif Display',Georgia,serif;font-size:1.15rem;font-weight:400;letter-spacing:-.01em;text-transform:none;text-decoration:none;color:inherit;vertical-align:middle}
+.bp-brandlogo:hover{text-decoration:none;opacity:.9}
+.bp-brandlogo img{width:26px;height:26px;flex:none}
+.bp-brandlogo--light,.foot a.bp-brandlogo--light,.hero a.bp-brandlogo--light{color:#fff}
+.bp-brandlogo__ai{font-family:'DM Sans',Inter,Arial,sans-serif;font-size:.62em;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#ffc85f}

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privacy policy — BookPilot AI</title>
-<meta name="description" content="How BookPilot AI handles your data, your book and your readers' data.">
+<title>Privacy policy — BookPilot</title>
+<meta name="description" content="How BookPilot handles the data of visitors, e-book buyers and app users.">
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" href="/icon-96.png" sizes="96x96" type="image/png">
 <link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png">
@@ -31,6 +31,7 @@
   .bp-legal th { font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bp-text-subtle); }
   .bp-placeholder { background: var(--bp-warning-soft); border-bottom: 1px dashed var(--bp-warning); padding: 0 3px; color: var(--bp-warning); }
 </style>
+<link rel="stylesheet" href="/assets/css/home-arrow.css">
 </head>
 <body>
 <a class="bp-skip-link" href="#main">Skip to content</a>
@@ -38,10 +39,12 @@
   <div class="bp-nav__inner">
     <a class="bp-logo" href="/"><span class="bp-logo__mark" aria-hidden="true"></span> BookPilot <span class="bp-logo__ai">AI</span></a>
     <nav class="bp-nav__links" aria-label="Legal">
+      <a class="bp-nav__link" href="/books/">Books</a>
+      <a class="bp-nav__link" href="/blog/">Blog</a>
       <a class="bp-nav__link" href="/privacy.html">Privacy</a>
       <a class="bp-nav__link" href="/terms.html">Terms</a>
       <a class="bp-nav__link" href="/cookies.html">Cookies</a>
-      <a class="bp-nav__link" href="/contact.html">Contact</a>
+      <a class="bp-nav__link" href="/contact/">Contact</a>
     </nav>
     <div class="bp-nav__actions">
       <a class="bp-btn bp-btn--ghost bp-btn--sm" href="/">Product</a>
@@ -49,149 +52,104 @@
     </div>
   </div>
 </header>
+<nav class="home-arrow home-arrow--top" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Home</a></nav>
 <main id="main" class="bp-legal">
   <p class="bp-eyebrow">Legal</p>
-  <h1 class="bp-display" style="font-size:2.1rem;margin:var(--bp-2) 0 var(--bp-3)">Privacy policy</h1>
-  <p class="bp-lead">What we collect, why, who else touches it, and how to get it back or have it erased.</p>
-  <p class="bp-small bp-subtle">Version 1.0 · Last updated January 2026</p>
+  <h1 class="bp-display" style="font-size:2.1rem;margin:var(--bb-2) 0 var(--bb-3)">Privacy policy</h1>
+  <p class="bp-lead">What we collect, why, who else processes it, and how to get it back or have it erased.</p>
+  <p style="font-size:0.85rem">Effective 29 October 2026 · Last updated 29 October 2026</p>
 
-  <div class="bp-alert bp-alert--warning" style="margin:var(--bp-6) 0">
-    <span class="bp-alert__icon">!</span>
-    <div>
-      <div class="bp-alert__title">Complete before launch</div>
-      <div class="bp-small">
-        This document describes how the BookPilot AI software actually handles data, and it is
-        written to be usable — but the highlighted fields must be filled in with the operating
-        company's real details, and the whole document reviewed by a qualified adviser, before the
-        service is offered to the public. BookPilot AI does not provide legal advice.
-      </div>
-    </div>
-  </div>
+<h2>1. Who is responsible for your data</h2>
+<p>BookPilot (bookpilot.org, including the BookPilot AI app) is run by <strong>Zirlandia Milkovic</strong>, a private individual based in Croatia. There is no registered company behind it.</p>
+<ul>
+<li>Name: Zirlandia Milkovic</li>
+<li>Country: Croatia</li>
+<li>Email: <a href="mailto:hello@bookpilot.org">hello@bookpilot.org</a> (general questions, purchases, refunds and privacy requests)</li>
+</ul>
+<p>She is the controller of the personal data described here. No data protection officer has been appointed, because the law does not require one for an operation of this size; write to <a href="mailto:hello@bookpilot.org">hello@bookpilot.org</a> with any privacy question.</p>
+<p>This policy covers three groups of people: <strong>visitors</strong> to bookpilot.org and its blog, <strong>e-book buyers</strong> who pay through Stripe, and <strong>app users</strong> who create a BookPilot AI account.</p>
+<p>If you, as an app user, install the BookPilot tracking script on your own website, you are the controller of the data it collects there and BookPilot acts as your processor. Your own privacy notice needs to cover it.</p>
 
+<h2>2. Visitors and blog readers</h2>
+<p>You can read the website, the books page and the blog without an account. We do not set advertising or tracking cookies and we do not run a third-party analytics tool such as Google Analytics.</p>
+<ul>
+<li><strong>Server logs.</strong> Our host, Netlify, processes your IP address, browser type, requested page and time to deliver the site and protect it against abuse. Legitimate interests, Art. 6(1)(f) GDPR.</li>
+<li><strong>Netlify Real User Monitoring (RUM).</strong> Netlify measures page load performance on the site in aggregate. It does not set cookies and we only see anonymous statistics. Legitimate interests in a fast, working site, Art. 6(1)(f).</li>
+<li><strong>Email.</strong> If you write to <a href="mailto:hello@bookpilot.org">hello@bookpilot.org</a>, we use your email address and message to answer you. Legitimate interests, or steps before a contract, Art. 6(1)(b)/(f).</li>
+</ul>
+<p>The blog has no comments and no newsletter sign-up, so it collects nothing else from you.</p>
 
-  <h2>1. Who is responsible for your data</h2>
-  <p>
-    The controller of the personal data described here is <span class="bp-placeholder">[legal entity name]</span>,
-    <span class="bp-placeholder">[registered address]</span>, reachable at <a href="mailto:privacy@bookpilot.org">privacy@bookpilot.org</a>. Where a data protection
-    officer is appointed, their contact details are <span class="bp-placeholder">[DPO contact, or &quot;not appointed&quot;]</span>.
-  </p>
-  <p>
-    Two different relationships matter in this product, and they should not be confused:
-  </p>
-  <ul>
-    <li><strong>You, the author, are our customer.</strong> For your account data, we are the controller.</li>
-    <li><strong>Your readers are your visitors.</strong> If you install the BookPilot tracking script
-      on your own website, you are the controller of the data it collects there, and we act as your
-      processor. Your own privacy notice needs to cover it.</li>
-  </ul>
+<h2>3. E-book buyers</h2>
+<p>E-books are sold through Stripe Payment Links. When you click "Buy", you leave bookpilot.org and pay on a page hosted by Stripe. Stripe collects your name, email address, billing country and payment details. We receive your name, email, country, what you bought, the amount and the payment status; we never see your full card number.</p>
+<p>We use this to deliver the e-book (a download link from Stripe and/or by email), to answer questions and refund requests, and to keep the accounting records the law requires. Contract, Art. 6(1)(b), and legal obligation, Art. 6(1)(c).</p>
 
-  <h2>2. What we collect, and why</h2>
-  <table>
-    <thead><tr><th>Data</th><th>Why</th><th>Lawful basis (GDPR Art. 6)</th></tr></thead>
-    <tbody>
-      <tr><td>Name, email, country, currency, language</td><td>To run your account and show prices in your currency</td><td>Contract, Art. 6(1)(b)</td></tr>
-      <tr><td>Book details you enter: title, description, genre, price, sales link, cover, optional sample text, bio and reviews</td><td>To analyse your book and generate your marketing material — this is the service</td><td>Contract, Art. 6(1)(b)</td></tr>
-      <tr><td>Generated output: analysis, personas, angles, creatives, scores</td><td>To give you the product you asked for and let you return to it</td><td>Contract, Art. 6(1)(b)</td></tr>
-      <tr><td>Campaign and performance data imported from your connected ad account</td><td>To show you what your advertising did</td><td>Contract, Art. 6(1)(b)</td></tr>
-      <tr><td>Website tracking events from a site you own (event type, order value, UTM parameters, a session key)</td><td>To attribute sales to the ad that caused them</td><td>Your instruction as controller; we act as processor</td></tr>
-      <tr><td>Billing data</td><td>To take payment and meet accounting obligations</td><td>Contract and legal obligation, Art. 6(1)(b) and (c)</td></tr>
-      <tr><td>Security and audit logs (who did what, when — identifiers and outcomes, not content)</td><td>To detect abuse and investigate incidents</td><td>Legitimate interests, Art. 6(1)(f)</td></tr>
-      <tr><td>Product analytics</td><td>To see which features are used</td><td>Consent, Art. 6(1)(a) — off unless you switch it on</td></tr>
-      <tr><td>Product emails</td><td>To tell you about new features</td><td>Consent, Art. 6(1)(a) — off unless you switch it on</td></tr>
-    </tbody>
-  </table>
-  <p>
-    We do not ask for, and the product has no field for, special category data under Art. 9. Reader
-    personas are built from interests and life stage only; the AI is instructed never to build
-    targeting or messaging on health, religion, ethnicity, sexual orientation, political affiliation
-    or trade union membership.
-  </p>
+<h2>4. Store links (Amazon and others)</h2>
+<p>Many books link to Amazon or other stores. When you follow such a link you leave bookpilot.org; the store is responsible for its own data processing and its own terms apply. We get no personal data about you from those stores.</p>
 
-  <h2>3. What we do not collect</h2>
-  <ul>
-    <li>The tracking script sets no cookies and stores no device or advertising identifier.</li>
-    <li>It does not record your visitors' IP addresses, user agents, referrers or page content.</li>
-    <li>We do not buy data about you, and we do not sell or rent anything about you.</li>
-    <li>Your manuscript text is never used to train any AI model, ours or anyone else's.</li>
-  </ul>
+<h2>5. BookPilot AI app users</h2>
+<table>
+<thead><tr><th>Data</th><th>Why</th><th>Lawful basis (GDPR Art. 6)</th></tr></thead>
+<tbody>
+<tr><td>Name, email, password (stored hashed by Supabase), country, currency, language</td><td>To run your account</td><td>Contract, 6(1)(b)</td></tr>
+<tr><td>Book details you enter: title, description, genre, price, sales link, cover, optional sample text, bio and reviews</td><td>To analyse your book and generate marketing material — this is the service</td><td>Contract, 6(1)(b)</td></tr>
+<tr><td>Generated output: analysis, personas, angles, creatives, scores</td><td>To give you what you asked for and let you return to it</td><td>Contract, 6(1)(b)</td></tr>
+<tr><td>Campaign and performance data from an ad account you connect (Meta)</td><td>To build campaigns and show you what your advertising did</td><td>Contract, 6(1)(b)</td></tr>
+<tr><td>Website events from your own site via the tracking script (event type, order value, campaign parameters, a random session key)</td><td>To attribute sales to ads</td><td>Your instructions; we act as processor</td></tr>
+<tr><td>Plan, subscription and payment records (via Stripe)</td><td>To take payment and keep accounting records</td><td>Contract and legal obligation, 6(1)(b) and (c)</td></tr>
+<tr><td>Security and audit logs (who did what, when — identifiers and outcomes, not content)</td><td>To detect abuse and investigate incidents</td><td>Legitimate interests, 6(1)(f)</td></tr>
+<tr><td>Product emails and product analytics</td><td>Only if you switch them on in Settings</td><td>Consent, 6(1)(a)</td></tr>
+</tbody></table>
+<p>The app has no field for special category data (Art. 9). Reader personas are built from interests and life stage only, and the AI is instructed never to target on health, religion, ethnicity, sexual orientation, political views or trade union membership.</p>
+<h3>AI processing</h3>
+<p>Your book details are sent to Anthropic's API to generate the analysis and marketing material. Under Anthropic's commercial API terms, this input is not used to train its models. Your manuscript is never used to train any model by us. No automated decision with legal or similarly significant effects (Art. 22) is made; scores and suggestions are advisory.</p>
 
-  <h2>4. AI processing</h2>
-  <p>
-    Your book details are sent to Anthropic
-    to generate your analysis, personas, angles and creatives. That provider processes the text to
-    return a result and, under the API terms applicable to this use, does not use it to train models.
-    The details of that arrangement, including the processing location and the transfer mechanism,
-    are at <a href="https://trust.anthropic.com/">trust.anthropic.com</a>.
-  </p>
-  <p>
-    No automated decision produces a legal or similarly significant effect on you within the meaning
-    of Art. 22. Creative scores are advisory: you decide what to run.
-  </p>
+<h2>6. Who processes data for us</h2>
+<table>
+<thead><tr><th>Provider</th><th>Purpose</th><th>Location / transfer safeguard</th></tr></thead>
+<tbody>
+<tr><td>Netlify, Inc.</td><td>Website hosting, serverless functions, performance monitoring (RUM)</td><td>USA — EU-US Data Privacy Framework and/or Standard Contractual Clauses</td></tr>
+<tr><td>Supabase, Inc.</td><td>App database and sign-in</td><td>Hosted in the region of our project; company in the USA — Standard Contractual Clauses</td></tr>
+<tr><td>Anthropic, PBC</td><td>AI text generation in the app</td><td>USA — Standard Contractual Clauses / Data Privacy Framework</td></tr>
+<tr><td>Stripe (Stripe Payments Europe, Ltd. and affiliates)</td><td>E-book payments and app subscriptions</td><td>EU (Ireland) with transfers to the USA — Data Privacy Framework and Standard Contractual Clauses</td></tr>
+<tr><td>Meta Platforms</td><td>Only if you connect your Meta ad account in the app</td><td>Under your own relationship with Meta</td></tr>
+</tbody></table>
+<p>When data leaves the EEA, it is protected by an adequacy decision (including the EU-US Data Privacy Framework for certified companies) or by the European Commission's Standard Contractual Clauses. You can ask us for a copy of the relevant safeguards. We do not sell or rent your data.</p>
 
-  <h2>5. Who else processes your data</h2>
-  <p>Our sub-processors:</p>
-  <table>
-    <thead><tr><th>Processor</th><th>Purpose</th><th>Location</th></tr></thead>
-    <tbody>
-      <tr><td>Netlify</td><td>Hosting and serverless functions</td><td>United States (AWS us-east-2)</td></tr>
-      <tr><td>Supabase</td><td>Database and authentication</td><td>European Union</td></tr>
-      <tr><td>Anthropic</td><td>Text generation</td><td>United States</td></tr>
-      <tr><td>Stripe</td><td>Subscription billing</td><td>United States</td></tr>
-    </tbody>
-  </table>
-  <p>
-    Where a processor is outside the EEA, transfers rely on the European Commission's Standard Contractual Clauses, together with the EU–US Data Privacy Framework where the provider is certified under it.
-    Connecting your Meta ad account sends data to Meta under your own relationship with them, not ours.
-  </p>
+<h2>7. How long we keep it</h2>
+<ul>
+<li>Emails to <a href="mailto:hello@bookpilot.org">hello@bookpilot.org</a>: up to 2 years after the conversation ends, unless they relate to a purchase.</li>
+<li>App account and book data: as long as your account exists; deleted when you delete the account, with backups rolling off within 30 days.</li>
+<li>Tracking events and campaign performance data: 25 months, or until you delete your account.</li>
+<li>Audit and security logs: 12 months.</li>
+<li>Hosting logs: as set by Netlify, normally a few days to 30 days.</li>
+<li>Purchase, invoice and payment records: 10 years from the start of the limitation period, as required by Art. 66 of the Croatian General Tax Act (Opći porezni zakon) — in practice about 11 years from the purchase.</li>
+</ul>
 
-  <h2>6. How long we keep things</h2>
-  <ul>
-    <li>Account and book data: for as long as your account exists.</li>
-    <li>After you delete your account: erased immediately, other than backups, which roll off within 30 days.</li>
-    <li>Tracking events and performance data: 25 months.</li>
-    <li>Billing records: as long as tax law requires, typically 10 years.</li>
-    <li>Audit logs: 12 months.</li>
-  </ul>
+<h2>8. Your rights</h2>
+<p>Under the GDPR you have the right to:</p>
+<ul>
+<li>access your data and get a copy (Art. 15);</li>
+<li>have inaccurate data corrected (Art. 16);</li>
+<li>have data erased (Art. 17);</li>
+<li>restrict processing (Art. 18);</li>
+<li>data portability (Art. 20);</li>
+<li>object to processing based on legitimate interests (Art. 21);</li>
+<li>withdraw consent at any time, without affecting earlier processing (Art. 7(3)).</li>
+</ul>
+<p>App users can export their data and delete their account in Settings → Your data. For anything else, write to <a href="mailto:hello@bookpilot.org">hello@bookpilot.org</a>. We answer within one month.</p>
+<p>You have the right to lodge a complaint with a supervisory authority. In Croatia this is the <strong>Agencija za zaštitu osobnih podataka (AZOP)</strong>, Selska cesta 136, 10000 Zagreb, <a href="https://azop.hr" target="_blank" rel="noopener">azop.hr</a>. You can also complain to the authority where you live or work in the EU.</p>
 
-  <h2>7. Your rights</h2>
-  <p>
-    Under the GDPR you can ask for access, rectification, erasure, restriction, portability, and you
-    can object to processing based on legitimate interests. Where processing rests on consent, you
-    can withdraw it at any time without affecting what happened before.
-  </p>
-  <p>
-    Two of these are buttons rather than requests. In <strong>Settings → Your data</strong> you can
-    export everything we hold about you as a JSON file, and delete your account permanently. Analytics
-    and marketing consent are toggles in the same place, and every change is recorded with a
-    timestamp. For anything else, write to <a href="mailto:privacy@bookpilot.org">privacy@bookpilot.org</a> — we answer within one month.
-  </p>
-  <p>
-    You can also complain to a supervisory authority, normally the one where you live or work.
-  </p>
+<h2>9. Security</h2>
+<p>All traffic uses TLS. In the app, database row-level security means a request can only return rows that belong to your account. API keys and ad-platform tokens are kept server-side and never sent to your browser. We never ask for your Meta or Amazon password; connections use OAuth.</p>
 
-  <h2>8. Security</h2>
-  <p>
-    Access to your data is enforced in the database itself through row-level security, so a request
-    can only ever return rows belonging to the account that made it. API keys and OAuth tokens are
-    held server-side and are never sent to a browser. Ad-platform tokens are stored in a table that
-    client applications have no access to at all. Transport is TLS throughout. We do not store your
-    Meta or Amazon password, because we never ask for it — connections use OAuth.
-  </p>
+<h2>10. Children</h2>
+<p>The site and the app are not directed at children. We do not knowingly create accounts for anyone under 16.</p>
 
-  <h2>9. Children</h2>
-  <p>
-    BookPilot AI is a business tool and is not directed at children. We do not knowingly create
-    accounts for anyone under 16.
-  </p>
-
-  <h2>10. Changes</h2>
-  <p>
-    We'll post any change here and, for anything material, tell you in the app before it takes
-    effect. The version and date at the top always reflect the current text.
-  </p>
-
+<h2>11. Changes</h2>
+<p>We will post any change here and update the date at the top. App users will be told in the app before a material change takes effect.</p>
 
 </main>
+<nav class="home-arrow home-arrow--bottom" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Back to home</a></nav>
 <footer class="bp-footer">
   <div class="bp-footer__legal">
     <div class="bp-footer__legal-inner">
@@ -200,7 +158,8 @@
         <a href="/privacy.html">Privacy</a> ·
         <a href="/terms.html">Terms</a> ·
         <a href="/cookies.html">Cookies</a> ·
-        <a href="/contact.html">Contact</a> ·
+        <a href="/blog/">Blog</a> ·
+        <a href="/contact/">Contact</a> ·
         <a href="/cookies.html" data-cookie-settings>Cookie settings</a>
       </span>
     </div>

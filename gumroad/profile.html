@@ -65,6 +65,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 <script>try{var t=localStorage.getItem("zsrica.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="/assets/css/home-arrow.css">
 </head>
 <body>
 <header><div class="wrap nav">
@@ -80,6 +81,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
     <a class="btn btn-primary btn-sm" href="#shelf">Browse the shelf</a>
   </div>
 </div></header>
+<nav class="home-arrow home-arrow--top" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Home</a></nav>
 <main id="top">
 <section class="wrap hero">
   <div>
@@ -139,6 +141,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
   <p data-gumroad-follow-message role="status" aria-live="polite"></p>
 </div></section>
 </main>
+<nav class="home-arrow home-arrow--bottom" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Back to home</a></nav>
 <footer><div class="wrap"><span>© <span id="y">2026</span> BookPilot AI</span><a href="https://bookpilot.org/">bookpilot.org</a></div></footer>
 <script>
 document.getElementById("y").textContent=new Date().getFullYear();

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Contact — BookPilot AI</title>
 <meta name="description" content="Get in touch with the BookPilot AI team.">
+<link rel="canonical" href="https://bookpilot.org/contact/">
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" href="/icon-96.png" sizes="96x96" type="image/png">
 <link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png">
@@ -27,6 +28,7 @@
   .bp-contact-alt dt { font-weight: 600; margin-top: var(--bp-3); }
   .bp-contact-alt dd { margin: 2px 0 0; color: var(--bp-text-muted); }
 </style>
+<link rel="stylesheet" href="/assets/css/home-arrow.css">
 </head>
 <body>
 <a class="bp-skip-link" href="#main">Skip to content</a>
@@ -34,10 +36,12 @@
   <div class="bp-nav__inner">
     <a class="bp-logo" href="/"><span class="bp-logo__mark" aria-hidden="true"></span> BookPilot <span class="bp-logo__ai">AI</span></a>
     <nav class="bp-nav__links" aria-label="Legal">
+      <a class="bp-nav__link" href="/books/">Books</a>
+      <a class="bp-nav__link" href="/blog/">Blog</a>
       <a class="bp-nav__link" href="/privacy.html">Privacy</a>
       <a class="bp-nav__link" href="/terms.html">Terms</a>
       <a class="bp-nav__link" href="/cookies.html">Cookies</a>
-      <a class="bp-nav__link" href="/contact.html">Contact</a>
+      <a class="bp-nav__link" href="/contact/">Contact</a>
     </nav>
     <div class="bp-nav__actions">
       <a class="bp-btn bp-btn--ghost bp-btn--sm" href="/">Product</a>
@@ -45,38 +49,31 @@
     </div>
   </div>
 </header>
+<nav class="home-arrow home-arrow--top" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Home</a></nav>
 <main id="main" class="bp-legal">
   <p class="bp-eyebrow">Get in touch</p>
   <h1 class="bp-display" style="font-size:2.1rem;margin:var(--bp-2) 0 var(--bp-3)">Contact us</h1>
-  <p class="bp-lead">Questions about the product, your account or anything else — send us a message and we'll get back to you.</p>
+  <p class="bp-lead">Questions about the books, the app, your account or anything else — send a message and we'll get back to you.</p>
 
-  <form class="bp-contact-form" action="https://formspree.io/f/mljdbkzp" method="POST">
-    <input type="hidden" name="_subject" value="New message from bookpilot.org/contact">
-    <div class="bp-field">
-      <label class="bp-label" for="name">Name</label>
-      <input class="bp-input" id="name" name="name" required maxlength="200">
-    </div>
-    <div class="bp-field">
-      <label class="bp-label" for="email">Email</label>
-      <input class="bp-input" id="email" name="_replyto" type="email" required maxlength="200">
-    </div>
-    <div class="bp-field">
-      <label class="bp-label" for="message">Message</label>
-      <textarea class="bp-textarea" id="message" name="message" rows="6" required maxlength="4000"></textarea>
-    </div>
+  <form id="contact-form" class="bp-contact-form" action="https://formspree.io/f/mljdbkzp" method="POST">
+    <input type="hidden" name="_next" value="https://bookpilot.org/contact/thanks/">
+    <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+    <div class="bp-field"><label class="bp-label" for="name">Name</label><input class="bp-input" id="name" name="name" required maxlength="200" autocomplete="name"></div>
+    <div class="bp-field"><label class="bp-label" for="email">Email</label><input class="bp-input" id="email" name="email" type="email" required maxlength="200" autocomplete="email"></div>
+    <div class="bp-field"><label class="bp-label" for="subject">Subject <span class="bp-subtle">(optional)</span></label><input class="bp-input" id="subject" name="_subject" maxlength="200"></div>
+    <div class="bp-field"><label class="bp-label" for="message">Message</label><textarea class="bp-textarea" id="message" name="message" rows="6" required maxlength="4000"></textarea></div>
+    <div class="bp-field"><label style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" name="consent" value="yes" required style="margin-top:4px"> <span class="bp-small">I agree my data is used to answer my message. See the <a href="/privacy.html">privacy policy</a>.</span></label></div>
     <button class="bp-btn bp-btn--primary" type="submit">Send message</button>
+    <p id="contact-status" class="bp-small" role="status" aria-live="polite" style="margin-top:12px"></p>
   </form>
-
-  <dl class="bp-contact-alt">
-    <p class="bp-small bp-subtle" style="margin:0 0 var(--bp-2)">Prefer email directly?</p>
-    <dt>General enquiries</dt>
-    <dd><a href="mailto:hello@bookpilot.org">hello@bookpilot.org</a></dd>
-    <dt>Account &amp; billing support</dt>
-    <dd><a href="mailto:bookpilot@bookpilot.org">bookpilot@bookpilot.org</a></dd>
-    <dt>Privacy &amp; data requests</dt>
-    <dd><a href="mailto:privacy@bookpilot.org">privacy@bookpilot.org</a></dd>
-  </dl>
 </main>
+<script>
+(function(){var f=document.getElementById('contact-form');if(!f||!window.fetch)return;
+f.addEventListener('submit',function(e){e.preventDefault();var b=f.querySelector('button');b.disabled=true;
+fetch(f.action,{method:'POST',body:new FormData(f),headers:{'Accept':'application/json'}}).then(function(r){
+if(r.ok){window.location.href='/contact/thanks/';}else{throw 0;}}).catch(function(){document.getElementById('contact-err').hidden=false;b.disabled=false;});});})();
+</script>
+<nav class="home-arrow home-arrow--bottom" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Back to home</a></nav>
 <footer class="bp-footer">
   <div class="bp-footer__legal">
     <div class="bp-footer__legal-inner">
@@ -85,7 +82,7 @@
         <a href="/privacy.html">Privacy</a> ·
         <a href="/terms.html">Terms</a> ·
         <a href="/cookies.html">Cookies</a> ·
-        <a href="/contact.html">Contact</a>
+        <a href="/contact/">Contact</a>
       </span>
     </div>
   </div>

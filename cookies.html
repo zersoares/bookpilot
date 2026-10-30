@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cookie policy — BookPilot AI</title>
-<meta name="description" content="What BookPilot AI stores in your browser, and what the tracking script stores in your readers'.">
+<title>Cookie policy — BookPilot</title>
+<meta name="description" content="BookPilot sets no cookies of its own. Here is everything stored in your browser.">
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" href="/icon-96.png" sizes="96x96" type="image/png">
 <link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png">
@@ -31,6 +31,7 @@
   .bp-legal th { font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bp-text-subtle); }
   .bp-placeholder { background: var(--bp-warning-soft); border-bottom: 1px dashed var(--bp-warning); padding: 0 3px; color: var(--bp-warning); }
 </style>
+<link rel="stylesheet" href="/assets/css/home-arrow.css">
 </head>
 <body>
 <a class="bp-skip-link" href="#main">Skip to content</a>
@@ -38,10 +39,12 @@
   <div class="bp-nav__inner">
     <a class="bp-logo" href="/"><span class="bp-logo__mark" aria-hidden="true"></span> BookPilot <span class="bp-logo__ai">AI</span></a>
     <nav class="bp-nav__links" aria-label="Legal">
+      <a class="bp-nav__link" href="/books/">Books</a>
+      <a class="bp-nav__link" href="/blog/">Blog</a>
       <a class="bp-nav__link" href="/privacy.html">Privacy</a>
       <a class="bp-nav__link" href="/terms.html">Terms</a>
       <a class="bp-nav__link" href="/cookies.html">Cookies</a>
-      <a class="bp-nav__link" href="/contact.html">Contact</a>
+      <a class="bp-nav__link" href="/contact/">Contact</a>
     </nav>
     <div class="bp-nav__actions">
       <a class="bp-btn bp-btn--ghost bp-btn--sm" href="/">Product</a>
@@ -49,115 +52,46 @@
     </div>
   </div>
 </header>
+<nav class="home-arrow home-arrow--top" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Home</a></nav>
 <main id="main" class="bp-legal">
   <p class="bp-eyebrow">Legal</p>
-  <h1 class="bp-display" style="font-size:2.1rem;margin:var(--bp-2) 0 var(--bp-3)">Cookie policy</h1>
+  <h1 class="bp-display" style="font-size:2.1rem;margin:var(--bb-2) 0 var(--bb-3)">Cookie policy</h1>
   <p class="bp-lead">No advertising cookies, no tracking cookies. Here is everything that is stored, and where.</p>
-  <p class="bp-small bp-subtle">Version 1.1 · Last updated September 2026</p>
+  <p style="font-size:0.85rem">Effective 29 October 2026 · Last updated 29 October 2026</p>
 
-  <div class="bp-alert bp-alert--warning" style="margin:var(--bp-6) 0">
-    <span class="bp-alert__icon">!</span>
-    <div>
-      <div class="bp-alert__title">Complete before launch</div>
-      <div class="bp-small">
-        This document describes how the BookPilot AI software actually handles data, and it is
-        written to be usable — but the highlighted fields must be filled in with the operating
-        company's real details, and the whole document reviewed by a qualified adviser, before the
-        service is offered to the public. BookPilot AI does not provide legal advice.
-      </div>
-    </div>
-  </div>
+<h2>The short version</h2>
+<p>BookPilot sets <strong>no cookies</strong> of its own: no advertising cookies, no tracking cookies, no analytics cookies. That is why there is no cookie banner. The few things stored in your browser are listed below; they are strictly necessary or set by your own choice.</p>
 
+<h2>What is stored on your device</h2>
+<table>
+<thead><tr><th>Name</th><th>Type</th><th>Where</th><th>Purpose</th><th>Lifetime</th></tr></thead>
+<tbody>
+<tr><td><code>bookboost.session</code></td><td>localStorage</td><td>BookPilot AI app</td><td>Keeps you signed in. Strictly necessary.</td><td>Until you sign out</td></tr>
+<tr><td><code>bookboost.theme</code></td><td>localStorage</td><td>Site and app</td><td>Remembers light or dark mode. Only written if you use the toggle.</td><td>Until you clear site data</td></tr>
+</tbody></table>
+<p>The names start with "bookboost" for technical reasons (BookPilot's earlier name). Neither value is readable by other sites or sent to us for analysis.</p>
 
-  <h2>The short version</h2>
-  <p>
-    BookPilot AI sets no advertising cookies and no tracking cookies. What it stores in your browser
-    is what an application needs to work: your session, and your display choices.
-  </p>
+<h2>Netlify performance monitoring</h2>
+<p>Our host, Netlify, measures how fast pages load (Real User Monitoring). It does not set cookies or store identifiers on your device, and we only see anonymous, aggregated figures. See the <a href="/privacy.html">privacy policy</a>.</p>
 
-  <h2>What BookPilot stores on your device</h2>
-  <table>
-    <thead><tr><th>Name</th><th>Type</th><th>Purpose</th><th>Lifetime</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><code class="bp-mono">bookpilot.session</code></td>
-        <td>localStorage</td>
-        <td>Keeps you signed in. Strictly necessary — without it you would have to sign in on every page.</td>
-        <td>Until you sign out</td>
-      </tr>
-      <tr>
-        <td><code class="bp-mono">bookpilot.theme</code></td>
-        <td>localStorage</td>
-        <td>Remembers whether you chose light or dark. Only written if you use the toggle.</td>
-        <td>Until you clear site data</td>
-      </tr>
-      <tr>
-        <td><code class="bp-mono">bookpilot.mockup.palette</code></td>
-        <td>localStorage</td>
-        <td>Remembers the backdrop you chose in the Book Builder's mockups. Only written when you choose one.</td>
-        <td>Until you clear site data</td>
-      </tr>
-      <tr>
-        <td><code class="bp-mono">bookpilot.consent</code></td>
-        <td>localStorage</td>
-        <td>Remembers that you have seen the cookie notice, so you are not asked on every page.</td>
-        <td>12 months</td>
-      </tr>
-    </tbody>
-  </table>
-  <p>
-    Each of these is either strictly necessary or written only because you used a control. BookPilot
-    shows a short notice about this the first time you visit, and you can reopen it whenever you
-    like from "Cookie settings" in the footer, or in Settings once you are signed in. None of it is
-    readable by any other site, and none of it is sent to us for analysis.
-  </p>
-  <p>
-    We do not currently load a third-party product analytics tool, and BookPilot sets no cookies. If
-    that changes, it will appear in this table and in the cookie notice, the notice will become a
-    choice between accepting and refusing it, and it will not run unless you accept.
-  </p>
+<h2>Leaving bookpilot.org</h2>
+<p>When you click "Buy" you go to Stripe's checkout, which uses its own cookies for payment and fraud prevention. Links to Amazon, other stores and gdprgard.eu open those sites, which have their own cookie policies. Those cookies are set by them, not by us.</p>
 
-  <h2>The tracking script on your own website</h2>
-  <p>
-    This is the part that needs your attention as a site owner. The BookPilot tracking script
-    (<code class="bp-mono">bp.js</code>) sets <strong>no cookies at all</strong>. It stores two values
-    in <code class="bp-mono">sessionStorage</code>, which is emptied when the visitor closes the tab:
-  </p>
-  <table>
-    <thead><tr><th>Name</th><th>Purpose</th></tr></thead>
-    <tbody>
-      <tr><td><code class="bp-mono">bp.utm</code></td><td>The campaign parameters from the ad link, so a purchase several pages later can be attributed to the ad that produced it.</td></tr>
-      <tr><td><code class="bp-mono">bp.sid</code></td><td>A random value that ties a visit's events together. It is not linked to a person and does not survive the tab.</td></tr>
-    </tbody>
-  </table>
-  <p>
-    It records no IP address, no user agent, no device identifier, no referrer and no page content.
-    Even so, storing information on a visitor's device is regulated in the EU under the ePrivacy
-    rules regardless of whether it is technically a cookie, and whether an exemption applies depends
-    on your setup and your national regulator's position.
-  </p>
-  <p>
-    So the script gives you a gate. Set <code class="bp-mono">window.bookpilotConsent = false</code>
-    before it loads and it sends nothing; set it to <code class="bp-mono">true</code> after your
-    consent tool records a choice, and call
-    <code class="bp-mono">bookpilot('page_view')</code>. Whether you need that gate is your decision
-    as the controller of your site, and one worth taking advice on.
-  </p>
+<h2>The tracking script on your own website (app users)</h2>
+<p>If you install the BookPilot tracking script (<code>bb.js</code>) on your own site, it sets no cookies. It stores two values in <code>sessionStorage</code>, which is emptied when the visitor closes the tab:</p>
+<table>
+<thead><tr><th>Name</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>bb.utm</code></td><td>Campaign parameters from the ad link, so a later purchase can be attributed to the ad.</td></tr>
+<tr><td><code>bb.sid</code></td><td>A random value tying one visit's events together; not linked to a person.</td></tr>
+</tbody></table>
+<p>It records no IP address, user agent, device identifier, referrer or page content. Storing anything on a visitor's device is still regulated under the EU ePrivacy rules; whether you need consent depends on your setup and your national regulator. As the site owner you decide this and cover it in your own notices.</p>
 
-  <h2>Managing storage</h2>
-  <p>
-    Your browser can clear or block site data for any site, including this one. Blocking it for
-    BookPilot means you will be asked to sign in more often and your theme choice will not be
-    remembered; nothing else in the product depends on it.
-  </p>
-
-  <h2>Related</h2>
-  <p>
-    What we do with the data itself is in the <a href="/privacy.html">privacy policy</a>.
-  </p>
-
+<h2>Managing storage</h2>
+<p>You can delete localStorage and sessionStorage at any time by clearing site data in your browser settings. Questions: <a href="mailto:hello@bookpilot.org">hello@bookpilot.org</a>.</p>
 
 </main>
+<nav class="home-arrow home-arrow--bottom" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Back to home</a></nav>
 <footer class="bp-footer">
   <div class="bp-footer__legal">
     <div class="bp-footer__legal-inner">
@@ -166,7 +100,8 @@
         <a href="/privacy.html">Privacy</a> ·
         <a href="/terms.html">Terms</a> ·
         <a href="/cookies.html">Cookies</a> ·
-        <a href="/contact.html">Contact</a> ·
+        <a href="/blog/">Blog</a> ·
+        <a href="/contact/">Contact</a> ·
         <a href="/cookies.html" data-cookie-settings>Cookie settings</a>
       </span>
     </div>

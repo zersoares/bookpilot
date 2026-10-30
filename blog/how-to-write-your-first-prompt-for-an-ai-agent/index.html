@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to Write Your First Prompt for an AI Agent (Without Coding) — BookPilot AI Blog</title>
+<meta name="description" content="A plain-English method for your first AI agent prompt: goal, context, steps, format and limits. Based on official prompting guidance from Anthropic and Google.">
+<meta name="keywords" content="AI agents, prompting, no-code AI, Claude Cowork, Gemini, AI Agents">
+<link rel="canonical" href="https://bookpilot.org/blog/how-to-write-your-first-prompt-for-an-ai-agent/">
+<meta property="og:type" content="article"><meta property="og:site_name" content="BookPilot AI"><meta property="og:title" content="How to Write Your First Prompt for an AI Agent (Without Coding)"><meta property="og:description" content="A plain-English method for your first AI agent prompt: goal, context, steps, format and limits. Based on official prompting guidance from Anthropic and Google."><meta property="og:url" content="https://bookpilot.org/blog/how-to-write-your-first-prompt-for-an-ai-agent/"><meta property="og:image" content="https://bookpilot.org/assets/blog/how-to-write-your-first-prompt-for-an-ai-agent.jpg"><meta property="og:image:alt" content="A handwritten brief on a notepad with five labelled parts, goal, context, steps, format and limits, next to a laptop running an AI agent">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="How to Write Your First Prompt for an AI Agent (Without Coding)"><meta name="twitter:description" content="A plain-English method for your first AI agent prompt: goal, context, steps, format and limits. Based on official prompting guidance from Anthropic and Google."><meta name="twitter:image" content="https://bookpilot.org/assets/blog/how-to-write-your-first-prompt-for-an-ai-agent.jpg">
+<meta property="article:author" content="Zirlandia Milkovic"><meta property="article:section" content="AI Agents"><meta property="article:published_time" content="2026-10-26">
+<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/fonts/fonts.css"><link rel="stylesheet" href="../../assets/css/blog.css">
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to Write Your First Prompt for an AI Agent (Without Coding)",
+  "description": "A plain-English method for your first AI agent prompt: goal, context, steps, format and limits. Based on official prompting guidance from Anthropic and Google.",
+  "url": "https://bookpilot.org/blog/how-to-write-your-first-prompt-for-an-ai-agent/",
+  "mainEntityOfPage": "https://bookpilot.org/blog/how-to-write-your-first-prompt-for-an-ai-agent/",
+  "image": "https://bookpilot.org/assets/blog/how-to-write-your-first-prompt-for-an-ai-agent.jpg",
+  "author": {
+    "@type": "Person",
+    "name": "Zirlandia Milkovic",
+    "description": "Zirlandia Milkovic develops websites, software products and educational materials at the intersection of web development and applied artificial intelligence."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "BookPilot AI",
+    "url": "https://bookpilot.org/"
+  },
+  "datePublished": "2026-10-26",
+  "dateModified": "2026-10-26",
+  "articleSection": "AI Agents",
+  "inLanguage": "en",
+  "wordCount": 944,
+  "keywords": "AI agents, prompting, no-code AI, Claude Cowork, Gemini, AI Agents"
+}</script><link rel="stylesheet" href="/assets/css/home-arrow.css">
+</head>
+<body><a class="bp-skip-link" href="#main">Skip to content</a>
+<header class="bp-nav"><div class="bp-nav__inner">
+<a class="bp-logo" href="https://bookpilot.org/"><span class="bp-logo__mark" aria-hidden="true"></span>BookPilot <span class="bp-logo__ai">AI</span></a>
+<nav class="bp-nav__links" aria-label="Sections">
+<a class="bp-nav__link" href="https://bookpilot.org/#write">Write a book</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#how">How it works</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#intelligence">Reader intelligence</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#performance">Performance</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#pricing">Pricing</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#faq">FAQ</a>
+<a class="bp-nav__link" href="https://bookpilot.org/books/">Books</a>
+<a class="bp-nav__link" href="../" aria-current="page">Blog</a>
+</nav>
+<div class="bp-nav__actions"><a class="bp-btn bp-btn--ghost bp-btn--sm" href="https://bookpilot.org/app#/signin">Sign in</a><a class="bp-btn bp-btn--primary bp-btn--sm" href="https://bookpilot.org/app#/signup">Start free</a></div>
+</div></header>
+<nav class="home-arrow home-arrow--top" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Home</a></nav>
+<main id="main"><article class="article">
+<p><a href="../">← All articles</a></p>
+<span class="badge">AI Agents</span>
+<h1>How to Write Your First Prompt for an AI Agent (Without Coding)</h1>
+<p class="lead">Based on official prompting guidance from Anthropic and Google, consulted on 24 October 2026.</p>
+<div class="byline"><span class="avatar" aria-hidden="true">ZM</span><span>By <strong>Zirlandia Milkovic</strong> · <time datetime="2026-10-26">2026-10-26</time> · 5 min read</span></div>
+<figure class="article-banner"><img src="/assets/blog/how-to-write-your-first-prompt-for-an-ai-agent.jpg" alt="A handwritten brief on a notepad with five labelled parts, goal, context, steps, format and limits, next to a laptop running an AI agent" width="1280" height="720" loading="eager" decoding="async"></figure><aside class="tldr" aria-label="TL;DR"><h2>TL;DR</h2><ul><li>A prompt for an agent is a <strong>brief</strong>, not a question. It will act on what you write.</li><li>Use five parts: <strong>goal, context, steps, format, limits</strong>.</li><li>Anthropic's advice: treat the AI like "a brilliant but new employee who lacks context."</li><li>Start small, review everything, and tighten the brief after each run.</li></ul></aside>
+<nav class="toc" aria-label="Table of contents"><strong>On this page</strong><ol><li><a href="#think-new-colleague-not-search-box">Think "new colleague," not "search box"</a></li>
+<li><a href="#the-five-part-brief">The five-part brief</a></li>
+<li><a href="#a-ready-to-copy-first-prompt">A ready-to-copy first prompt</a></li>
+<li><a href="#set-the-guardrails-in-the-tool-too">Set the guardrails in the tool, too</a></li>
+<li><a href="#your-first-week">Your first week</a></li>
+<li><a href="#go-deeper">Go deeper</a></li>
+<li><a href="#sources">Sources</a></li>
+</ol></nav>
+<p>With a chatbot, a vague question costs you a vague answer. With an agent that opens files, browses sites and builds documents, a vague brief costs you time, and sometimes a mess to undo.</p>
+<p>The good news: you don't need code. You need a clear brief.</p>
+<h2 id="think-new-colleague-not-search-box">Think "new colleague," not "search box"</h2>
+<p>Anthropic's prompting guide puts it this way: think of the AI "as a brilliant but new employee who lacks context on your norms and workflows. The more precisely you explain what you want, the better the result."</p>
+<p>It also suggests a simple test. Show your prompt to a colleague with little context. "If they'd be confused, Claude will be too."</p>
+<p>Google's Gemini help pages say something similar. Good instructions cover four areas: the <strong>role</strong> to play, the <strong>task</strong>, the <strong>context</strong> and the <strong>format</strong> you want.</p>
+<h2 id="the-five-part-brief">The five-part brief</h2>
+<h3 id="1-goal-what-done-looks-like">1. Goal: what "done" looks like</h3>
+<p>Say the result, not the activity. "Summarise my invoices" is an activity. "A table of every unpaid invoice from September, with client, amount and due date" is a result.</p>
+<h3 id="2-context-why-and-for-whom">2. Context: why, and for whom</h3>
+<p>Anthropic notes that explaining the reason behind an instruction helps the model "deliver more targeted responses." Say who will read the result and what it's for.</p>
+<h3 id="3-steps-when-order-matters">3. Steps: when order matters</h3>
+<p>The same guide recommends giving "instructions as sequential steps using numbered lists" when order or completeness matters. Agents do multi-step work, so this is where you earn your result.</p>
+<h3 id="4-format-exactly-what-to-hand-back">4. Format: exactly what to hand back</h3>
+<p>File type, columns, length, tone, where to save it. Be specific. Anthropic calls examples "one of the most reliable ways to steer" format and tone, so paste one if you have it.</p>
+<h3 id="5-limits-what-not-to-touch">5. Limits: what not to touch</h3>
+<p>This part matters most for agents. Say which folders it may use, what it must not delete or send, and when it should stop and ask you.</p>
+<h2 id="a-ready-to-copy-first-prompt">A ready-to-copy first prompt</h2>
+<blockquote>
+<p><strong>Goal:</strong> Create a spreadsheet of unpaid invoices from September 2026.</p>
+<p><strong>Context:</strong> I'm a freelancer. I'll use this to send payment reminders on Friday.</p>
+<p><strong>Steps:</strong> 1) Open the PDFs in the "Invoices/2026-09" folder. 2) For each one, find client, invoice number, amount and due date. 3) Check the "Payments" sheet and leave out any invoice marked paid.</p>
+<p><strong>Format:</strong> One spreadsheet, one row per invoice, sorted by due date. Save it as "unpaid-september.xlsx" in the same folder.</p>
+<p><strong>Limits:</strong> Only use these two locations. Don't email anyone. Don't delete or rename files. If a PDF is unreadable, list it at the end instead of guessing.</p>
+</blockquote>
+<h2 id="set-the-guardrails-in-the-tool-too">Set the guardrails in the tool, too</h2>
+<p>Your prompt isn't the only control. In Claude Cowork, for example, Anthropic's help centre describes:</p>
+<ul>
+<li><strong>Folder access:</strong> Claude reads and writes only in folders you've connected.</li>
+<li><strong>Permission modes:</strong> Manual, Auto and Skip. For work involving money, messages sent as you or important files, Anthropic advises staying close or switching back to Manual.</li>
+<li><strong>Deletion protection:</strong> Claude needs your explicit permission before permanently deleting files.</li>
+<li><strong>Standing instructions:</strong> global instructions for every session, and folder instructions for a specific project.</li>
+</ul>
+<p>If you repeat the same context every time, move it into those standing instructions and keep your prompt short.</p>
+<h2 id="your-first-week">Your first week</h2>
+<ol>
+<li>Pick one boring, low-risk task.</li>
+<li>Write the five-part brief.</li>
+<li>Run it, then review every line of the result.</li>
+<li>Note what went wrong and add one sentence to the brief to prevent it.</li>
+<li>Run it again next week.</li>
+</ol>
+<h2 id="go-deeper">Go deeper</h2>
+<p>Our Portuguese-language book <strong>Agentes de IA para quem não programa</strong> (<em>AI Agents for People Who Don't Program</em>) turns this method into a full delegation plan, with everyday examples and honest limits.</p>
+<p>👉 <strong><a href="https://bookpilot.org/books/">See our books at bookpilot.org/books</a></strong></p>
+<h2 id="sources">Sources</h2>
+<p><em>All consulted on 24 October 2026. Product details may have changed since.</em></p>
+<ol>
+<li><a href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/be-clear-and-direct">Anthropic: Prompting best practices (Claude Platform Docs)</a></li>
+<li><a href="https://support.google.com/gemini/answer/15235603?hl=en">Google: Tips for creating custom Gems (Gemini Apps Help)</a></li>
+<li><a href="https://support.claude.com/en/articles/13345190-get-started-with-cowork">Anthropic Help Center: Get started with Cowork</a></li>
+</ol>
+<aside class="author-box"><span class="avatar" aria-hidden="true">ZM</span><div><h2 style="margin-top:0;font-size:1.1rem">About the author — Zirlandia Milkovic</h2><p>Zirlandia Milkovic develops websites, software products and educational materials at the intersection of web development and applied artificial intelligence.</p></div></aside>
+<aside class="cta"><h2>Turn your idea into a book — and find its readers</h2><p>BookPilot helps you build a professionally structured book from one idea, then find readers and run the campaign in the same place.</p><p><a class="bp-btn bp-btn--primary bp-btn--lg" href="https://bookpilot.org/books/">Browse books on BookPilot</a> <a class="bp-btn bp-btn--secondary bp-btn--lg" href="https://bookpilot.org/app#/signup">Start free</a></p><p class="meta">Free plan, no card required. Your manuscript is never used to train any AI model.</p>
+</aside>
+</article></main><nav class="home-arrow home-arrow--bottom" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Back to home</a></nav>
+<footer class="bp-footer"><div class="bp-footer__inner">
+<div><a class="bp-logo" href="https://bookpilot.org/"><span class="bp-logo__mark" aria-hidden="true"></span>BookPilot <span class="bp-logo__ai">AI</span></a><p>Your AI marketing manager for books. Upload your book, find your readers, create your ads, launch your campaign, and discover which ads actually sell.</p></div>
+<div><h4>Product</h4><ul><li><a href="https://bookpilot.org/#how">How it works</a></li><li><a href="https://bookpilot.org/books/">Books</a></li><li><a href="../">Blog</a></li></ul></div>
+<div><h4>Account</h4><ul><li><a href="https://bookpilot.org/app#/signup">Create an account</a></li><li><a href="https://bookpilot.org/app#/signin">Sign in</a></li></ul></div>
+<div><h4>Legal</h4><ul><li><a href="https://bookpilot.org/privacy.html">Privacy policy</a></li><li><a href="https://bookpilot.org/terms.html">Terms of service</a></li><li><a href="https://bookpilot.org/cookies.html">Cookie policy</a></li><li><a href="https://bookpilot.org/contact/">Contact</a></li></ul></div>
+</div><div class="bp-footer__legal">© 2026 BookPilot AI. Advertising results depend on your book, your market and your budget — nothing here is a promise of sales. Articles are general information, not legal advice. <span>Built in Europe</span></div></footer></body></html>
