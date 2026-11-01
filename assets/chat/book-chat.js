@@ -18,7 +18,7 @@
   // Keep the launcher (and panel) above the cookie notice while it is visible.
   const lift = () => {
     const n = document.querySelector('.bpcn');
-    const vis = n && !n.hidden && n.offsetParent !== null && getComputedStyle(n).display !== 'none';
+    const vis = n && !n.hidden && getComputedStyle(n).display !== 'none';
     const off = vis ? Math.max(0, window.innerHeight - n.getBoundingClientRect().top) + 10 : 0;
     launch.style.bottom = off ? off + 'px' : '';
     panel.style.bottom = off ? (off + 60) + 'px' : '';
