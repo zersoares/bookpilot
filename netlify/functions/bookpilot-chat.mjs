@@ -72,7 +72,7 @@ async function llm(messages, key) {
   const picks = (Array.isArray(out.picks) ? out.picks : [])
     .filter((p) => p && BY_ID.has(p.id) && !seen.has(p.id) && seen.add(p.id)) // server-side validation
     .slice(0, 3).map((p) => card(BY_ID.get(p.id), String(p.why || "").replace(/https?:\/\/\S+/g, "").slice(0, 240)));
-  return { reply: String(out.reply || "").replace(/https?:\/\/\S+/g, "").slice(0, 600), picks };
+  return { reply: String(out.reply || "").replace(/https?:\/\/\S+/g, "").replace(/\*\*?|__/g, "").slice(0, 600), picks };
 }
 
 export default async (req, context) => {
