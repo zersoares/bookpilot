@@ -492,3 +492,10 @@
   for = "/books/thanks-chatbot-leaks-data-bk-d2124e29aa.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+# Bonus PDF: unlisted path, delivered only by email. Keep it out of search engines.
+[[headers]]
+  for = "/downloads/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "public, max-age=3600"
