@@ -22,9 +22,16 @@
     const off = vis ? Math.max(0, window.innerHeight - n.getBoundingClientRect().top) + 10 : 0;
     launch.style.bottom = off ? off + 'px' : '';
     panel.style.bottom = off ? (off + 60) + 'px' : '';
+    // Stack the page's back-to-top arrow above the chat button so they never overlap.
+    const top = document.getElementById('to-top');
+    if (top) {
+      const lb = parseFloat(getComputedStyle(launch).bottom) || 18;
+      top.style.bottom = (lb + launch.offsetHeight + 12) + 'px';
+      top.style.right = Math.max(8, window.innerWidth - launch.getBoundingClientRect().right + (launch.offsetWidth - top.offsetWidth) / 2) + 'px';
+    }
   };
   new MutationObserver(lift).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'class', 'style'] });
-  window.addEventListener('resize', lift); lift(); setTimeout(lift, 600); setTimeout(lift, 2000);
+  window.addEventListener('resize', lift); window.addEventListener('scroll', lift, { passive: true }); lift(); setTimeout(lift, 600); setTimeout(lift, 2000);
   const history = [];
   const say = (text, who) => { const m = el('div', { class: 'bc-msg bc-msg--' + who, text }); log.append(m); log.scrollTop = log.scrollHeight; return m; };
   const book = (b) => {
