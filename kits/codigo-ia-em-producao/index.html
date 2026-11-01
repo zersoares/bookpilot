@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kit do leitor — Código de IA em Produção | BookPilot AI</title>
+<meta name="description" content="Baixe grátis o kit do leitor do ebook Código de IA em Produção: templates do GitHub, workflows, checklists de revisão, modelo de política de IA e planilha de métricas.">
+<link rel="canonical" href="https://bookpilot.org/kits/codigo-ia-em-producao/">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/icon-96.png" sizes="96x96" type="image/png">
+<link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/assets/css/design-system.css">
+<link rel="stylesheet" href="/assets/css/landing.css">
+<script>
+  try {
+    var t = localStorage.getItem('bookpilot.theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
+<style>
+  .bp-legal { max-width: 680px; margin: 0 auto; padding: var(--bp-12) var(--bp-6) var(--bp-20); }
+  .bp-legal p, .bp-legal li { color: var(--bp-text-muted); }
+  .kit-logo { width:56px; height:56px; display:block; margin-bottom: var(--bp-4); }
+  .kit-list li { margin: 6px 0; }
+  .kit-dl { margin: var(--bp-8) 0; }
+  .kit-dl .bp-small { display:block; margin-top:8px; }
+  .bp-legal code { font-size: .9em; }
+</style>
+<link rel="stylesheet" href="/assets/css/home-arrow.css">
+</head>
+<body>
+<a class="bp-skip-link" href="#main">Pular para o conteúdo</a>
+<header class="bp-nav">
+  <div class="bp-nav__inner">
+    <a class="bp-logo" href="/"><span class="bp-logo__mark" aria-hidden="true"></span> BookPilot <span class="bp-logo__ai">AI</span></a>
+    <nav class="bp-nav__links" aria-label="Legal">
+      <a class="bp-nav__link" href="/books/">Books</a>
+      <a class="bp-nav__link" href="/blog/">Blog</a>
+      <a class="bp-nav__link" href="/privacy.html">Privacy</a>
+      <a class="bp-nav__link" href="/terms.html">Terms</a>
+      <a class="bp-nav__link" href="/cookies.html">Cookies</a>
+      <a class="bp-nav__link" href="/contact/">Contact</a>
+    </nav>
+    <div class="bp-nav__actions">
+      <a class="bp-btn bp-btn--ghost bp-btn--sm" href="/">Product</a>
+      <a class="bp-btn bp-btn--primary bp-btn--sm" href="/app.html#/signup">Start free</a>
+    </div>
+  </div>
+</header>
+<nav class="home-arrow home-arrow--top" aria-label="Voltar ao início"><a href="/" aria-label="Voltar ao início"><span class="home-arrow__icon" aria-hidden="true">←</span> Início</a></nav>
+<main id="main" class="bp-legal">
+  <img class="kit-logo" src="/assets/brand/logo-mark.svg" alt="BookPilot" width="56" height="56">
+  <p class="bp-eyebrow">Kit do leitor · ebook</p>
+  <h1 class="bp-display" style="font-size:2.1rem;margin:var(--bp-2) 0 var(--bp-3)">Código de IA em Produção</h1>
+  <p class="bp-lead">Revisão, testes e evals para devs web — por Zirlandia Milkovic. Lançamento na Kindle em 15/12/2026.</p>
+  <p>Este kit reúne os arquivos prontos usados no livro, para você copiar para o seu repositório e adaptar ao seu time: instruções para agentes de código, templates do GitHub, workflows de revisão, checklists, um modelo de política de uso de IA e um painel de métricas. São 34 arquivos, em português e em inglês.</p>
+  <div class="kit-dl">
+    <a class="bp-btn bp-btn--primary" href="/kits/codigo-ia-em-producao/kit-codigo-ia-em-producao.zip" download>Baixar o kit (.zip, 53 KB)</a>
+    <span class="bp-small">Gratuito, sem cadastro.</span>
+  </div>
+  <h2>O que tem no kit</h2>
+  <ul class="kit-list">
+    <li><strong>Instruções para agentes de código:</strong> <code>AGENTS.md</code>, <code>CLAUDE.md</code> e <code>REVIEW.md</code> (regras de escopo e do que sinalizar na revisão).</li>
+    <li><strong>Templates do GitHub:</strong> <code>CODEOWNERS</code>, template de pull request, template de issue de feature e <code>copilot-instructions.md</code>.</li>
+    <li><strong>Workflows do GitHub Actions:</strong> revisão automática de código com Claude (<code>claude-code-review.yml</code>) e rótulo de PRs feitos com IA (<code>rotulo-ia.yml</code>).</li>
+    <li><strong>Checklists de revisão:</strong> checklist de 10 itens, guia de revisão e revisão completa.</li>
+    <li><strong>Configuração do ruleset</strong> da branch padrão (referência passo a passo).</li>
+    <li><strong>Modelo de política de uso de IA</strong> no desenvolvimento, para preencher com os dados do seu time.</li>
+    <li><strong>Painel de métricas:</strong> planilha <code>.xlsx</code> com abas de PRs, comentários, resumo de evals e referência, também em <code>.csv</code>.</li>
+    <li><strong>Versões em inglês</strong> dos documentos e da planilha, na pasta <code>docs/</code>.</li>
+  </ul>
+  <p class="bp-small">Os templates são pontos de partida: revise e ajuste antes de usar no seu projeto.</p>
+</main>
+<nav class="home-arrow home-arrow--bottom" aria-label="Voltar ao início"><a href="/" aria-label="Voltar ao início"><span class="home-arrow__icon" aria-hidden="true">←</span> Voltar ao início</a></nav>
+<footer class="bp-footer">
+  <div class="bp-footer__legal">
+    <div class="bp-footer__legal-inner">
+      <span>© <span id="year">2026</span> BookPilot AI</span>
+      <span>
+        <a href="/privacy.html">Privacy</a> ·
+        <a href="/terms.html">Terms</a> ·
+        <a href="/cookies.html">Cookies</a> ·
+        <a href="/contact/">Contact</a>
+      </span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('year').textContent = String(new Date().getFullYear());</script>
+<script type="module" src="/js/cookie-notice.js"></script>
+</body>
+</html>

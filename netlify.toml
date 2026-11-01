@@ -499,3 +499,10 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "public, max-age=3600"
+
+# Reader kit download (Código de IA em Produção)
+[[headers]]
+  for = "/kits/*.zip"
+  [headers.values]
+    Content-Type = "application/zip"
+    Content-Disposition = "attachment"
