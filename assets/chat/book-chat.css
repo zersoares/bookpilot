@@ -1,0 +1,30 @@
+.bc-launch{position:fixed;right:18px;bottom:18px;z-index:900;display:flex;align-items:center;gap:8px;padding:10px 16px 10px 10px;border:0;border-radius:999px;background:#1f2a5c;color:#fff;font:600 15px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;box-shadow:0 6px 24px rgba(15,20,50,.28);cursor:pointer}
+.bc-launch img{width:28px;height:28px;border-radius:50%;background:#fff;padding:3px}
+.bc-launch:focus-visible,.bc-panel button:focus-visible,.bc-panel a:focus-visible,.bc-panel input:focus-visible{outline:3px solid #a9631a;outline-offset:2px}
+.bc-panel{position:fixed;right:18px;bottom:78px;z-index:901;width:min(380px,calc(100vw - 24px));max-height:min(600px,calc(100vh - 100px));display:flex;flex-direction:column;background:#fff;color:#1b1f33;border:1px solid #dfe2ee;border-radius:16px;box-shadow:0 12px 40px rgba(15,20,50,.25);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+.bc-panel[hidden]{display:none}
+.bc-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#1f2a5c;color:#fff}
+.bc-head img{width:30px;height:30px;border-radius:50%;background:#fff;padding:3px}
+.bc-head h2{margin:0;font-size:16px;flex:1;color:#fff}
+.bc-head button{background:none;border:0;color:#fff;font-size:22px;line-height:1;cursor:pointer;padding:4px 8px}
+.bc-log{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.bc-msg{max-width:90%;padding:8px 12px;border-radius:12px;white-space:pre-wrap}
+.bc-msg--bot{background:#f2f3f9;align-self:flex-start}
+.bc-msg--me{background:#1f2a5c;color:#fff;align-self:flex-end}
+.bc-chips{display:flex;flex-wrap:wrap;gap:6px}
+.bc-chips button{border:1px solid #c9cde0;background:#fff;border-radius:999px;padding:5px 10px;font:inherit;font-size:13px;cursor:pointer;color:#1f2a5c}
+.bc-book{border:1px solid #e3e5ef;border-radius:12px;padding:10px 12px;background:#fff}
+.bc-book--star{border-color:#f0dcbf;background:#fdf3e6}
+.bc-book h3{margin:0 0 2px;font-size:15px}
+.bc-book p{margin:0 0 6px;font-size:13px;color:#4a4f66}
+.bc-book .bc-acts{display:flex;gap:8px;flex-wrap:wrap}
+.bc-book a{font-size:13px;font-weight:600;padding:5px 10px;border-radius:8px;text-decoration:none}
+.bc-buy{background:#a9631a;color:#fff}
+.bc-more{border:1px solid #c9cde0;color:#1f2a5c}
+.bc-form{display:flex;gap:6px;padding:10px 12px;border-top:1px solid #eceef5}
+.bc-form input{flex:1;min-width:0;padding:9px 10px;border:1px solid #c9cde0;border-radius:10px;font:inherit}
+.bc-form button{padding:9px 14px;border:0;border-radius:10px;background:#1f2a5c;color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.bc-note{margin:0;padding:0 12px 10px;font-size:11.5px;color:#666b80}
+.bc-note a{color:inherit}
+@media (max-width:520px){.bc-panel{right:8px;left:8px;width:auto;bottom:72px;max-height:calc(100vh - 90px)}.bc-launch span{display:none}.bc-launch{padding:10px}}
+@media (prefers-color-scheme:dark){.bc-panel{background:#16192a;color:#e8e9f2;border-color:#2c3150}.bc-msg--bot{background:#22263d}.bc-book{background:#1c2035;border-color:#2c3150}.bc-book--star{background:#2b2118;border-color:#4a3a26}.bc-book p,.bc-note{color:#a7abc2}.bc-form{border-color:#2c3150}.bc-form input{background:#0f1220;color:#e8e9f2;border-color:#3a3f60}.bc-chips button,.bc-more{background:transparent;color:#c9cdf0;border-color:#3a3f60}}
