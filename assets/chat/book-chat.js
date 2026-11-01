@@ -15,6 +15,16 @@
   const panel = el('div', { id: 'bc-panel', class: 'bc-panel', role: 'dialog', 'aria-label': 'BookPilot book guide', hidden: '' },
     el('div', { class: 'bc-head' }, el('img', { src: LOGO, alt: '' }), el('h2', { text: 'BookPilot book guide' }), close), log, form, note);
   document.body.append(launch, panel);
+  // Keep the launcher (and panel) above the cookie notice while it is visible.
+  const lift = () => {
+    const n = document.querySelector('.bpcn');
+    const vis = n && !n.hidden && n.offsetParent !== null && getComputedStyle(n).display !== 'none';
+    const off = vis ? Math.max(0, window.innerHeight - n.getBoundingClientRect().top) + 10 : 0;
+    launch.style.bottom = off ? off + 'px' : '';
+    panel.style.bottom = off ? (off + 60) + 'px' : '';
+  };
+  new MutationObserver(lift).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'class', 'style'] });
+  window.addEventListener('resize', lift); lift(); setTimeout(lift, 600); setTimeout(lift, 2000);
   const history = [];
   const say = (text, who) => { const m = el('div', { class: 'bc-msg bc-msg--' + who, text }); log.append(m); log.scrollTop = log.scrollHeight; return m; };
   const book = (b) => {
