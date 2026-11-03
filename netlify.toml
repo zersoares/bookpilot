@@ -499,3 +499,158 @@
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/books/The-Third-Party-Risk-Problem-bk-f7982d6e23.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Third-Party-Risk-Problem-bk-f7982d6e23.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-third-party-risk-bk-f7982d6e23.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Data-Retention-Mistake-bk-9776ee4f4a.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Data-Retention-Mistake-bk-9776ee4f4a.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-data-retention-mistake-bk-9776ee4f4a.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-30-Day-GDPR-Challenge-bk-fb0cb3e622.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-30-day-gdpr-challenge-bk-fb0cb3e622.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Who-Is-Responsible-When-AI-Makes-a-Mistake-bk-71361d1b64.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Who-Is-Responsible-When-AI-Makes-a-Mistake-bk-71361d1b64.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-who-is-responsible-ai-bk-71361d1b64.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Your-Business-Has-Been-Hacked-bk-1cba4f02c4.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Your-Business-Has-Been-Hacked-bk-1cba4f02c4.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-business-hacked-bk-1cba4f02c4.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Your-Employees-Are-Your-Biggest-Data-Risk-bk-c56cf323b3.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Your-Employees-Are-Your-Biggest-Data-Risk-bk-c56cf323b3.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-employees-data-risk-bk-c56cf323b3.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Fake-Customer-Problem-bk-67f1a400a3.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Fake-Customer-Problem-bk-67f1a400a3.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-fake-customer-problem-bk-67f1a400a3.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Hidden-Cost-of-Free-Business-Tools-bk-cde433ef83.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Hidden-Cost-of-Free-Business-Tools-bk-cde433ef83.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-free-business-tools-bk-cde433ef83.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Freelancers-Data-Protection-Guide-bk-f85cc8f802.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-freelancers-data-protection-bk-f85cc8f802.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Privacy-Safe-Online-Shop-bk-36a6151545.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Privacy-Safe-Online-Shop-bk-36a6151545.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-privacy-safe-online-shop-bk-36a6151545.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-2026-Social-Media-Lexicon-bk-8d55eec0f1.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-2026-Social-Media-Lexicon-bk-8d55eec0f1.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-social-media-lexicon-2026-bk-8d55eec0f1.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

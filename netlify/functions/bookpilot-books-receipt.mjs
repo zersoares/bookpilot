@@ -242,6 +242,103 @@ export const BOOKS = {
       ["EPUB", "When-Your-AI-Chatbot-Leaks-Data-bk-d2124e29aa.epub"],
     ],
   },
+  plink_1UXn1dLfqCbvloYwDyhdYFJT: {
+    lang: "en",
+    name: "The Third-Party Risk Problem",
+    page: "thanks-third-party-risk-bk-f7982d6e23.html",
+    files: [
+      ["PDF", "The-Third-Party-Risk-Problem-bk-f7982d6e23.pdf"],
+      ["EPUB", "The-Third-Party-Risk-Problem-bk-f7982d6e23.epub"],
+    ],
+  },
+  plink_1UXn7NLfqCbvloYwRZsjhH41: {
+    lang: "en",
+    name: "The Data Retention Mistake",
+    page: "thanks-data-retention-mistake-bk-9776ee4f4a.html",
+    files: [
+      ["PDF", "The-Data-Retention-Mistake-bk-9776ee4f4a.pdf"],
+      ["EPUB", "The-Data-Retention-Mistake-bk-9776ee4f4a.epub"],
+    ],
+  },
+  plink_1UXn8QLfqCbvloYw8aOBv6Gt: {
+    lang: "en",
+    name: "The 30-Day GDPR Challenge",
+    page: "thanks-30-day-gdpr-challenge-bk-fb0cb3e622.html",
+    files: [
+      ["PDF", "The-30-Day-GDPR-Challenge-bk-fb0cb3e622.pdf"],
+    ],
+  },
+  plink_1UXn9SLfqCbvloYwW5swV3ib: {
+    lang: "en",
+    name: "Who Is Responsible When AI Makes a Mistake?",
+    page: "thanks-who-is-responsible-ai-bk-71361d1b64.html",
+    files: [
+      ["PDF", "Who-Is-Responsible-When-AI-Makes-a-Mistake-bk-71361d1b64.pdf"],
+      ["EPUB", "Who-Is-Responsible-When-AI-Makes-a-Mistake-bk-71361d1b64.epub"],
+    ],
+  },
+  plink_1UXnAULfqCbvloYwdLBeyArL: {
+    lang: "en",
+    name: "Your Business Has Been Hacked",
+    page: "thanks-business-hacked-bk-1cba4f02c4.html",
+    files: [
+      ["PDF", "Your-Business-Has-Been-Hacked-bk-1cba4f02c4.pdf"],
+      ["EPUB", "Your-Business-Has-Been-Hacked-bk-1cba4f02c4.epub"],
+    ],
+  },
+  plink_1UXnBWLfqCbvloYw1Mb5vBYp: {
+    lang: "en",
+    name: "Your Employees Are Your Biggest Data Risk",
+    page: "thanks-employees-data-risk-bk-c56cf323b3.html",
+    files: [
+      ["PDF", "Your-Employees-Are-Your-Biggest-Data-Risk-bk-c56cf323b3.pdf"],
+      ["EPUB", "Your-Employees-Are-Your-Biggest-Data-Risk-bk-c56cf323b3.epub"],
+    ],
+  },
+  plink_1UXnCYLfqCbvloYwRzMgL29Q: {
+    lang: "en",
+    name: "The Fake Customer Problem",
+    page: "thanks-fake-customer-problem-bk-67f1a400a3.html",
+    files: [
+      ["PDF", "The-Fake-Customer-Problem-bk-67f1a400a3.pdf"],
+      ["EPUB", "The-Fake-Customer-Problem-bk-67f1a400a3.epub"],
+    ],
+  },
+  plink_1UXnDZLfqCbvloYwXflzOTMD: {
+    lang: "en",
+    name: "The Hidden Cost of Free Business Tools",
+    page: "thanks-free-business-tools-bk-cde433ef83.html",
+    files: [
+      ["PDF", "The-Hidden-Cost-of-Free-Business-Tools-bk-cde433ef83.pdf"],
+      ["EPUB", "The-Hidden-Cost-of-Free-Business-Tools-bk-cde433ef83.epub"],
+    ],
+  },
+  plink_1UXnEaLfqCbvloYwWtFzCf8x: {
+    lang: "en",
+    name: "The Freelancer’s Data Protection Guide",
+    page: "thanks-freelancers-data-protection-bk-f85cc8f802.html",
+    files: [
+      ["PDF", "The-Freelancers-Data-Protection-Guide-bk-f85cc8f802.pdf"],
+    ],
+  },
+  plink_1UXnFaLfqCbvloYwps3xhkbJ: {
+    lang: "en",
+    name: "The Privacy-Safe Online Shop",
+    page: "thanks-privacy-safe-online-shop-bk-36a6151545.html",
+    files: [
+      ["PDF", "The-Privacy-Safe-Online-Shop-bk-36a6151545.pdf"],
+      ["EPUB", "The-Privacy-Safe-Online-Shop-bk-36a6151545.epub"],
+    ],
+  },
+  plink_1UXnGbLfqCbvloYwZ7XSKItg: {
+    lang: "en",
+    name: "The 2026 Social Media Lexicon",
+    page: "thanks-social-media-lexicon-2026-bk-8d55eec0f1.html",
+    files: [
+      ["PDF", "The-2026-Social-Media-Lexicon-bk-8d55eec0f1.pdf"],
+      ["EPUB", "The-2026-Social-Media-Lexicon-bk-8d55eec0f1.epub"],
+    ],
+  },
 };
 
 const TEXT = {
