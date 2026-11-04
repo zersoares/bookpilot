@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Before You Give an AI Agent Access to Your Inbox: A 10-Minute Permissions Check — BookPilot AI Blog</title>
+<meta name="description" content="AI agents ask for access to your email, files and calendar. A 10-minute check to grant only what they need, and to clean up the apps you already connected.">
+<meta name="keywords" content="AI agents, permissions, OAuth, small business security, connected apps, AI Tools">
+<link rel="canonical" href="https://bookpilot.org/blog/ai-agent-permissions-check-before-you-connect/">
+<meta property="og:type" content="article"><meta property="og:site_name" content="BookPilot AI"><meta property="og:title" content="Before You Give an AI Agent Access to Your Inbox: A 10-Minute Permissions Check"><meta property="og:description" content="AI agents ask for access to your email, files and calendar. A 10-minute check to grant only what they need, and to clean up the apps you already connected."><meta property="og:url" content="https://bookpilot.org/blog/ai-agent-permissions-check-before-you-connect/"><meta property="og:image" content="https://bookpilot.org/assets/blog/ai-agent-permissions-check-before-you-connect.jpg"><meta property="og:image:alt" content="A laptop showing an app permission screen with a checklist and a padlock beside it">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Before You Give an AI Agent Access to Your Inbox: A 10-Minute Permissions Check"><meta name="twitter:description" content="AI agents ask for access to your email, files and calendar. A 10-minute check to grant only what they need, and to clean up the apps you already connected."><meta name="twitter:image" content="https://bookpilot.org/assets/blog/ai-agent-permissions-check-before-you-connect.jpg">
+<meta property="article:author" content="Zirlandia Milkovic"><meta property="article:section" content="AI Tools"><meta property="article:published_time" content="2026-11-04">
+<link rel="icon" href="/favicon.ico"><link rel="stylesheet" href="/fonts/fonts.css"><link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="/assets/css/home-arrow.css">
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Before You Give an AI Agent Access to Your Inbox: A 10-Minute Permissions Check",
+  "description": "AI agents ask for access to your email, files and calendar. A 10-minute check to grant only what they need, and to clean up the apps you already connected.",
+  "url": "https://bookpilot.org/blog/ai-agent-permissions-check-before-you-connect/",
+  "mainEntityOfPage": "https://bookpilot.org/blog/ai-agent-permissions-check-before-you-connect/",
+  "image": "https://bookpilot.org/assets/blog/ai-agent-permissions-check-before-you-connect.jpg",
+  "author": {
+    "@type": "Person",
+    "name": "Zirlandia Milkovic",
+    "description": "Zirlandia Milkovic develops websites, software products and educational materials at the intersection of web development and applied artificial intelligence."
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "BookPilot AI",
+    "url": "https://bookpilot.org/"
+  },
+  "datePublished": "2026-11-04",
+  "dateModified": "2026-11-04",
+  "articleSection": "AI Tools",
+  "inLanguage": "en",
+  "wordCount": 985,
+  "keywords": "AI agents, permissions, OAuth, small business security, connected apps, AI Tools"
+}</script></head>
+<body><a class="bp-skip-link" href="#main">Skip to content</a>
+<header class="bp-nav"><div class="bp-nav__inner">
+<a class="bp-logo" href="https://bookpilot.org/"><span class="bp-logo__mark" aria-hidden="true"></span>BookPilot <span class="bp-logo__ai">AI</span></a>
+<nav class="bp-nav__links" aria-label="Sections">
+<a class="bp-nav__link" href="https://bookpilot.org/#write">Write a book</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#how">How it works</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#intelligence">Reader intelligence</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#performance">Performance</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#pricing">Pricing</a>
+<a class="bp-nav__link" href="https://bookpilot.org/#faq">FAQ</a>
+<a class="bp-nav__link" href="https://bookpilot.org/books/">Books</a>
+<a class="bp-nav__link" href="../" aria-current="page">Blog</a>
+</nav>
+<div class="bp-nav__actions"><a class="bp-btn bp-btn--ghost bp-btn--sm" href="https://bookpilot.org/app#/signin">Sign in</a><a class="bp-btn bp-btn--primary bp-btn--sm" href="https://bookpilot.org/app#/signup">Start free</a></div>
+</div></header>
+<nav class="home-arrow home-arrow--top" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Home</a></nav>
+<main id="main"><article class="article">
+<p><a href="../">← All articles</a></p>
+<span class="badge">AI Tools</span>
+<h1>Before You Give an AI Agent Access to Your Inbox: A 10-Minute Permissions Check</h1>
+<p class="lead">Sources consulted on 3 November 2026.</p>
+<div class="byline"><span class="avatar" aria-hidden="true">ZM</span><span>By <strong>Zirlandia Milkovic</strong> · <time datetime="2026-11-04">2026-11-04</time> · 5 min read</span></div>
+<figure class="article-banner"><img src="/assets/blog/ai-agent-permissions-check-before-you-connect.jpg" alt="A laptop showing an app permission screen with a checklist and a padlock beside it" width="1280" height="720" loading="eager" decoding="async"></figure><aside class="tldr" aria-label="TL;DR"><h2>TL;DR</h2><ul><li>OWASP ranks <strong>Excessive Agency</strong> third in its 2026 Top 10 for LLM applications, calling it "the most consequential move on the list".</li><li>Its root causes are too much functionality, too many permissions and too much autonomy.</li><li>Before you click <strong>Allow</strong>, check what the agent can read, what it can change and what it can do without asking you.</li><li>Then review the apps you've already connected. Old access doesn't expire just because you forgot about it.</li></ul></aside>
+<nav class="toc" aria-label="Table of contents"><strong>On this page</strong><ol><li><a href="#why-permissions-matter-more-with-agents">Why permissions matter more with agents</a></li>
+<li><a href="#the-10-minute-check">The 10-minute check</a></li>
+<li><a href="#clean-up-what-you-already-connected">Clean up what you already connected</a></li>
+<li><a href="#a-simple-rule-for-your-team">A simple rule for your team</a></li>
+<li><a href="#go-deeper">Go deeper</a></li>
+<li><a href="#sources">Sources</a></li>
+</ol></nav>
+<p>AI agents are useful because they can act: sort your inbox, draft replies, book meetings, file documents. To do that, they ask for access, usually through a screen that says something like "This app wants to read, compose and send email on your behalf."</p>
+<p>Most of us click <strong>Allow</strong> without reading. With an agent, that habit is worth breaking.</p>
+<h2 id="why-permissions-matter-more-with-agents">Why permissions matter more with agents</h2>
+<p>The OWASP Top 10 for LLM Applications 2026 describes <strong>Excessive Agency</strong> as the vulnerability that "enables damaging actions to be performed in response to unexpected, ambiguous or manipulated outputs from an LLM". It lists the usual triggers: a model that misunderstands a vague instruction, or a prompt injection hidden in content the agent reads, such as an email.</p>
+<p>OWASP says the root cause is typically one or more of three things:</p>
+<ul>
+<li><strong>Excessive functionality:</strong> the agent has tools it doesn't need.</li>
+<li><strong>Excessive permissions:</strong> it can reach more data than the task requires.</li>
+<li><strong>Excessive autonomy:</strong> it can take high-impact actions without a human checking.</li>
+</ul>
+<p>In 2026 OWASP moved Excessive Agency up to third place, noting that "agentic deployments are where the damage is landing".</p>
+<p>You don't need to be a developer to apply this. You just need to ask three questions before you connect anything.</p>
+<h2 id="the-10-minute-check">The 10-minute check</h2>
+<h3 id="1-what-can-it-read-3-minutes">1. What can it read? (3 minutes)</h3>
+<p>Look at the consent screen. Does a meeting scheduler really need to read every email you've ever received, or only your calendar? If the app offers a narrower option, take it. If it doesn't, ask whether this tool is the right one.</p>
+<h3 id="2-what-can-it-change-or-send-3-minutes">2. What can it change or send? (3 minutes)</h3>
+<p>Read access and write access are very different risks. "Read your files" is one thing; "edit and delete your files" or "send email as you" is another. OWASP's own example: an agent that only needs to read documents shouldn't get a tool that can also modify and delete them.</p>
+<h3 id="3-what-can-it-do-without-asking-2-minutes">3. What can it do without asking? (2 minutes)</h3>
+<p>OWASP recommends requiring human approval for high-impact actions. Look in the agent's settings for an approval step before it sends messages, deletes anything, shares files or makes payments. Turn it on.</p>
+<h3 id="4-write-it-down-2-minutes">4. Write it down (2 minutes)</h3>
+<p>Keep a simple list: tool, account connected, access granted, date, and why. It takes two minutes and makes the next review easy.</p>
+<h2 id="clean-up-what-you-already-connected">Clean up what you already connected</h2>
+<p>Every app you've signed into with your Google or Microsoft account may still hold access.</p>
+<ul>
+<li><strong>Google:</strong> open your Google Account and find the section listing third-party apps and services connected to it. Google's help page explains how to review each app and remove its access. Removing access stops future access; it doesn't delete data the app already stored.</li>
+<li><strong>Microsoft 365 (admins):</strong> in Microsoft Entra, open <strong>Enterprise apps</strong>, select an app and choose <strong>Permissions</strong> to see what was granted by an admin and by individual users. Microsoft also documents how to restrict whether users can consent to apps themselves.</li>
+</ul>
+<p>Remove anything you don't recognise or no longer use.</p>
+<h2 id="a-simple-rule-for-your-team">A simple rule for your team</h2>
+<p>Agree on one sentence and share it: <em>"No AI agent gets write or send access to company email, files or payments without a second person approving it."</em></p>
+<h2 id="go-deeper">Go deeper</h2>
+<p><strong>Before You Give AI the Keys</strong> is a small-business guide to AI agent permissions, access control and digital security, written for people who aren't security specialists.</p>
+<p>👉 <strong><a href="https://bookpilot.org/books/before-you-give-ai-the-keys/">Before You Give AI the Keys at bookpilot.org</a></strong></p>
+<p>Want to audit every integration, not just your AI tools? <strong>The Hidden Risk of Connected Apps</strong> covers OAuth permissions and data access across email, cloud storage and customer information, with an audit workbook.</p>
+<p>👉 <strong><a href="https://bookpilot.org/books/hidden-risk-connected-apps/">The Hidden Risk of Connected Apps at bookpilot.org</a></strong></p>
+<h2 id="sources">Sources</h2>
+<p><em>All consulted on 3 November 2026.</em></p>
+<ol>
+<li><a href="https://genai.owasp.org/download/56857/">OWASP GenAI Security Project: OWASP Top 10 for LLM Applications 2026 (LLM03:2026 Excessive Agency)</a></li>
+<li><a href="https://support.google.com/accounts/answer/13533235">Google Account Help: Manage links between your Google Account &amp; apps from other developers</a></li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/manage-application-permissions">Microsoft Learn: Review permissions granted to enterprise applications</a></li>
+<li><a href="https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-user-consent">Microsoft Learn: Configure how users consent to applications</a></li>
+</ol>
+<aside class="author-box"><span class="avatar" aria-hidden="true">ZM</span><div><h2 style="margin-top:0;font-size:1.1rem">About the author — Zirlandia Milkovic</h2><p>Zirlandia Milkovic develops websites, software products and educational materials at the intersection of web development and applied artificial intelligence.</p></div></aside>
+<aside class="cta"><h2>Turn your idea into a book — and find its readers</h2><p>BookPilot helps you build a professionally structured book from one idea, then find readers and run the campaign in the same place.</p><p><a class="bp-btn bp-btn--primary bp-btn--lg" href="https://bookpilot.org/books/">Browse books on BookPilot</a> <a class="bp-btn bp-btn--secondary bp-btn--lg" href="https://bookpilot.org/app#/signup">Start free</a></p><p class="meta">Free plan, no card required. Your manuscript is never used to train any AI model.</p>
+</aside>
+</article></main><nav class="home-arrow home-arrow--bottom" aria-label="Back to home"><a href="/" aria-label="Back to home"><span class="home-arrow__icon" aria-hidden="true">←</span> Back to home</a></nav>
+<footer class="bp-footer"><div class="bp-footer__inner">
+<div><a class="bp-logo" href="https://bookpilot.org/"><span class="bp-logo__mark" aria-hidden="true"></span>BookPilot <span class="bp-logo__ai">AI</span></a><p>Your AI marketing manager for books. Upload your book, find your readers, create your ads, launch your campaign, and discover which ads actually sell.</p></div>
+<div><h4>Product</h4><ul><li><a href="https://bookpilot.org/#how">How it works</a></li><li><a href="https://bookpilot.org/books/">Books</a></li><li><a href="../">Blog</a></li></ul></div>
+<div><h4>Account</h4><ul><li><a href="https://bookpilot.org/app#/signup">Create an account</a></li><li><a href="https://bookpilot.org/app#/signin">Sign in</a></li></ul></div>
+<div><h4>Legal</h4><ul><li><a href="https://bookpilot.org/privacy.html">Privacy policy</a></li><li><a href="https://bookpilot.org/terms.html">Terms of service</a></li><li><a href="https://bookpilot.org/cookies.html">Cookie policy</a></li><li><a href="https://bookpilot.org/contact/">Contact</a></li></ul></div>
+</div><div class="bp-footer__legal">© 2026 BookPilot AI. Advertising results depend on your book, your market and your budget — nothing here is a promise of sales. Articles are general information, not legal advice. <span>Built in Europe</span></div></footer></body></html>
