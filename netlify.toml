@@ -654,3 +654,168 @@
   for = "/books/thanks-social-media-lexicon-2026-bk-8d55eec0f1.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Your-Suppliers-Are-Your-Security-Risk-bk-8e0a534fd4.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Your-Suppliers-Are-Your-Security-Risk-bk-8e0a534fd4.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-suppliers-security-risk-bk-8e0a534fd4.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/When-AI-Acts-on-Your-Behalf-bk-08053b43b0.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/When-AI-Acts-on-Your-Behalf-bk-08053b43b0.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-when-ai-acts-bk-08053b43b0.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Prompt-Injection-Problem-bk-7d1ccc6492.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Prompt-Injection-Problem-bk-7d1ccc6492.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-prompt-injection-problem-bk-7d1ccc6492.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-First-24-Hours-of-a-Cyberattack-bk-70d5420928.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-First-24-Hours-of-a-Cyberattack-bk-70d5420928.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-first-24-hours-cyberattack-bk-70d5420928.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-AI-Disclosure-Trap-bk-3cd04df078.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-AI-Disclosure-Trap-bk-3cd04df078.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-ai-disclosure-trap-bk-3cd04df078.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-AI-Skills-Trap-bk-fec3b59860.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-AI-Skills-Trap-bk-fec3b59860.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-the-ai-skills-trap-bk-fec3b59860.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Fake-Fix-bk-e617c9ebc8.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Fake-Fix-bk-e617c9ebc8.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-the-fake-fix-bk-e617c9ebc8.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Breach-Came-Through-Your-Supplier-bk-488785e76f.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Breach-Came-Through-Your-Supplier-bk-488785e76f.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-breach-came-through-your-supplier-bk-488785e76f.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Account-Nobody-Remembered-bk-0a510ac513.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Account-Nobody-Remembered-bk-0a510ac513.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-account-nobody-remembered-bk-0a510ac513.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/When-Automation-Goes-Wrong-bk-b4b4fa1a6d.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/When-Automation-Goes-Wrong-bk-b4b4fa1a6d.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-when-automation-goes-wrong-bk-b4b4fa1a6d.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Your-Data-Has-More-Than-One-Owner-bk-d560fd7a69.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Your-Data-Has-More-Than-One-Owner-bk-d560fd7a69.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-data-has-more-than-one-owner-bk-d560fd7a69.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

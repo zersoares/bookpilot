@@ -339,6 +339,105 @@ export const BOOKS = {
       ["EPUB", "The-2026-Social-Media-Lexicon-bk-8d55eec0f1.epub"],
     ],
   },
+  plink_1UaF6FLfqCbvloYwrxQUeoYk: {
+    lang: "en",
+    name: "Your Suppliers Are Your Security Risk",
+    page: "thanks-suppliers-security-risk-bk-8e0a534fd4.html",
+    files: [
+      ["PDF", "Your-Suppliers-Are-Your-Security-Risk-bk-8e0a534fd4.pdf"],
+      ["EPUB", "Your-Suppliers-Are-Your-Security-Risk-bk-8e0a534fd4.epub"],
+    ],
+  },
+  plink_1UaF91LfqCbvloYwy8xHAyhz: {
+    lang: "en",
+    name: "When AI Acts on Your Behalf",
+    page: "thanks-when-ai-acts-bk-08053b43b0.html",
+    files: [
+      ["PDF", "When-AI-Acts-on-Your-Behalf-bk-08053b43b0.pdf"],
+      ["EPUB", "When-AI-Acts-on-Your-Behalf-bk-08053b43b0.epub"],
+    ],
+  },
+  plink_1UaFC0LfqCbvloYwAnN9CTl1: {
+    lang: "en",
+    name: "The Prompt Injection Problem",
+    page: "thanks-prompt-injection-problem-bk-7d1ccc6492.html",
+    files: [
+      ["PDF", "The-Prompt-Injection-Problem-bk-7d1ccc6492.pdf"],
+      ["EPUB", "The-Prompt-Injection-Problem-bk-7d1ccc6492.epub"],
+    ],
+  },
+  plink_1UaFCyLfqCbvloYwVaJhHY8o: {
+    lang: "en",
+    name: "The First 24 Hours of a Cyberattack",
+    page: "thanks-first-24-hours-cyberattack-bk-70d5420928.html",
+    files: [
+      ["PDF", "The-First-24-Hours-of-a-Cyberattack-bk-70d5420928.pdf"],
+      ["EPUB", "The-First-24-Hours-of-a-Cyberattack-bk-70d5420928.epub"],
+    ],
+  },
+  plink_1UaFDtLfqCbvloYw5w9JfOIi: {
+    lang: "en",
+    name: "The AI Disclosure Trap",
+    page: "thanks-ai-disclosure-trap-bk-3cd04df078.html",
+    files: [
+      ["PDF", "The-AI-Disclosure-Trap-bk-3cd04df078.pdf"],
+      ["EPUB", "The-AI-Disclosure-Trap-bk-3cd04df078.epub"],
+    ],
+  },
+  plink_1UaFGjLfqCbvloYw5RcRszJM: {
+    lang: "en",
+    name: "The AI Skills Trap",
+    page: "thanks-the-ai-skills-trap-bk-fec3b59860.html",
+    files: [
+      ["PDF", "The-AI-Skills-Trap-bk-fec3b59860.pdf"],
+      ["EPUB", "The-AI-Skills-Trap-bk-fec3b59860.epub"],
+    ],
+  },
+  plink_1UaFJiLfqCbvloYw2aspPkTw: {
+    lang: "en",
+    name: "The Fake Fix",
+    page: "thanks-the-fake-fix-bk-e617c9ebc8.html",
+    files: [
+      ["PDF", "The-Fake-Fix-bk-e617c9ebc8.pdf"],
+      ["EPUB", "The-Fake-Fix-bk-e617c9ebc8.epub"],
+    ],
+  },
+  plink_1UaFKkLfqCbvloYwXDXq0xRb: {
+    lang: "en",
+    name: "The Breach Came Through Your Supplier",
+    page: "thanks-breach-came-through-your-supplier-bk-488785e76f.html",
+    files: [
+      ["PDF", "The-Breach-Came-Through-Your-Supplier-bk-488785e76f.pdf"],
+      ["EPUB", "The-Breach-Came-Through-Your-Supplier-bk-488785e76f.epub"],
+    ],
+  },
+  plink_1UaFLnLfqCbvloYwj375J6ZR: {
+    lang: "en",
+    name: "The Account Nobody Remembered",
+    page: "thanks-account-nobody-remembered-bk-0a510ac513.html",
+    files: [
+      ["PDF", "The-Account-Nobody-Remembered-bk-0a510ac513.pdf"],
+      ["EPUB", "The-Account-Nobody-Remembered-bk-0a510ac513.epub"],
+    ],
+  },
+  plink_1UaFMpLfqCbvloYwXTZZH4Yu: {
+    lang: "en",
+    name: "When Automation Goes Wrong",
+    page: "thanks-when-automation-goes-wrong-bk-b4b4fa1a6d.html",
+    files: [
+      ["PDF", "When-Automation-Goes-Wrong-bk-b4b4fa1a6d.pdf"],
+      ["EPUB", "When-Automation-Goes-Wrong-bk-b4b4fa1a6d.epub"],
+    ],
+  },
+  plink_1UaFNvLfqCbvloYwVOH8HaVT: {
+    lang: "en",
+    name: "Your Data Has More Than One Owner",
+    page: "thanks-data-has-more-than-one-owner-bk-d560fd7a69.html",
+    files: [
+      ["PDF", "Your-Data-Has-More-Than-One-Owner-bk-d560fd7a69.pdf"],
+      ["EPUB", "Your-Data-Has-More-Than-One-Owner-bk-d560fd7a69.epub"],
+    ],
+  },
 };
 
 const TEXT = {
