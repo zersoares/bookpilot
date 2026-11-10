@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://bookpilot.org/blog/</loc><lastmod>2026-11-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bookpilot.org/blog/</loc><lastmod>2026-11-21</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://bookpilot.org/blog/edpb-smart-glasses/</loc><lastmod>2026-11-21</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://bookpilot.org/blog/en-18286-harmonised-standard/</loc><lastmod>2026-11-20</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://bookpilot.org/blog/dutch-dpa-enforcement-policy/</loc><lastmod>2026-11-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://bookpilot.org/blog/digital-omnibus-council-mandate/</loc><lastmod>2026-11-18</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://bookpilot.org/blog/dpa-complaint-access-right/</loc><lastmod>2026-11-17</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://bookpilot.org/blog/chatbot-quote-press-cjeu/</loc><lastmod>2026-11-16</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://bookpilot.org/blog/take-back-your-focus-attention-age-of-ai/</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://bookpilot.org/blog/deepfake-job-candidates-remote-hiring-gdpr/</loc><lastmod>2026-11-06</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://bookpilot.org/blog/ai-invoice-fraud-bank-detail-change-holiday-rush/</loc><lastmod>2026-11-05</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
