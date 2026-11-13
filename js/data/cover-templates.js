@@ -1858,5 +1858,2432 @@ export const COVER_TEMPLATES = [
       "scrim": "light",
       "author_scrim": "dark"
     }
+  },
+  {
+    "id": "brass-key-rack",
+    "name": "Key Keeper",
+    "blurb": "Brass keys on a dark wall: access, trust and control.",
+    "genres": [
+      "Business",
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/brass-key-rack.webp",
+    "thumb": "/assets/covers/templates/thumbs/brass-key-rack.webp",
+    "palette": {
+      "background": "#34312b",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#463626"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "display",
+      "title_case": "upper",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "amber-keys",
+    "name": "Lantern Keys",
+    "blurb": "Warm amber light on hanging keys.",
+    "genres": [
+      "Fiction",
+      "Business"
+    ],
+    "image": "/assets/covers/templates/amber-keys.webp",
+    "thumb": "/assets/covers/templates/thumbs/amber-keys.webp",
+    "palette": {
+      "background": "#362618",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#4f280c"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "rust-and-brass",
+    "name": "Rust and Brass",
+    "blurb": "Weathered metal and a slow, moody glow.",
+    "genres": [
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/rust-and-brass.webp",
+    "thumb": "/assets/covers/templates/thumbs/rust-and-brass.webp",
+    "palette": {
+      "background": "#3a2e21",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#473523"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "gilded-automaton",
+    "name": "Gilded Automaton",
+    "blurb": "A teal machine wrapped in gold wire.",
+    "genres": [
+      "Technology",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/gilded-automaton.webp",
+    "thumb": "/assets/covers/templates/thumbs/gilded-automaton.webp",
+    "palette": {
+      "background": "#31301b",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#3f2e0f"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "left",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "golden-mind",
+    "name": "Golden Mind",
+    "blurb": "A sleek android in flowing gold light.",
+    "genres": [
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/golden-mind.webp",
+    "thumb": "/assets/covers/templates/thumbs/golden-mind.webp",
+    "palette": {
+      "background": "#45482e",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#725217"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "balance-scales",
+    "name": "Fair Balance",
+    "blurb": "Scales on a plinth: fairness and good judgement.",
+    "genres": [
+      "Business",
+      "Education"
+    ],
+    "image": "/assets/covers/templates/balance-scales.webp",
+    "thumb": "/assets/covers/templates/thumbs/balance-scales.webp",
+    "palette": {
+      "background": "#5f726d",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#84a3a0"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "gilded-frame",
+    "name": "Gilded Frame",
+    "blurb": "A glowing frame holding a field of stars.",
+    "genres": [
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/gilded-frame.webp",
+    "thumb": "/assets/covers/templates/thumbs/gilded-frame.webp",
+    "palette": {
+      "background": "#314843",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#14464f"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "mirror-room",
+    "name": "Teal Mirror Room",
+    "blurb": "A quiet teal room with one lit doorway.",
+    "genres": [
+      "Fiction",
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/mirror-room.webp",
+    "thumb": "/assets/covers/templates/thumbs/mirror-room.webp",
+    "palette": {
+      "background": "#41585a",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#255960"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "teal-gold-flow",
+    "name": "Teal and Gold Flow",
+    "blurb": "Ribbons of teal and gold in motion.",
+    "genres": [
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/teal-gold-flow.webp",
+    "thumb": "/assets/covers/templates/thumbs/teal-gold-flow.webp",
+    "palette": {
+      "background": "#42534b",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#60b5a3"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "cobalt-orb",
+    "name": "Cobalt Orb",
+    "blurb": "A polished cobalt sphere on a clean stand.",
+    "genres": [
+      "Creative",
+      "Business"
+    ],
+    "image": "/assets/covers/templates/cobalt-orb.webp",
+    "thumb": "/assets/covers/templates/thumbs/cobalt-orb.webp",
+    "palette": {
+      "background": "#564d48",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#4f321f"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "amber-pendants",
+    "name": "Amber Pendants",
+    "blurb": "Glass pendants glowing against soft grey.",
+    "genres": [
+      "Creative",
+      "Business"
+    ],
+    "image": "/assets/covers/templates/amber-pendants.webp",
+    "thumb": "/assets/covers/templates/thumbs/amber-pendants.webp",
+    "palette": {
+      "background": "#716e6f",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#727782"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "upper",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "teal-lake-sunset",
+    "name": "Teal Lake Sunset",
+    "blurb": "Orange sky over still teal water.",
+    "genres": [
+      "Memoir",
+      "Wellness"
+    ],
+    "image": "/assets/covers/templates/teal-lake-sunset.webp",
+    "thumb": "/assets/covers/templates/thumbs/teal-lake-sunset.webp",
+    "palette": {
+      "background": "#465140",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#a55e38"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "pine-lake-dusk",
+    "name": "Pine Lake Dusk",
+    "blurb": "Pines, a glassy lake and the last of the light.",
+    "genres": [
+      "Fiction",
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/pine-lake-dusk.webp",
+    "thumb": "/assets/covers/templates/thumbs/pine-lake-dusk.webp",
+    "palette": {
+      "background": "#49533f",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#0c4037"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "secure-core",
+    "name": "Secure Core",
+    "blurb": "A glowing padlock at the heart of the system.",
+    "genres": [
+      "Technology",
+      "Business"
+    ],
+    "image": "/assets/covers/templates/secure-core.webp",
+    "thumb": "/assets/covers/templates/thumbs/secure-core.webp",
+    "palette": {
+      "background": "#19546d",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#257a99"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "data-hall",
+    "name": "Data Hall",
+    "blurb": "A long server corridor in cool blue light.",
+    "genres": [
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/data-hall.webp",
+    "thumb": "/assets/covers/templates/thumbs/data-hall.webp",
+    "palette": {
+      "background": "#21304c",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#27436f"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "golden-network",
+    "name": "Golden Network",
+    "blurb": "Gold nodes linked across a midnight sky.",
+    "genres": [
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/golden-network.webp",
+    "thumb": "/assets/covers/templates/thumbs/golden-network.webp",
+    "palette": {
+      "background": "#1c2537",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#0d2041"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "rail-convergence",
+    "name": "Rail Convergence",
+    "blurb": "Orange rails racing to a single point.",
+    "genres": [
+      "Technology",
+      "Business"
+    ],
+    "image": "/assets/covers/templates/rail-convergence.webp",
+    "thumb": "/assets/covers/templates/thumbs/rail-convergence.webp",
+    "palette": {
+      "background": "#3d241b",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#ae6743"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "orange-robot-arm",
+    "name": "Orange Robot Arm",
+    "blurb": "Industrial precision and automation.",
+    "genres": [
+      "Technology",
+      "Business"
+    ],
+    "image": "/assets/covers/templates/orange-robot-arm.webp",
+    "thumb": "/assets/covers/templates/thumbs/orange-robot-arm.webp",
+    "palette": {
+      "background": "#3c3837",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#6a3f27"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "above-the-clouds",
+    "name": "Above the Clouds",
+    "blurb": "A peak rising out of a sea of cloud at sunrise.",
+    "genres": [
+      "Self-help",
+      "Wellness"
+    ],
+    "image": "/assets/covers/templates/above-the-clouds.webp",
+    "thumb": "/assets/covers/templates/thumbs/above-the-clouds.webp",
+    "palette": {
+      "background": "#9c908b",
+      "title": "#16161a",
+      "subtitle": "#16161a",
+      "author": "#ffffff",
+      "accent": "#c19e8a"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "nebula-horizon",
+    "name": "Nebula Horizon",
+    "blurb": "Purple and gold light over a digital plain.",
+    "genres": [
+      "Technology",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/nebula-horizon.webp",
+    "thumb": "/assets/covers/templates/thumbs/nebula-horizon.webp",
+    "palette": {
+      "background": "#503961",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#38376b"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "aurora-valley",
+    "name": "Aurora Valley",
+    "blurb": "A glowing valley under a violet sky.",
+    "genres": [
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/aurora-valley.webp",
+    "thumb": "/assets/covers/templates/thumbs/aurora-valley.webp",
+    "palette": {
+      "background": "#746175",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#b46f81"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "upper",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "comet-trail",
+    "name": "Comet Trail",
+    "blurb": "A bright comet cutting across deep space.",
+    "genres": [
+      "Fiction",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/comet-trail.webp",
+    "thumb": "/assets/covers/templates/thumbs/comet-trail.webp",
+    "palette": {
+      "background": "#4d3757",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#391f48"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "window-on-the-peak",
+    "name": "Window on the Peak",
+    "blurb": "A window opening onto a distant mountain.",
+    "genres": [
+      "Memoir",
+      "Self-help"
+    ],
+    "image": "/assets/covers/templates/window-on-the-peak.webp",
+    "thumb": "/assets/covers/templates/thumbs/window-on-the-peak.webp",
+    "palette": {
+      "background": "#615c59",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#273341"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "round-window",
+    "name": "Round Window",
+    "blurb": "A gilded porthole onto a mountain view.",
+    "genres": [
+      "Memoir",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/round-window.webp",
+    "thumb": "/assets/covers/templates/thumbs/round-window.webp",
+    "palette": {
+      "background": "#4c443c",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#5e4934"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "neon-pedestal",
+    "name": "Neon Pedestal",
+    "blurb": "A pedestal lit in magenta and cyan.",
+    "genres": [
+      "Technology",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/neon-pedestal.webp",
+    "thumb": "/assets/covers/templates/thumbs/neon-pedestal.webp",
+    "palette": {
+      "background": "#403453",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#7f376f"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "left",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "magenta-gallery",
+    "name": "Magenta Gallery",
+    "blurb": "An empty gallery washed in pink and teal.",
+    "genres": [
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/magenta-gallery.webp",
+    "thumb": "/assets/covers/templates/thumbs/magenta-gallery.webp",
+    "palette": {
+      "background": "#734d79",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#b33591"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "candy-swirl",
+    "name": "Candy Swirl",
+    "blurb": "Pink and teal ribbons of colour.",
+    "genres": [
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/candy-swirl.webp",
+    "thumb": "/assets/covers/templates/thumbs/candy-swirl.webp",
+    "palette": {
+      "background": "#5b4660",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#871953"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "violet-silk",
+    "name": "Violet Silk",
+    "blurb": "Folds of violet and teal, smooth and rich.",
+    "genres": [
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/violet-silk.webp",
+    "thumb": "/assets/covers/templates/thumbs/violet-silk.webp",
+    "palette": {
+      "background": "#44385a",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#4b1d42"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "clay-and-cream",
+    "name": "Clay and Cream",
+    "blurb": "Soft ceramics on a warm neutral ground.",
+    "genres": [
+      "Wellness",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/clay-and-cream.webp",
+    "thumb": "/assets/covers/templates/thumbs/clay-and-cream.webp",
+    "palette": {
+      "background": "#c19677",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#16161a",
+      "accent": "#ab7d5c"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "light"
+    }
+  },
+  {
+    "id": "terracotta-room",
+    "name": "Terracotta Room",
+    "blurb": "Sunlit walls and plenty of quiet space.",
+    "genres": [
+      "Creative",
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/terracotta-room.webp",
+    "thumb": "/assets/covers/templates/thumbs/terracotta-room.webp",
+    "palette": {
+      "background": "#b3907a",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#9f7055"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "brass-console",
+    "name": "Brass Console",
+    "blurb": "Brass, green and plants: calm and considered.",
+    "genres": [
+      "Creative",
+      "Business"
+    ],
+    "image": "/assets/covers/templates/brass-console.webp",
+    "thumb": "/assets/covers/templates/thumbs/brass-console.webp",
+    "palette": {
+      "background": "#ac987a",
+      "title": "#16161a",
+      "subtitle": "#16161a",
+      "author": "#16161a",
+      "accent": "#978265"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "sans",
+      "title_case": "upper",
+      "rule": true,
+      "scrim": "light",
+      "author_scrim": "light"
+    }
+  },
+  {
+    "id": "sage-room",
+    "name": "Sage Room",
+    "blurb": "A pale room with a sage wall and daylight.",
+    "genres": [
+      "Wellness"
+    ],
+    "image": "/assets/covers/templates/sage-room.webp",
+    "thumb": "/assets/covers/templates/thumbs/sage-room.webp",
+    "palette": {
+      "background": "#a29a88",
+      "title": "#16161a",
+      "subtitle": "#16161a",
+      "author": "#ffffff",
+      "accent": "#a2907d"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "light",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "sage-curves",
+    "name": "Sage Curves",
+    "blurb": "Soft green curves, gentle and unhurried.",
+    "genres": [
+      "Wellness",
+      "Self-help"
+    ],
+    "image": "/assets/covers/templates/sage-curves.webp",
+    "thumb": "/assets/covers/templates/thumbs/sage-curves.webp",
+    "palette": {
+      "background": "#808572",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#56624e"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "passport-and-scales",
+    "name": "Passport and Scales",
+    "blurb": "Law, compliance and travel papers on one desk.",
+    "genres": [
+      "Business",
+      "Education"
+    ],
+    "image": "/assets/covers/templates/passport-and-scales.webp",
+    "thumb": "/assets/covers/templates/thumbs/passport-and-scales.webp",
+    "palette": {
+      "background": "#433a34",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#382114"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "hanging-gem",
+    "name": "Hanging Gem",
+    "blurb": "A single drop catching the light over still water.",
+    "genres": [
+      "Creative",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/hanging-gem.webp",
+    "thumb": "/assets/covers/templates/thumbs/hanging-gem.webp",
+    "palette": {
+      "background": "#4f504d",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#1c2836"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "study-at-dusk",
+    "name": "Study at Dusk",
+    "blurb": "A dark library with the last light at the window.",
+    "genres": [
+      "Fiction",
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/study-at-dusk.webp",
+    "thumb": "/assets/covers/templates/thumbs/study-at-dusk.webp",
+    "palette": {
+      "background": "#3e3935",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#443328"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "neon-bust",
+    "name": "Neon Bust",
+    "blurb": "A sculptural head in pink and electric blue.",
+    "genres": [
+      "Creative",
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/neon-bust.webp",
+    "thumb": "/assets/covers/templates/thumbs/neon-bust.webp",
+    "palette": {
+      "background": "#704475",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#872d61"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "signal-corridor",
+    "name": "Signal Corridor",
+    "blurb": "Green light guiding down a dark hall.",
+    "genres": [
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/signal-corridor.webp",
+    "thumb": "/assets/covers/templates/thumbs/signal-corridor.webp",
+    "palette": {
+      "background": "#212f1f",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#1b4b2b"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "archive-vault",
+    "name": "Archive Vault",
+    "blurb": "Shelves of records in a warm, dark vault.",
+    "genres": [
+      "Business",
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/archive-vault.webp",
+    "thumb": "/assets/covers/templates/thumbs/archive-vault.webp",
+    "palette": {
+      "background": "#34342b",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#4b341d"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "evening-view",
+    "name": "Evening View",
+    "blurb": "A tall window onto a city at sunset.",
+    "genres": [
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/evening-view.webp",
+    "thumb": "/assets/covers/templates/thumbs/evening-view.webp",
+    "palette": {
+      "background": "#6f634d",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#b68d5d"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "teal-study",
+    "name": "Teal Study",
+    "blurb": "A quiet teal room with a single chair.",
+    "genres": [
+      "Fiction",
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/teal-study.webp",
+    "thumb": "/assets/covers/templates/thumbs/teal-study.webp",
+    "palette": {
+      "background": "#4d4437",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#734826"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "upper",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "navy-door",
+    "name": "Navy Door",
+    "blurb": "A navy door and a brass handle: the way in.",
+    "genres": [
+      "Business",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/navy-door.webp",
+    "thumb": "/assets/covers/templates/thumbs/navy-door.webp",
+    "palette": {
+      "background": "#33393b",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#243541"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "skyline-lounge",
+    "name": "Skyline Lounge",
+    "blurb": "A calm lounge above the city at dusk.",
+    "genres": [
+      "Business"
+    ],
+    "image": "/assets/covers/templates/skyline-lounge.webp",
+    "thumb": "/assets/covers/templates/thumbs/skyline-lounge.webp",
+    "palette": {
+      "background": "#6b655d",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#908372"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "golden-field-walk",
+    "name": "Golden Field Walk",
+    "blurb": "One figure on a path through golden fields.",
+    "genres": [
+      "Memoir",
+      "Self-help"
+    ],
+    "image": "/assets/covers/templates/golden-field-walk.webp",
+    "thumb": "/assets/covers/templates/thumbs/golden-field-walk.webp",
+    "palette": {
+      "background": "#855c34",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#b16f2c"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "open-arms",
+    "name": "Open Arms",
+    "blurb": "A figure greeting the sunrise on a hill.",
+    "genres": [
+      "Self-help",
+      "Wellness"
+    ],
+    "image": "/assets/covers/templates/open-arms.webp",
+    "thumb": "/assets/covers/templates/thumbs/open-arms.webp",
+    "palette": {
+      "background": "#8e6442",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#b47038"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "steel-gallery",
+    "name": "Steel Gallery",
+    "blurb": "Cool steel and navy: sharp and professional.",
+    "genres": [
+      "Business"
+    ],
+    "image": "/assets/covers/templates/steel-gallery.webp",
+    "thumb": "/assets/covers/templates/thumbs/steel-gallery.webp",
+    "palette": {
+      "background": "#878992",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#1c2236"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "serif",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "marble-and-gold",
+    "name": "Marble and Gold",
+    "blurb": "A marble column with gold trim.",
+    "genres": [
+      "Business",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/marble-and-gold.webp",
+    "thumb": "/assets/covers/templates/thumbs/marble-and-gold.webp",
+    "palette": {
+      "background": "#453c37",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#7d644a"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "black-lamp",
+    "name": "Black Lamp",
+    "blurb": "A glossy lamp glowing on navy.",
+    "genres": [
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/black-lamp.webp",
+    "thumb": "/assets/covers/templates/thumbs/black-lamp.webp",
+    "palette": {
+      "background": "#635b59",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#e3cbb4"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "white-plinth",
+    "name": "White Plinth",
+    "blurb": "A clean, minimal stage for a big idea.",
+    "genres": [
+      "Business",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/white-plinth.webp",
+    "thumb": "/assets/covers/templates/thumbs/white-plinth.webp",
+    "palette": {
+      "background": "#8d8e94",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#16161a",
+      "accent": "#2a3241"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "light"
+    }
+  },
+  {
+    "id": "gold-light-tunnel",
+    "name": "Gold Light Tunnel",
+    "blurb": "Lines of gold light leading forward.",
+    "genres": [
+      "Business",
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/gold-light-tunnel.webp",
+    "thumb": "/assets/covers/templates/thumbs/gold-light-tunnel.webp",
+    "palette": {
+      "background": "#63533f",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#dab976"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "gothic-window",
+    "name": "Gothic Window",
+    "blurb": "Tall arched windows over an old city.",
+    "genres": [
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/gothic-window.webp",
+    "thumb": "/assets/covers/templates/thumbs/gothic-window.webp",
+    "palette": {
+      "background": "#5f5349",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#473020"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "upper",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "grand-staircase",
+    "name": "Grand Staircase",
+    "blurb": "A sweeping stair with a red carpet.",
+    "genres": [
+      "Fiction",
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/grand-staircase.webp",
+    "thumb": "/assets/covers/templates/thumbs/grand-staircase.webp",
+    "palette": {
+      "background": "#6a5f56",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#8c7f70"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "navy-mosaic",
+    "name": "Navy Mosaic",
+    "blurb": "Navy, cream and burgundy geometry.",
+    "genres": [
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/navy-mosaic.webp",
+    "thumb": "/assets/covers/templates/thumbs/navy-mosaic.webp",
+    "palette": {
+      "background": "#726962",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#826b4f"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "neon-cylinder",
+    "name": "Neon Cylinder",
+    "blurb": "A glowing cylinder in a magenta room.",
+    "genres": [
+      "Technology",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/neon-cylinder.webp",
+    "thumb": "/assets/covers/templates/thumbs/neon-cylinder.webp",
+    "palette": {
+      "background": "#6b2e67",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#c54daa"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "blue-streaks",
+    "name": "Blue Streaks",
+    "blurb": "Bold diagonal streaks of blue and magenta.",
+    "genres": [
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/blue-streaks.webp",
+    "thumb": "/assets/covers/templates/thumbs/blue-streaks.webp",
+    "palette": {
+      "background": "#4e315f",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#c262b0"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "ribbon-gift",
+    "name": "Ribbon Gift",
+    "blurb": "A black box with an orange ribbon.",
+    "genres": [
+      "Business",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/ribbon-gift.webp",
+    "thumb": "/assets/covers/templates/thumbs/ribbon-gift.webp",
+    "palette": {
+      "background": "#5c514a",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#89604d"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "amber-perfume",
+    "name": "Amber Perfume",
+    "blurb": "A bottle of amber in a teal presentation box.",
+    "genres": [
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/amber-perfume.webp",
+    "thumb": "/assets/covers/templates/thumbs/amber-perfume.webp",
+    "palette": {
+      "background": "#3a3936",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#43332c"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "glass-cage",
+    "name": "Glass Cage",
+    "blurb": "Glowing cubes held inside a glass frame.",
+    "genres": [
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/glass-cage.webp",
+    "thumb": "/assets/covers/templates/thumbs/glass-cage.webp",
+    "palette": {
+      "background": "#303439",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#213240"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "brass-padlock",
+    "name": "Brass Padlock",
+    "blurb": "A heavy padlock on a navy plate.",
+    "genres": [
+      "Technology",
+      "Business"
+    ],
+    "image": "/assets/covers/templates/brass-padlock.webp",
+    "thumb": "/assets/covers/templates/thumbs/brass-padlock.webp",
+    "palette": {
+      "background": "#27323f",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#1b2d41"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "glass-garden",
+    "name": "Glass Garden",
+    "blurb": "Orange flowers growing inside a glass case.",
+    "genres": [
+      "Fiction",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/glass-garden.webp",
+    "thumb": "/assets/covers/templates/thumbs/glass-garden.webp",
+    "palette": {
+      "background": "#302a30",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#1a283b"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "copper-hall",
+    "name": "Copper Hall",
+    "blurb": "A copper-lit corridor ending at one door.",
+    "genres": [
+      "Fiction",
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/copper-hall.webp",
+    "thumb": "/assets/covers/templates/thumbs/copper-hall.webp",
+    "palette": {
+      "background": "#462a24",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#af5f33"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "display",
+      "title_case": "upper",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "red-scarf-rain",
+    "name": "Red Scarf in the Rain",
+    "blurb": "A figure in red on a neon-lit street.",
+    "genres": [
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/red-scarf-rain.webp",
+    "thumb": "/assets/covers/templates/thumbs/red-scarf-rain.webp",
+    "palette": {
+      "background": "#5c494a",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#741e21"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "blue-portal",
+    "name": "Blue Portal",
+    "blurb": "A neon-edged doorway in a dark hall.",
+    "genres": [
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/blue-portal.webp",
+    "thumb": "/assets/covers/templates/thumbs/blue-portal.webp",
+    "palette": {
+      "background": "#1c374a",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#2a5471"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "golden-cavern",
+    "name": "Golden Cavern",
+    "blurb": "A tiny figure before a wall of gold light.",
+    "genres": [
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/golden-cavern.webp",
+    "thumb": "/assets/covers/templates/thumbs/golden-cavern.webp",
+    "palette": {
+      "background": "#432c19",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#b56f20"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "gold-visor",
+    "name": "Gold Visor",
+    "blurb": "A dark helmet traced with fine gold.",
+    "genres": [
+      "Fiction",
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/gold-visor.webp",
+    "thumb": "/assets/covers/templates/thumbs/gold-visor.webp",
+    "palette": {
+      "background": "#5e4f40",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#bf9d6c"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "emerald-strands",
+    "name": "Emerald Strands",
+    "blurb": "Glass-like green strands catching the light.",
+    "genres": [
+      "Wellness",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/emerald-strands.webp",
+    "thumb": "/assets/covers/templates/thumbs/emerald-strands.webp",
+    "palette": {
+      "background": "#277a6f",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#108575"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "emerald-frost",
+    "name": "Emerald Frost",
+    "blurb": "Spiky green crystal against black.",
+    "genres": [
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/emerald-frost.webp",
+    "thumb": "/assets/covers/templates/thumbs/emerald-frost.webp",
+    "palette": {
+      "background": "#1c625d",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#269587"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "violet-mesh",
+    "name": "Violet Mesh",
+    "blurb": "A violet network drifting through space.",
+    "genres": [
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/violet-mesh.webp",
+    "thumb": "/assets/covers/templates/thumbs/violet-mesh.webp",
+    "palette": {
+      "background": "#3d2061",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#5d2784"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "green-desk",
+    "name": "Green Desk",
+    "blurb": "A tidy desk with two screens and gold details.",
+    "genres": [
+      "Business",
+      "Education"
+    ],
+    "image": "/assets/covers/templates/green-desk.webp",
+    "thumb": "/assets/covers/templates/thumbs/green-desk.webp",
+    "palette": {
+      "background": "#4e574d",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#335e4b"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "violet-sphere",
+    "name": "Violet Sphere",
+    "blurb": "A threaded sphere on a glowing stand.",
+    "genres": [
+      "Technology",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/violet-sphere.webp",
+    "thumb": "/assets/covers/templates/thumbs/violet-sphere.webp",
+    "palette": {
+      "background": "#2e3457",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#414a7e"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "left",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "glass-orb",
+    "name": "Glass Orb",
+    "blurb": "A dark glass orb with a deep violet core.",
+    "genres": [
+      "Creative",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/glass-orb.webp",
+    "thumb": "/assets/covers/templates/thumbs/glass-orb.webp",
+    "palette": {
+      "background": "#2a3b52",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#3a5773"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "upper",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "magenta-globe",
+    "name": "Magenta Globe",
+    "blurb": "A glowing globe on a magenta backdrop.",
+    "genres": [
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/magenta-globe.webp",
+    "thumb": "/assets/covers/templates/thumbs/magenta-globe.webp",
+    "palette": {
+      "background": "#681d47",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#a82c7b"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "silhouette-window",
+    "name": "Silhouette Window",
+    "blurb": "A lone figure at a tall window at dusk.",
+    "genres": [
+      "Memoir",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/silhouette-window.webp",
+    "thumb": "/assets/covers/templates/thumbs/silhouette-window.webp",
+    "palette": {
+      "background": "#7c6858",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#ce9574"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "terracotta-steps",
+    "name": "Terracotta Steps",
+    "blurb": "Warm steps climbing out of the frame.",
+    "genres": [
+      "Self-help",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/terracotta-steps.webp",
+    "thumb": "/assets/covers/templates/thumbs/terracotta-steps.webp",
+    "palette": {
+      "background": "#805d4c",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#c49a80"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "long-library",
+    "name": "Long Library",
+    "blurb": "An endless aisle of shelves and warm light.",
+    "genres": [
+      "Education",
+      "Business"
+    ],
+    "image": "/assets/covers/templates/long-library.webp",
+    "thumb": "/assets/covers/templates/thumbs/long-library.webp",
+    "palette": {
+      "background": "#4e443e",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#3a2e25"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "wrapped-boxes",
+    "name": "Wrapped Boxes",
+    "blurb": "Gift boxes tied with string and a small key.",
+    "genres": [
+      "Business",
+      "Creative"
+    ],
+    "image": "/assets/covers/templates/wrapped-boxes.webp",
+    "thumb": "/assets/covers/templates/thumbs/wrapped-boxes.webp",
+    "palette": {
+      "background": "#433d2c",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#c0a680"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "green-shopping-bag",
+    "name": "Green Shopping Bag",
+    "blurb": "A shopping bag with a fresh orange.",
+    "genres": [
+      "Business"
+    ],
+    "image": "/assets/covers/templates/green-shopping-bag.webp",
+    "thumb": "/assets/covers/templates/thumbs/green-shopping-bag.webp",
+    "palette": {
+      "background": "#6d6755",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#605847"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "green-shopfront",
+    "name": "Green Shopfront",
+    "blurb": "A welcoming shop front with warm windows.",
+    "genres": [
+      "Business"
+    ],
+    "image": "/assets/covers/templates/green-shopfront.webp",
+    "thumb": "/assets/covers/templates/thumbs/green-shopfront.webp",
+    "palette": {
+      "background": "#464235",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#3d2c19"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "neon-bear",
+    "name": "Neon Bear",
+    "blurb": "A bear drawn in neon lime wireframe.",
+    "genres": [
+      "Creative",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/neon-bear.webp",
+    "thumb": "/assets/covers/templates/thumbs/neon-bear.webp",
+    "palette": {
+      "background": "#324f1f",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#8ed040"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "lime-machine",
+    "name": "Lime Machine",
+    "blurb": "A lime-lit machine on a dark floor.",
+    "genres": [
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/lime-machine.webp",
+    "thumb": "/assets/covers/templates/thumbs/lime-machine.webp",
+    "palette": {
+      "background": "#233114",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#75a51f"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "bronze-doors",
+    "name": "Bronze Doors",
+    "blurb": "Bronze double doors in a dark hall.",
+    "genres": [
+      "Fiction",
+      "Business"
+    ],
+    "image": "/assets/covers/templates/bronze-doors.webp",
+    "thumb": "/assets/covers/templates/thumbs/bronze-doors.webp",
+    "palette": {
+      "background": "#3b2b21",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#5a412e"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "upper",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "red-chains",
+    "name": "Red Chains",
+    "blurb": "Red chains and a lone figure in a blue hall.",
+    "genres": [
+      "Fiction",
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/red-chains.webp",
+    "thumb": "/assets/covers/templates/thumbs/red-chains.webp",
+    "palette": {
+      "background": "#272026",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#4e1a16"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "left",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "blue-chain",
+    "name": "Blue Chain",
+    "blurb": "A heavy chain glowing blue and red.",
+    "genres": [
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/blue-chain.webp",
+    "thumb": "/assets/covers/templates/thumbs/blue-chain.webp",
+    "palette": {
+      "background": "#192836",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#25405b"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "open-book-linen",
+    "name": "Open Book on Linen",
+    "blurb": "A book, a cup and dried grasses on linen.",
+    "genres": [
+      "Memoir",
+      "Wellness"
+    ],
+    "image": "/assets/covers/templates/open-book-linen.webp",
+    "thumb": "/assets/covers/templates/thumbs/open-book-linen.webp",
+    "palette": {
+      "background": "#8f7d6d",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#4f3b29"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "pale-sea",
+    "name": "Pale Sea",
+    "blurb": "A calm, empty sea at first light.",
+    "genres": [
+      "Wellness",
+      "Memoir"
+    ],
+    "image": "/assets/covers/templates/pale-sea.webp",
+    "thumb": "/assets/covers/templates/thumbs/pale-sea.webp",
+    "palette": {
+      "background": "#c4af9b",
+      "title": "#16161a",
+      "subtitle": "#16161a",
+      "author": "#ffffff",
+      "accent": "#b2967d"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "sheer-curtain",
+    "name": "Sheer Curtain",
+    "blurb": "A soft silhouette behind a sheer curtain.",
+    "genres": [
+      "Memoir",
+      "Wellness"
+    ],
+    "image": "/assets/covers/templates/sheer-curtain.webp",
+    "thumb": "/assets/covers/templates/thumbs/sheer-curtain.webp",
+    "palette": {
+      "background": "#af9b87",
+      "title": "#16161a",
+      "subtitle": "#16161a",
+      "author": "#ffffff",
+      "accent": "#957456"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "light",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "lone-tree",
+    "name": "Lone Tree",
+    "blurb": "A single tree in a pale, misty field.",
+    "genres": [
+      "Memoir",
+      "Spirituality"
+    ],
+    "image": "/assets/covers/templates/lone-tree.webp",
+    "thumb": "/assets/covers/templates/thumbs/lone-tree.webp",
+    "palette": {
+      "background": "#bba289",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#a98a6b"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "sans",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "green-aura",
+    "name": "Green Aura",
+    "blurb": "A hero in a green aura over the hills.",
+    "genres": [
+      "Fiction",
+      "Self-help"
+    ],
+    "image": "/assets/covers/templates/green-aura.webp",
+    "thumb": "/assets/covers/templates/thumbs/green-aura.webp",
+    "palette": {
+      "background": "#5b8e4d",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#104b2a"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "left",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "gold-crystal",
+    "name": "Gold Crystal",
+    "blurb": "A gold-framed crystal among the stars.",
+    "genres": [
+      "Creative",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/gold-crystal.webp",
+    "thumb": "/assets/covers/templates/thumbs/gold-crystal.webp",
+    "palette": {
+      "background": "#3c2b33",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#b18b66"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "scrim": "dark",
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "black-prism",
+    "name": "Black Prism",
+    "blurb": "A black prism with a single star of light.",
+    "genres": [
+      "Creative",
+      "Technology"
+    ],
+    "image": "/assets/covers/templates/black-prism.webp",
+    "thumb": "/assets/covers/templates/thumbs/black-prism.webp",
+    "palette": {
+      "background": "#2f2530",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#3f2e3e"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "center",
+      "type_style": "serif",
+      "title_case": "none",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "wireframe-mind",
+    "name": "Wireframe Mind",
+    "blurb": "A face traced in gold wire on blue.",
+    "genres": [
+      "Technology",
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/wireframe-mind.webp",
+    "thumb": "/assets/covers/templates/thumbs/wireframe-mind.webp",
+    "palette": {
+      "background": "#3e5051",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#2f5260"
+    },
+    "layout": {
+      "title_position": "upper",
+      "title_align": "left",
+      "type_style": "sans",
+      "title_case": "upper",
+      "rule": true,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "lone-figure",
+    "name": "Lone Figure",
+    "blurb": "A figure in a coat under a beam of light.",
+    "genres": [
+      "Fiction"
+    ],
+    "image": "/assets/covers/templates/lone-figure.webp",
+    "thumb": "/assets/covers/templates/thumbs/lone-figure.webp",
+    "palette": {
+      "background": "#222a27",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#557263"
+    },
+    "layout": {
+      "title_position": "middle",
+      "title_align": "center",
+      "type_style": "condensed",
+      "title_case": "upper",
+      "rule": false,
+      "author_scrim": "dark"
+    }
+  },
+  {
+    "id": "amber-portal",
+    "name": "Amber Portal",
+    "blurb": "A figure standing inside a ring of amber.",
+    "genres": [
+      "Fiction",
+      "Spirituality"
+    ],
+    "image": "/assets/covers/templates/amber-portal.webp",
+    "thumb": "/assets/covers/templates/thumbs/amber-portal.webp",
+    "palette": {
+      "background": "#453e30",
+      "title": "#ffffff",
+      "subtitle": "#ffffff",
+      "author": "#ffffff",
+      "accent": "#7e5f33"
+    },
+    "layout": {
+      "title_position": "lower",
+      "title_align": "center",
+      "type_style": "display",
+      "title_case": "none",
+      "rule": true,
+      "author_scrim": "dark"
+    }
   }
 ];

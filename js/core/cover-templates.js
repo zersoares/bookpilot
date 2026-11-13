@@ -1,6 +1,6 @@
 // Cover templates: ready-made cover designs an author can start from.
 //
-// The data (js/data/cover-templates.js) is seventy pieces of text-free artwork,
+// The data (js/data/cover-templates.js) is 163 pieces of text-free artwork,
 // each with the palette and type treatment that reads well over it. This file is
 // the logic around that data, shared by the browser (the gallery on the Create a
 // book page, the Cover step), the server (which turns a chosen template into a
