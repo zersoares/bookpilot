@@ -984,3 +984,53 @@
   for = "/books/thanks-booking-desk-security-boundary-bk-d7e400e0e9.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Der-Cloud-Exit-Plan-bk-52997f6a4c.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Der-Cloud-Exit-Plan-bk-52997f6a4c.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-der-cloud-exit-plan-bk-52997f6a4c.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Die-Wallet-im-Unternehmen-bk-3d0dd2405b.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Die-Wallet-im-Unternehmen-bk-3d0dd2405b.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-die-wallet-im-unternehmen-bk-3d0dd2405b.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Turn-Your-PC-Into-a-Money-Machine-bk-c49f0690e6.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-turn-your-pc-into-a-money-machine-bk-c49f0690e6.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Wellness-Workbook-bk-5a73322969.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-wellness-workbook-bk-5a73322969.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

@@ -537,6 +537,40 @@ export const BOOKS = {
       ["EPUB", "The-Booking-Desk-Is-a-Security-Boundary-bk-d7e400e0e9.epub"],
     ],
   },
+  plink_1UbjvQLfqCbvloYwIVW1EYas: {
+    lang: "en",
+    name: "Der Cloud-Exit-Plan",
+    page: "thanks-der-cloud-exit-plan-bk-52997f6a4c.html",
+    files: [
+      ["PDF", "Der-Cloud-Exit-Plan-bk-52997f6a4c.pdf"],
+      ["EPUB", "Der-Cloud-Exit-Plan-bk-52997f6a4c.epub"],
+    ],
+  },
+  plink_1UbjwELfqCbvloYwRiKr0rsi: {
+    lang: "en",
+    name: "Die Wallet im Unternehmen",
+    page: "thanks-die-wallet-im-unternehmen-bk-3d0dd2405b.html",
+    files: [
+      ["PDF", "Die-Wallet-im-Unternehmen-bk-3d0dd2405b.pdf"],
+      ["EPUB", "Die-Wallet-im-Unternehmen-bk-3d0dd2405b.epub"],
+    ],
+  },
+  plink_1Ubjx3LfqCbvloYwacYs8GcW: {
+    lang: "en",
+    name: "Turn Your PC Into a Money Machine",
+    page: "thanks-turn-your-pc-into-a-money-machine-bk-c49f0690e6.html",
+    files: [
+      ["PDF", "Turn-Your-PC-Into-a-Money-Machine-bk-c49f0690e6.pdf"],
+    ],
+  },
+  plink_1UbjxnLfqCbvloYwkLYxs8lj: {
+    lang: "en",
+    name: "Wellness Workbook",
+    page: "thanks-wellness-workbook-bk-5a73322969.html",
+    files: [
+      ["PDF", "Wellness-Workbook-bk-5a73322969.pdf"],
+    ],
+  },
 };
 
 const TEXT = {
