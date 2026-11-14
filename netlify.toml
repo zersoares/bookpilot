@@ -819,3 +819,168 @@
   for = "/books/thanks-data-has-more-than-one-owner-bk-d560fd7a69.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Scan-Before-You-Trust-bk-88732ab937.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Scan-Before-You-Trust-bk-88732ab937.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-scan-before-you-trust-bk-88732ab937.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-AI-Literacy-File-bk-b35fdd9dc4.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-AI-Literacy-File-bk-b35fdd9dc4.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-ai-literacy-file-bk-b35fdd9dc4.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-AI-Disclosure-Playbook-bk-c875277b13.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-AI-Disclosure-Playbook-bk-c875277b13.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-ai-disclosure-playbook-bk-c875277b13.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Before-the-RFP-Arrives-bk-d3ded44d70.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Before-the-RFP-Arrives-bk-d3ded44d70.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-before-the-rfp-arrives-bk-d3ded44d70.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Cloud-Exit-Plan-bk-d59304db4c.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Cloud-Exit-Plan-bk-d59304db4c.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-cloud-exit-plan-bk-d59304db4c.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Cyber-Claim-File-bk-4e1d56dbe8.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Cyber-Claim-File-bk-4e1d56dbe8.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-cyber-claim-file-bk-4e1d56dbe8.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Passkeys-at-Work-bk-67c3f2207f.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Passkeys-at-Work-bk-67c3f2207f.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-passkeys-at-work-bk-67c3f2207f.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Wallet-at-Work-bk-5174cd3a86.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Wallet-at-Work-bk-5174cd3a86.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-the-wallet-at-work-bk-5174cd3a86.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Meeting-Bot-Is-in-the-Room-bk-56b8dcc4d3.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Meeting-Bot-Is-in-the-Room-bk-56b8dcc4d3.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-meeting-bot-is-in-the-room-bk-56b8dcc4d3.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/From-PDF-to-Peppol-bk-795cb98050.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/From-PDF-to-Peppol-bk-795cb98050.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-from-pdf-to-peppol-bk-795cb98050.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Booking-Desk-Is-a-Security-Boundary-bk-d7e400e0e9.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Booking-Desk-Is-a-Security-Boundary-bk-d7e400e0e9.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-booking-desk-security-boundary-bk-d7e400e0e9.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

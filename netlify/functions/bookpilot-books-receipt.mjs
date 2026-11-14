@@ -438,6 +438,105 @@ export const BOOKS = {
       ["EPUB", "Your-Data-Has-More-Than-One-Owner-bk-d560fd7a69.epub"],
     ],
   },
+  plink_1UbjbCLfqCbvloYw0ji3BZ88: {
+    lang: "en",
+    name: "Scan Before You Trust",
+    page: "thanks-scan-before-you-trust-bk-88732ab937.html",
+    files: [
+      ["PDF", "Scan-Before-You-Trust-bk-88732ab937.pdf"],
+      ["EPUB", "Scan-Before-You-Trust-bk-88732ab937.epub"],
+    ],
+  },
+  plink_1UbjdgLfqCbvloYwf9Vx1Bun: {
+    lang: "en",
+    name: "The AI Literacy File",
+    page: "thanks-ai-literacy-file-bk-b35fdd9dc4.html",
+    files: [
+      ["PDF", "The-AI-Literacy-File-bk-b35fdd9dc4.pdf"],
+      ["EPUB", "The-AI-Literacy-File-bk-b35fdd9dc4.epub"],
+    ],
+  },
+  plink_1Ubjf3LfqCbvloYwasHbXioF: {
+    lang: "en",
+    name: "The AI Disclosure Playbook",
+    page: "thanks-ai-disclosure-playbook-bk-c875277b13.html",
+    files: [
+      ["PDF", "The-AI-Disclosure-Playbook-bk-c875277b13.pdf"],
+      ["EPUB", "The-AI-Disclosure-Playbook-bk-c875277b13.epub"],
+    ],
+  },
+  plink_1UbjfuLfqCbvloYw3rBL6X5R: {
+    lang: "en",
+    name: "Before the RFP Arrives",
+    page: "thanks-before-the-rfp-arrives-bk-d3ded44d70.html",
+    files: [
+      ["PDF", "Before-the-RFP-Arrives-bk-d3ded44d70.pdf"],
+      ["EPUB", "Before-the-RFP-Arrives-bk-d3ded44d70.epub"],
+    ],
+  },
+  plink_1UbjgfLfqCbvloYwXDAe3HQ0: {
+    lang: "en",
+    name: "The Cloud Exit Plan",
+    page: "thanks-cloud-exit-plan-bk-d59304db4c.html",
+    files: [
+      ["PDF", "The-Cloud-Exit-Plan-bk-d59304db4c.pdf"],
+      ["EPUB", "The-Cloud-Exit-Plan-bk-d59304db4c.epub"],
+    ],
+  },
+  plink_1UbjhQLfqCbvloYwgvDWQS51: {
+    lang: "en",
+    name: "The Cyber Claim File",
+    page: "thanks-cyber-claim-file-bk-4e1d56dbe8.html",
+    files: [
+      ["PDF", "The-Cyber-Claim-File-bk-4e1d56dbe8.pdf"],
+      ["EPUB", "The-Cyber-Claim-File-bk-4e1d56dbe8.epub"],
+    ],
+  },
+  plink_1UbjiALfqCbvloYwxtRvYaQz: {
+    lang: "en",
+    name: "Passkeys at Work",
+    page: "thanks-passkeys-at-work-bk-67c3f2207f.html",
+    files: [
+      ["PDF", "Passkeys-at-Work-bk-67c3f2207f.pdf"],
+      ["EPUB", "Passkeys-at-Work-bk-67c3f2207f.epub"],
+    ],
+  },
+  plink_1UbjiwLfqCbvloYwRKQ491fI: {
+    lang: "en",
+    name: "The Wallet at Work",
+    page: "thanks-the-wallet-at-work-bk-5174cd3a86.html",
+    files: [
+      ["PDF", "The-Wallet-at-Work-bk-5174cd3a86.pdf"],
+      ["EPUB", "The-Wallet-at-Work-bk-5174cd3a86.epub"],
+    ],
+  },
+  plink_1UbjjiLfqCbvloYw7RDtNJaD: {
+    lang: "en",
+    name: "The Meeting Bot Is in the Room",
+    page: "thanks-meeting-bot-is-in-the-room-bk-56b8dcc4d3.html",
+    files: [
+      ["PDF", "The-Meeting-Bot-Is-in-the-Room-bk-56b8dcc4d3.pdf"],
+      ["EPUB", "The-Meeting-Bot-Is-in-the-Room-bk-56b8dcc4d3.epub"],
+    ],
+  },
+  plink_1UbjkRLfqCbvloYwHD5iH7rK: {
+    lang: "en",
+    name: "From PDF to Peppol",
+    page: "thanks-from-pdf-to-peppol-bk-795cb98050.html",
+    files: [
+      ["PDF", "From-PDF-to-Peppol-bk-795cb98050.pdf"],
+      ["EPUB", "From-PDF-to-Peppol-bk-795cb98050.epub"],
+    ],
+  },
+  plink_1UbjlrLfqCbvloYwClEUQZdw: {
+    lang: "en",
+    name: "The Booking Desk Is a Security Boundary",
+    page: "thanks-booking-desk-security-boundary-bk-d7e400e0e9.html",
+    files: [
+      ["PDF", "The-Booking-Desk-Is-a-Security-Boundary-bk-d7e400e0e9.pdf"],
+      ["EPUB", "The-Booking-Desk-Is-a-Security-Boundary-bk-d7e400e0e9.epub"],
+    ],
+  },
 };
 
 const TEXT = {
