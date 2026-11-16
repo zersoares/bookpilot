@@ -49,6 +49,9 @@ export const env = {
   metaAppId: read("META_APP_ID"),
   metaAppSecret: read("META_APP_SECRET"),
   metaRedirectUri: read("META_REDIRECT_URI"),
+  // Any string you choose; pasted into the app's Webhooks settings in the
+  // Meta dashboard so Meta can confirm the callback URL is ours.
+  metaWebhookVerifyToken: read("META_WEBHOOK_VERIFY_TOKEN"),
   // --- Pinterest Ads API (read-only) ------------------------------------
   pinterestAppId: read("PINTEREST_APP_ID"),
   pinterestAppSecret: read("PINTEREST_APP_SECRET"),

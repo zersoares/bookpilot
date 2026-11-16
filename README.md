@@ -203,6 +203,7 @@ else degrades gracefully when absent.
 | `META_APP_ID` | Meta integration | |
 | `META_APP_SECRET` | Meta integration | **Secret** |
 | `META_REDIRECT_URI` | Meta integration | `https://yoursite/api/bp-meta/callback` |
+| `META_WEBHOOK_VERIFY_TOKEN` | Meta webhooks | Any random string; the same value goes in the app's Webhooks settings. Callback URL: `https://yoursite/api/bp-meta/webhook` |
 | `PINTEREST_APP_ID` | Pinterest sync | |
 | `PINTEREST_APP_SECRET` | Pinterest sync | **Secret** |
 | `PINTEREST_REDIRECT_URI` | Pinterest sync | `https://yoursite/api/bp-pinterest/callback` |

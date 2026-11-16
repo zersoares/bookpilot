@@ -9,6 +9,8 @@
 // thing this file will never do is invent a campaign id and call it
 // launched.
 
+import { createHmac, timingSafeEqual } from "node:crypto";
+import { env } from "./bookpilot-lib/env.js";
 import { withGuards, json, readJson, pathSegments } from "./bookpilot-lib/http.js";
 import { authenticate } from "./bookpilot-lib/auth.js";
 import { dbAsService } from "./bookpilot-lib/db.js";
@@ -290,9 +292,69 @@ async function sync(ctx, body) {
 }
 
 // ---------------------------------------------------------------------
+// Webhooks. Meta calls these without a session, like the OAuth callback;
+// requests are trusted only on the strength of the verify token (GET) or
+// the X-Hub-Signature-256 HMAC of the raw body (POST).
+
+function plain(body, status = 200) {
+  return new Response(body, {
+    status,
+    headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
+  });
+}
+
+function safeEqual(a, b) {
+  const x = Buffer.from(a);
+  const y = Buffer.from(b);
+  return x.length === y.length && timingSafeEqual(x, y);
+}
+
+/** Subscription handshake: echo hub.challenge if the verify token matches. */
+function webhookVerify(req) {
+  const expected = env.metaWebhookVerifyToken;
+  if (!expected) return plain("Webhook not set up on this deployment.", 501);
+  const q = new URL(req.url).searchParams;
+  const given = q.get("hub.verify_token") || "";
+  if (q.get("hub.mode") === "subscribe" && safeEqual(given, expected)) {
+    return plain(q.get("hub.challenge") || "");
+  }
+  return plain("Forbidden", 403);
+}
+
+/** Event delivery. Acknowledge fast; Meta retries anything that isn't a 200. */
+async function webhookReceive(req) {
+  if (!env.metaAppSecret) return plain("Webhook not set up on this deployment.", 501);
+  const raw = await req.text();
+  if (raw.length > 1024 * 1024) return plain("Too large", 413);
+
+  const header = req.headers.get("x-hub-signature-256") || "";
+  const expected = "sha256=" + createHmac("sha256", env.metaAppSecret).update(raw).digest("hex");
+  if (!safeEqual(header, expected)) return plain("Invalid signature", 401);
+
+  let event;
+  try {
+    event = JSON.parse(raw);
+  } catch {
+    return plain("Bad request", 400);
+  }
+
+  // Nothing acts on these yet. Log the shape (object type, entry count and
+  // changed fields) so deliveries are visible in the function log without
+  // storing the payload itself.
+  const entries = Array.isArray(event.entry) ? event.entry : [];
+  const fields = [...new Set(entries.flatMap((e) => (e.changes || []).map((c) => c.field)))];
+  console.log("[bookpilot] Meta webhook:", event.object, `entries=${entries.length}`, fields.join(",") || "-");
+  return plain("EVENT_RECEIVED");
+}
 
 export default withGuards(async (req) => {
   const [action] = pathSegments(req, PREFIX);
+
+  if (action === "webhook") {
+    if (req.method === "GET") return webhookVerify(req);
+    if (req.method === "POST") return webhookReceive(req);
+    throw Errors.notFound("endpoint");
+  }
 
   // The OAuth callback arrives from Meta without a session.
   if (action === "callback" && req.method === "GET") return callback(req);
