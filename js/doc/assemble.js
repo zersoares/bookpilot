@@ -42,8 +42,11 @@ export function assembleBook(data, options = {}) {
     .slice()
     .sort(byPosition);
 
+  // The contents page is generated from the laid-out book (it needs the
+  // real page numbers), so a stored "toc" section would only print a
+  // second, empty "Contents" page beside it.
   const front = usable
-    .filter((c) => c.kind === "front")
+    .filter((c) => c.kind === "front" && c.front_type !== "toc")
     .sort((a, b) => frontRank(a) - frontRank(b));
   const body = usable.filter((c) => c.kind !== "front" && c.kind !== "back" && c.kind !== "bonus");
   const back = usable

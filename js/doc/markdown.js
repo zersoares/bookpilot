@@ -8,7 +8,8 @@
 // can be written in.
 //
 // What it does NOT accept is as important: no HTML, no raw links, no
-// images, no nested lists, no tables. An exporter never has to decide
+// images, no nested lists, no tables (a pipe table is converted to a
+// list rather than printed as pipes). An exporter never has to decide
 // what to do with something it cannot lay out.
 
 const CONTAINERS = {
@@ -182,6 +183,32 @@ function parseLines(lines, start, end) {
       continue;
     }
 
+    // A table. Tables are outside the format (nothing sets them the same
+    // in a PDF page, an EPUB and a Word file), but a model asked for one
+    // will often write one anyway, and the alternative to handling it is
+    // a paragraph of pipe characters in the printed book. Each row becomes
+    // a list item, the first cell leading and the other cells labelled
+    // with their column heading.
+    if (trimmed.startsWith("|") && isTableSeparator((lines[i + 1] || "").trim()) && i + 1 < end) {
+      flushParagraph(paragraph);
+      const headers = tableCells(trimmed);
+      i += 2;
+      const items = [];
+      while (i < end && lines[i].trim().startsWith("|")) {
+        const cells = tableCells(lines[i].trim());
+        const rest = cells
+          .slice(1)
+          .map((cell, index) => (cell ? (headers[index + 1] && cells.length > 2 ? `${headers[index + 1]}: ${cell}` : cell) : ""))
+          .filter(Boolean);
+        const lead = cells[0] ? `**${cells[0]}**` : "";
+        const text = [lead, rest.join("; ")].filter(Boolean).join(" — ");
+        if (text) items.push(text);
+        i += 1;
+      }
+      if (items.length) blocks.push({ type: "list", ordered: false, items: items.map(inlineRuns) });
+      continue;
+    }
+
     // Lists
     if (/^[-*+]\s+/.test(trimmed) || /^\d+[.)]\s+/.test(trimmed)) {
       flushParagraph(paragraph);
@@ -220,6 +247,15 @@ function parseLines(lines, start, end) {
 
   flushParagraph(paragraph);
   return { blocks, next: i };
+}
+
+/** `| --- | :---: |` — the line that makes the one above it a table header. */
+function isTableSeparator(line) {
+  return /^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?$/.test(line) && line.includes("|");
+}
+
+function tableCells(line) {
+  return line.replace(/^\|/, "").replace(/\|$/, "").split("|").map((cell) => cell.trim());
 }
 
 /** Index of the line closing the container opened before `from`. */

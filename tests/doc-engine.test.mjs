@@ -535,3 +535,68 @@ test("XML from the manuscript is escaped in every container format", () => {
     assert.ok(!buffer.includes("<tags>"), `${name} did not escape the manuscript`);
   }
 });
+
+// ---------------------------------------------------------------------
+// Regressions found building a real book end to end (2026-11-16)
+// ---------------------------------------------------------------------
+
+test("a panel's title is never stranded at the foot of a page", () => {
+  const filler = "A line of ordinary body text that fills the page.";
+  // Vary how much precedes the panel so that, somewhere in the sweep, the
+  // title would fall on the last line of a page if it were free to.
+  for (let n = 1; n <= 45; n += 1) {
+    const content = `${Array.from({ length: n }, () => filler).join("\n\n")}\n\n:::exercise ZZTITLE\nBodyline one.\n:::`;
+    const laid = layoutBook(sampleBook({
+      sections: [{ id: "c1", kind: "chapter", number: 1, title: "Chapter", blocks: parseManuscript(content) }],
+    }), { print: false });
+    for (const page of laid.pages) {
+      const texts = page.items.filter((op) => op.op === "text");
+      const title = texts.find((op) => op.text === "ZZTITLE");
+      if (!title) continue;
+      assert.ok(
+        texts.some((op) => op.text.startsWith("Bodyline") && op.y > title.y),
+        `the panel title is alone at the bottom of folio ${page.folio} (n=${n})`
+      );
+    }
+  }
+});
+
+test("a pipe table becomes a list instead of a paragraph of pipes", () => {
+  const blocks = parseManuscript(`Before.
+
+| Data | Keep for |
+| --- | --- |
+| Newsletter list | Until unsubscribe |
+| Invoices | As the tax law requires |
+
+After.`);
+  assert.deepEqual(blocks.map((b) => b.type), ["paragraph", "list", "paragraph"]);
+  assert.equal(blocks[1].items.length, 2);
+  const first = blocks[1].items[0].map((r) => r.text).join("");
+  assert.equal(first, "Newsletter list — Until unsubscribe");
+  assert.equal(blocks[1].items[0][0].bold, true, "the first cell leads");
+  assert.ok(!blocks.some((b) => b.runs && b.runs.some((r) => r.text.includes("|"))), "no pipes survive");
+});
+
+test("a wider table labels each cell with its column heading", () => {
+  const [list] = parseManuscript("| Tool | Where | Agreement |\n|---|---|---|\n| Mail | EU | Yes |");
+  assert.equal(list.items[0].map((r) => r.text).join(""), "Mail — Where: EU; Agreement: Yes");
+});
+
+test("a line that merely contains a pipe is still prose", () => {
+  const [block] = parseManuscript("Use the | character sparingly.");
+  assert.equal(block.type, "paragraph");
+});
+
+test("a stored contents section does not print a second, empty Contents page", () => {
+  const book = assembleBook({
+    project: { title: "T", language: "en" },
+    parts: [],
+    chapters: [
+      { id: "toc", kind: "front", front_type: "toc", title: "Contents", content: "", sort_order: 1 },
+      { id: "ch", kind: "chapter", number: 1, title: "One", content: "Words.", sort_order: 5 },
+    ],
+    visuals: [],
+  });
+  assert.deepEqual(book.sections.map((s) => s.front_type || s.kind), ["chapter"]);
+});

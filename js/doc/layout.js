@@ -383,7 +383,7 @@ function composeContainer(block, ctx, { measure, offsetX }) {
   const inner = [];
 
   if (label) {
-    inner.push(...composeParagraph([{ text: label.toUpperCase(), bold: true }], ctx, {
+    const labelAtoms = composeParagraph([{ text: label.toUpperCase(), bold: true }], ctx, {
       size: theme.type.caption,
       family: theme.heading,
       bold: true,
@@ -392,8 +392,13 @@ function composeContainer(block, ctx, { measure, offsetX }) {
       offsetX: offsetX + pad,
       color: theme.accentRgb,
       groupId: `ct${groupCounter += 1}`,
-    }));
-    inner.push(space(theme.type.caption * 0.5));
+    });
+    const gap = space(theme.type.caption * 0.5);
+    // A panel's title is a heading: it must never be left alone at the
+    // foot of a page with its body on the next one.
+    labelAtoms.forEach((a) => { a.keepWithNext = true; });
+    gap.keepWithNext = true;
+    inner.push(...labelAtoms, gap);
   }
 
   inner.push(...composeBlocks(block.blocks, ctx, {
@@ -407,7 +412,11 @@ function composeContainer(block, ctx, { measure, offsetX }) {
 
   // Top and bottom padding are their own atoms so the panel's edges
   // land exactly where the background starts and stops.
-  const padded = [space(pad * 0.8), ...inner, space(pad * 0.8)];
+  const topPad = space(pad * 0.8);
+  // The panel's top padding travels with its title, or the title's
+  // keep-with-next would be cut loose from the panel's top edge.
+  topPad.keepWithNext = Boolean(label);
+  const padded = [topPad, ...inner, space(pad * 0.8)];
   padded.forEach((a, index) => {
     const isFirst = index === 0;
     const isLast = index === padded.length - 1;
@@ -419,7 +428,10 @@ function composeContainer(block, ctx, { measure, offsetX }) {
       isFirst ? { op: "rect", x: x + offsetX, y, w: measure, h: 0.6, fill: [0.86, 0.85, 0.82] } : null,
       isLast ? { op: "rect", x: x + offsetX, y: y + a.height - 0.6, w: measure, h: 0.6, fill: [0.86, 0.85, 0.82] } : null,
       ...a.render(x, y),
-    ].filter(Boolean), { group: a.group, groupIndex: a.groupIndex, groupSize: a.groupSize }));
+    ].filter(Boolean), {
+      group: a.group, groupIndex: a.groupIndex, groupSize: a.groupSize,
+      keepWithNext: Boolean(a.keepWithNext),
+    }));
   });
 
   atoms.push(space(theme.space.container));
