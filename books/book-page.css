@@ -1,0 +1,33 @@
+/* Single-book pages (books/<slug>/). Built by tools/build_book_pages.py.
+   Everything else comes from styles.css, which the catalogue shares. */
+
+.bookpage main { padding-block: 20px clamp(40px, 6vw, 72px); }
+
+.crumbs { font-size: 0.88rem; color: var(--muted); padding-block: 8px 18px; }
+.crumbs a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.crumbs a:hover { color: var(--text); }
+.crumbs [aria-current] { color: var(--text); font-weight: 500; }
+
+.bookpage__card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+.bookpage__card .detail { grid-template-columns: minmax(220px, 360px) 1fr; }
+.bookpage__card .detail__stage .book { top: 96px; }
+.bookpage__card .detail__title { padding-right: 0; }
+.bookpage__card .detail__blurb { font-size: 1.06rem; max-width: 62ch; }
+.bookpage__card .ticks { max-width: 62ch; }
+
+.related { padding-top: clamp(40px, 6vw, 64px); }
+.related h2 { font-size: clamp(1.3rem, 2.4vw, 1.6rem); margin-bottom: 18px; }
+.related__grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.rel { display: flex; flex-direction: column; gap: 8px; height: 100%; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); color: inherit; text-decoration: none; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+.rel:hover, .rel:focus-visible { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
+.rel img { width: auto; height: 180px; max-width: 100%; object-fit: contain; align-self: center; border-radius: 2px 5px 5px 2px; box-shadow: 0 8px 18px -8px rgba(20, 18, 50, 0.45); margin-bottom: 6px; }
+.rel__title { font-weight: 700; line-height: 1.25; }
+.rel__sub { font-size: 0.88rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.related__all { margin-top: 22px; }
+
+@media (max-width: 900px) { .related__grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 720px) {
+  .bookpage__card .detail { grid-template-columns: 1fr; }
+  .bookpage__card .detail__stage { padding: 28px 20px 20px; }
+}
+@media (max-width: 420px) { .rel img { height: 140px; } }

@@ -226,6 +226,8 @@ h2 { font-size: clamp(1.9rem, 4vw, 2.7rem); }
 .card__stage:focus-visible { outline-offset: -4px; }
 .card__body { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px 6px; flex: 1; align-items: flex-start; }
 .card__title { font-size: 1.08rem; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; }
+.card__title a { color: inherit; text-decoration: none; }
+.card__title a:hover, .card__title a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
 .card__sub { font-size: 0.88rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .card__meta { font-size: 0.8rem; color: var(--subtle); margin-top: auto; padding-top: 4px; }
 .card__set { font-size: 0.78rem; color: var(--primary-text); font-weight: 600; }
