@@ -103,6 +103,39 @@
   status = 404
   force = true
 
+# The seller pages are hidden (404) until their commercial and legal details
+# have been checked: /sell-your-book/ (the 70% / 35% offer) and /seller-terms
+# (the seller terms). Their files stay in the repo; nothing links to them and
+# the sitemap does not list them. `force` is required for the reason above.
+#
+# To publish them again: delete these four rules, restore the links in the
+# landing page's hero and footers and the sitemap entries (git history:
+# 1858969 hero + footer + sitemap, 1abded4 the other footers, 67be4e2 the
+# terms), and re-run the tests.
+[[redirects]]
+  from = "/sell-your-book"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/sell-your-book/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/seller-terms"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/seller-terms.html"
+  to = "/404.html"
+  status = 404
+  force = true
+
 # ---------------------------------------------------------------------
 # Functions
 # ---------------------------------------------------------------------

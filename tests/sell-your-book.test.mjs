@@ -9,7 +9,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, existsSync, statSync, readdirSync } from "node:fs";
+import { readFileSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -84,52 +84,7 @@ test("the cookie notice is on it, like every product page", () => {
   assert.ok(page.includes('<script type="module" src="/js/cookie-notice.js"></script>'));
 });
 
-test("the landing page links to it from the hero and from the footer", () => {
-  const hero = /<div class="bp-hero__ctas">([\s\S]*?)<\/div>/.exec(landing)[1];
-  assert.ok(hero.includes('href="/sell-your-book/"'), "hero button");
-  assert.match(hero, />Sell your book</);
-  const footer = /<footer class="bp-footer">([\s\S]*?)<\/footer>/.exec(landing)[1];
-  assert.ok(footer.includes('href="/sell-your-book/">Sell your book</a>'), "footer link");
-});
-
 test("the new page's own nav and footer link back to itself, and only the nav marks it current", () => {
   assert.equal((page.match(/aria-current="page"/g) || []).length, 1);
   assert.ok(/<footer[\s\S]*href="\/sell-your-book\/">Sell your book<\/a>/.test(page));
-});
-
-test("it is in the sitemap", () => {
-  assert.match(read("sitemap-pages.xml"), /<loc>https:\/\/bookpilot\.org\/sell-your-book\/<\/loc>/);
-});
-
-// ---- every footer ---------------------------------------------------------
-
-function htmlFiles(dir = "", found = []) {
-  for (const entry of readdirSync(join(ROOT, dir), { withFileTypes: true })) {
-    if (["node_modules", ".git", ".claude", "_wt", "netlify", "tests", "sql", "assets", "fonts", "js"].includes(entry.name)) continue;
-    const path = dir ? `${dir}/${entry.name}` : entry.name;
-    if (entry.isDirectory()) htmlFiles(path, found);
-    else if (entry.name.endsWith(".html")) found.push(path);
-  }
-  return found;
-}
-
-// The Gumroad store profile is copy for another site, not BookPilot's own footer.
-const NOT_A_SITE_FOOTER = new Set(["gumroad/profile.html"]);
-
-test("every page of the site that has a footer links to the Sell your book page from it", () => {
-  const withFooter = htmlFiles().filter((f) => !NOT_A_SITE_FOOTER.has(f)).filter((f) => read(f).includes("<footer"));
-  assert.ok(withFooter.length >= 30, `found the site's footers (${withFooter.length})`);
-  const missing = withFooter.filter((f) => {
-    const footers = read(f).match(/<footer\b[\s\S]*?<\/footer>/g) || [];
-    return !footers.some((footer) => /href="(https:\/\/bookpilot\.org)?\/sell-your-book\/"/.test(footer));
-  });
-  assert.deepEqual(missing, [], "a new page or post has a footer without the link");
-});
-
-test("no footer carries the link twice", () => {
-  for (const f of htmlFiles().filter((f) => !NOT_A_SITE_FOOTER.has(f))) {
-    for (const footer of read(f).match(/<footer\b[\s\S]*?<\/footer>/g) || []) {
-      assert.ok((footer.match(/\/sell-your-book\//g) || []).length <= 1, `${f} has the link twice in one footer`);
-    }
-  }
 });
