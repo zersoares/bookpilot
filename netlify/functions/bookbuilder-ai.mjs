@@ -21,6 +21,7 @@ import { generate } from "./bookpilot-lib/ai.js";
 import { capabilities } from "./bookpilot-lib/env.js";
 import * as v from "./bookpilot-lib/validate.js";
 import * as audit from "./bookpilot-lib/audit.js";
+import { createBbJob, getJob, BB_ROUTES, BB_PREFIX } from "./bookpilot-lib/ai-jobs.js";
 import {
   loadBookData, assembleBook, bibleForPrompt, chapterLine, outlineForPrompt,
   saveChapterVersion,
@@ -1268,10 +1269,33 @@ const ROUTES = {
   repurpose,
 };
 
-export default withGuards(async (req) => {
-  if (req.method !== "POST") throw Errors.notFound("endpoint");
+// The steps that outlast a web request, keyed the way ai_jobs stores them
+// (see lib/ai-jobs.js and sql/020_bb_ai_jobs.sql). Each is the very handler its
+// synchronous route uses, so charging, saving and refunding are unchanged.
+export const JOB_RUNNERS = Object.fromEntries(
+  BB_ROUTES.map((route) => [BB_PREFIX + route, ROUTES[route]])
+);
 
-  const [operation] = pathSegments(req, PREFIX);
+// POST /api/bb-ai/jobs       create a job (returns at once)
+// GET  /api/bb-ai/jobs/:id   read its progress and, once done, its result
+async function jobsEndpoint(req, jobId) {
+  const ctx = await authenticate(req);
+
+  if (req.method === "GET" && jobId) return json({ job: await getJob(ctx, jobId) });
+
+  if (req.method === "POST" && !jobId) {
+    memoryLimit(`bb-ai:${ctx.user.id}`, 20, 60_000);
+    await aiHourlyLimit(dbAsService(), ctx.user.id, AI_CALLS_PER_HOUR);
+    return json({ job: await createBbJob(ctx, await readJson(req)) }, 201);
+  }
+  throw Errors.notFound("endpoint");
+}
+
+export default withGuards(async (req) => {
+  const [operation, jobId] = pathSegments(req, PREFIX);
+  if (operation === "jobs") return jobsEndpoint(req, jobId);
+
+  if (req.method !== "POST") throw Errors.notFound("endpoint");
   const handler = ROUTES[operation];
   if (!handler) throw Errors.notFound("endpoint");
 

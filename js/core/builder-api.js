@@ -7,7 +7,7 @@
 // something being advertised; a Book Builder *project* is something
 // being written.
 
-import { api, currentAdapter, ApiError } from "./api.js";
+import { api, currentAdapter, ApiError, runBuilderJob } from "./api.js";
 import { accessToken } from "./auth.js";
 
 export const BB = {
@@ -78,29 +78,29 @@ export const BB = {
 
   // --- The agents ---------------------------------------------------
   generatePositioning: (projectId, notes) =>
-    api.post("/api/bb-ai/positioning", { project_id: projectId, notes }),
+    runBuilderJob("positioning", { project_id: projectId, notes }),
   approvePositioning: (payload) => api.post("/api/bb-ai/approve-positioning", payload),
-  generateArchitecture: (projectId) => api.post("/api/bb-ai/architecture", { project_id: projectId }),
-  generateBible: (projectId, notes) => api.post("/api/bb-ai/bible", { project_id: projectId, notes }),
-  writeChapter: (chapterId, notes) => api.post("/api/bb-ai/chapter", { chapter_id: chapterId, notes }),
-  revise: (payload) => api.post("/api/bb-ai/revise", payload),
-  continueChapter: (chapterId) => api.post("/api/bb-ai/continue", { chapter_id: chapterId }),
+  generateArchitecture: (projectId) => runBuilderJob("architecture", { project_id: projectId }),
+  generateBible: (projectId, notes) => runBuilderJob("bible", { project_id: projectId, notes }),
+  writeChapter: (chapterId, notes) => runBuilderJob("chapter", { chapter_id: chapterId, notes }),
+  revise: (payload) => runBuilderJob("revise", payload),
+  continueChapter: (chapterId) => runBuilderJob("continue", { chapter_id: chapterId }),
   frontMatter: (projectId, payload) =>
-    api.post("/api/bb-ai/front-matter", { project_id: projectId, ...payload }),
+    runBuilderJob("front-matter", { project_id: projectId, ...payload }),
   backMatter: (projectId, payload) =>
-    api.post("/api/bb-ai/back-matter", { project_id: projectId, ...payload }),
-  review: (chapterId) => api.post("/api/bb-ai/review", { chapter_id: chapterId }),
-  research: (payload) => api.post("/api/bb-ai/research", payload),
-  directVisuals: (chapterId) => api.post("/api/bb-ai/visuals", { chapter_id: chapterId }),
-  imagePrompt: (payload) => api.post("/api/bb-ai/image-prompt", payload),
+    runBuilderJob("back-matter", { project_id: projectId, ...payload }),
+  review: (chapterId) => runBuilderJob("review", { chapter_id: chapterId }),
+  research: (payload) => runBuilderJob("research", payload),
+  directVisuals: (chapterId) => runBuilderJob("visuals", { chapter_id: chapterId }),
+  imagePrompt: (payload) => runBuilderJob("image-prompt", payload),
   generateCovers: (projectId, count) =>
-    api.post("/api/bb-ai/covers", { project_id: projectId, count }),
-  checkCover: (coverId) => api.post("/api/bb-ai/cover-check", { cover_id: coverId }),
-  publicationCheck: (projectId) => api.post("/api/bb-ai/quality", { project_id: projectId }),
+    runBuilderJob("covers", { project_id: projectId, count }),
+  checkCover: (coverId) => runBuilderJob("cover-check", { cover_id: coverId }),
+  publicationCheck: (projectId) => runBuilderJob("quality", { project_id: projectId }),
   buildCampaign: (projectId, scope, salesUrl) =>
-    api.post("/api/bb-ai/marketing", { project_id: projectId, scope, sales_url: salesUrl }),
+    runBuilderJob("marketing", { project_id: projectId, scope, sales_url: salesUrl }),
   repurpose: (projectId, format) =>
-    api.post("/api/bb-ai/repurpose", { project_id: projectId, format }),
+    runBuilderJob("repurpose", { project_id: projectId, format }),
 };
 
 /**

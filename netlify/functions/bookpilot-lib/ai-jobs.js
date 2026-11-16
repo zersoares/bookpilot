@@ -32,6 +32,25 @@ export const JOB_ROUTES = {
   creatives: "creative_concept",
 };
 
+/**
+ * The Book Builder's agents, as the page names them (/api/bb-ai/<route>).
+ * Every one but approve-positioning (a plain database write) calls the model
+ * and so can outlast a web request. They are stored as "bb:<route>" so they
+ * can never be mistaken for an AI Strategy job.
+ */
+export const BB_ROUTES = [
+  "positioning", "architecture", "bible", "chapter", "revise", "continue",
+  "front-matter", "back-matter", "review", "research", "visuals", "image-prompt",
+  "covers", "cover-check", "quality", "marketing", "repurpose",
+];
+export const BB_PREFIX = "bb:";
+export const isBbJob = (operation) => String(operation || "").startsWith(BB_PREFIX);
+// Notes and briefs are the largest thing a page sends; this is generous.
+const BB_MAX_PARAMS_BYTES = 40_000;
+// What a step is "about", in the order that identifies it best. Two clicks on
+// the same thing are one job; two chapters are two.
+const BB_SUBJECT_KEYS = ["chapter_id", "cover_id", "visual_id", "project_id"];
+
 // A job nobody picked up (the page failed to start it) is not left spinning.
 export const QUEUED_STALE_MS = 60_000;
 // The platform stops a background function at 15 minutes; well before that, a
@@ -46,8 +65,11 @@ export function publicJob(row) {
     id: row.id,
     route: row.operation,
     book_id: row.book_id,
+    project_id: row.project_id ?? null,
     status: row.status,
     credits_used: row.credits_used ?? null,
+    // The Book Builder's answer (see sql/020). Null for every other job.
+    result: row.result ?? null,
     error: row.error_code ? { code: row.error_code, message: row.error_message } : null,
     created_at: row.created_at,
     finished_at: row.finished_at ?? null,
@@ -66,6 +88,48 @@ function paramsFor(route, body) {
   if (route === "personas") return { count: v.int(body.count ?? 4, "Count", { min: 3, max: 5 }) };
   if (route === "angles") return { count: v.int(body.count ?? 10, "Count", { min: 10, max: 14 }) };
   return {};
+}
+
+/**
+ * Record a Book Builder job. The handler validates its own input when it runs
+ * (it is the same handler the synchronous route used), so this only checks
+ * what must be true before anything is queued: a known step, a sane size, and
+ * not already running.
+ */
+export async function createBbJob(ctx, body, { service = dbAsService(), now = Date.now() } = {}) {
+  const route = String(body.route || "");
+  if (!BB_ROUTES.includes(route)) throw Errors.invalid("That can't be run in the background.");
+
+  const { route: _route, ...params } = body;
+  if (JSON.stringify(params).length > BB_MAX_PARAMS_BYTES) throw Errors.invalid("That request is too large.");
+
+  const subjectKey = BB_SUBJECT_KEYS.find((key) => params[key]);
+  const subject = subjectKey ? v.uuid(params[subjectKey], subjectKey) : null;
+  const operation = BB_PREFIX + route;
+
+  // Someone who clicks twice, or reloads mid-way, must not be charged twice.
+  const since = new Date(now - IN_FLIGHT_WINDOW_MS).toISOString();
+  const filters = { created_at: `gte.${since}` };
+  if (subjectKey) filters[`params->>${subjectKey}`] = `eq.${subject}`;
+  const running = await ctx.db.select("ai_jobs", {
+    eq: { operation },
+    in: { status: ["queued", "running"] },
+    filters,
+    order: "created_at.desc",
+    limit: 1,
+  });
+  if (running.length) return publicJob(running[0]);
+
+  const projectId = params.project_id ? v.uuid(params.project_id, "Project") : null;
+  const row = await service.insert("ai_jobs", {
+    user_id: ctx.user.id,
+    operation,
+    book_id: null,
+    project_id: projectId,
+    params,
+    status: "queued",
+  });
+  return publicJob(row);
 }
 
 /**
@@ -138,10 +202,16 @@ export async function runJob(jobId, ctx, runners, {
   try {
     if (!runner) throw Errors.invalid("That can't be run in the background.");
     const response = await withAiTimeout(timeoutMs, () =>
-      runner(ctx, { book_id: job.book_id, ...job.params }));
+      runner(ctx, isBbJob(job.operation) ? job.params : { book_id: job.book_id, ...job.params }));
     const result = await response.json().catch(() => null);
     const done = await service.update("ai_jobs",
-      { status: "done", credits_used: result?.creditsUsed ?? null, finished_at: now() },
+      {
+        status: "done",
+        credits_used: result?.creditsUsed ?? null,
+        // The Book Builder pages read the generated row from the answer.
+        ...(isBbJob(job.operation) ? { result } : {}),
+        finished_at: now(),
+      },
       { eq: { id: job.id } });
     return publicJob(done || { ...claimed, status: "done" });
   } catch (err) {

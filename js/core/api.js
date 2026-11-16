@@ -96,11 +96,11 @@ export const api = {
 
 const BACKGROUND_RUNNER = "/.netlify/functions/bookpilot-ai-background";
 
-async function startBackgroundRunner(jobId) {
+async function startBackgroundRunner(jobId, runner = BACKGROUND_RUNNER) {
   const token = await accessToken();
   let res;
   try {
-    res = await fetch(BACKGROUND_RUNNER, {
+    res = await fetch(runner, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify({ job_id: jobId }),
@@ -136,6 +136,34 @@ async function runAiJob(route, body) {
     throw new ApiError(finished.error?.code || "error", finished.error?.message || "Something went wrong. Please try again.", 503);
   }
   return { creditsUsed: finished.credits_used, job: finished };
+}
+
+// The Book Builder's agents (positioning, blueprint, Book Bible, chapters, ...)
+// have the same problem and the same cure: see bookbuilder-ai-background.mjs.
+// Unlike the AI Strategy steps their pages use the handler's own answer (the
+// generated row), so the finished job carries it back as `result`, and this
+// returns it in exactly the shape the synchronous route did.
+const BB_BACKGROUND_RUNNER = "/.netlify/functions/bookbuilder-ai-background";
+
+export async function runBuilderJob(route, body) {
+  // The demo answers instantly from memory; there is nothing to wait for.
+  if (demoAdapter) return api.post(`/api/bb-ai/${route}`, body);
+
+  const { job } = await api.post("/api/bb-ai/jobs", { route, ...body });
+  if (job.status === "queued") await startBackgroundRunner(job.id, BB_BACKGROUND_RUNNER);
+
+  const { job: finished, timedOut } = await pollJob(() => api.get(`/api/bb-ai/jobs/${job.id}`).then((r) => r.job));
+  if (timedOut) {
+    throw new ApiError(
+      "job_pending",
+      "This is taking longer than usual, but it's still running. Reload in a minute; the result will be saved when it's done, and you're not charged if it fails.",
+      202,
+    );
+  }
+  if (finished.status === "failed") {
+    throw new ApiError(finished.error?.code || "error", finished.error?.message || "Something went wrong. Please try again.", 503);
+  }
+  return finished.result ?? { creditsUsed: finished.credits_used };
 }
 
 // --- Endpoints --------------------------------------------------------

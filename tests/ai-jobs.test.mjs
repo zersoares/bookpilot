@@ -379,5 +379,9 @@ test("the jobs table is server-written, owner-readable, and locked down by defau
 
 test("publicJob never exposes the row's internals", () => {
   const out = publicJob({ id: "j", operation: "analyze", book_id: "b", status: "failed", error_code: "c", error_message: "m", params: { secret: 1 }, user_id: "u" });
-  assert.deepEqual(Object.keys(out).sort(), ["book_id", "created_at", "credits_used", "error", "finished_at", "id", "route", "status"]);
+  // project_id and result belong to the Book Builder's jobs (sql/020) and are
+  // null for every other job; params and user_id are never shown.
+  assert.deepEqual(Object.keys(out).sort(), ["book_id", "created_at", "credits_used", "error", "finished_at", "id", "project_id", "result", "route", "status"]);
+  assert.equal(out.result, null);
+  assert.equal(out.project_id, null);
 });
