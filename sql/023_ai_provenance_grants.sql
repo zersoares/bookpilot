@@ -1,0 +1,21 @@
+-- =====================================================================
+-- BookPilot — let the app write the AI-provenance columns it already writes
+--
+-- 022 added book_chapters.ai_generated and book_chapters.ai_models, but never
+-- granted UPDATE on them. This project grants UPDATE per column (a signed-in
+-- person can change the columns listed and nothing else), so every write to
+-- them has been refused with 403 "permission denied for column":
+--
+--   * writing a chapter with AI  (bookbuilder-ai.mjs, writeChapter)
+--   * saving an accepted AI Revise/Continue  (bookbuilder-api.mjs, PATCH chapter)
+--   * the author correcting the flag from the Publish screen
+--
+-- Found 2026-11-16 running the Book Builder live: the first chapter ever to be
+-- written by AI in production generated for 40 seconds and then failed on the
+-- save. (Before the AI steps moved to background jobs, nothing got that far.)
+--
+-- Row-level security still limits every update to the person's own chapters.
+-- Run after 022_ai_provenance.sql. Safe to run more than once.
+-- =====================================================================
+
+grant update (ai_generated, ai_models) on public.book_chapters to authenticated;
