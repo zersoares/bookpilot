@@ -24,6 +24,10 @@ const BACK_ORDER = [
   "about_author", "workbook", "resources", "glossary", "notes", "references", "cta",
 ];
 
+// Front matter the layout builds from the project itself (its title, subtitle
+// and author), so it has no text of its own to be missing.
+const FROM_BOOK_DETAILS = new Set(["half_title", "title_page"]);
+
 /**
  * Build the object the document engine takes.
  *
@@ -38,7 +42,12 @@ export function assembleBook(data, options = {}) {
 
   const usable = chapters
     .filter((c) => c.include !== false)
-    .filter((c) => includeEmpty || c.kind === "front" || String(c.content || "").trim() || c.front_type)
+    // A section prints only if it has words, or is made from the book's own
+    // details. The blueprint plans back matter (about the author, glossary,
+    // resources) as empty rows for the author to fill in; printing those as
+    // title-only pages, and listing them in the contents, shipped a book
+    // with four blank pages (found exporting a live test book).
+    .filter((c) => includeEmpty || String(c.content || "").trim() || FROM_BOOK_DETAILS.has(c.front_type))
     .slice()
     .sort(byPosition);
 

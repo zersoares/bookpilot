@@ -600,3 +600,21 @@ test("a stored contents section does not print a second, empty Contents page", (
   });
   assert.deepEqual(book.sections.map((s) => s.front_type || s.kind), ["chapter"]);
 });
+
+test("planned but empty sections are not printed: no title-only pages, no contents entries", () => {
+  const project = { title: "T", language: "en", theme_id: "editorial", trim_size: "6x9" };
+  const rows = [
+    { id: "ti", kind: "front", front_type: "title_page", title: "", content: "", sort_order: 1 },
+    { id: "ded", kind: "front", front_type: "dedication", title: "Dedication", content: "", sort_order: 2 },
+    { id: "ch", kind: "chapter", number: 1, title: "One", content: "Words.", sort_order: 10 },
+    { id: "ch2", kind: "chapter", number: 2, title: "Two", content: "", sort_order: 11 },
+    { id: "a", kind: "bonus", front_type: "resources", title: "Where to Look It Up", content: "", sort_order: 20 },
+    { id: "b", kind: "bonus", front_type: "glossary", title: "Glossary", content: "  \n ", sort_order: 21 },
+    { id: "c", kind: "back", front_type: "about_author", title: "About the Author", content: "Bio.", sort_order: 22 },
+  ];
+  const ids = (options) => assembleBook({ project, parts: [], chapters: rows, visuals: [] }, options).sections.map((s) => s.id);
+
+  assert.deepEqual(ids(), ["ti", "ch", "c"], "the title page comes from the book's details; only sections with words print");
+  assert.deepEqual(ids({ includeEmpty: true }).sort(), ["a", "b", "c", "ch", "ch2", "ded", "ti"].sort(),
+    "the publication check still sees every planned section, so it can say which are empty");
+});
