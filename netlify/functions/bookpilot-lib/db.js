@@ -39,6 +39,33 @@ function buildQuery(options = {}) {
   return parts.length ? `?${parts.join("&")}` : "";
 }
 
+/**
+ * Split rows into runs that share exactly the same fields.
+ *
+ * PostgREST refuses a bulk insert whose objects do not all have the same keys
+ * ("All object keys must match"), and JSON drops any key whose value is
+ * undefined, so a list of rows built from model output is routinely uneven: an
+ * introduction has no part, a chapter without a subtitle has no subtitle key.
+ * This was found when the Book Builder's blueprint, the first thing ever to get
+ * that far in production, saved its parts and then failed on its chapters.
+ *
+ * Each group is posted on its own, which keeps every column a row did not
+ * mention at its database default (filling the gaps with null would break
+ * NOT NULL columns that have defaults). Returns [{ rows, indexes }], where
+ * `indexes` are the rows' positions in the original list.
+ */
+export function groupByShape(rows) {
+  const groups = new Map();
+  rows.forEach((row, index) => {
+    const shape = Object.keys(row).filter((key) => row[key] !== undefined).sort().join(",");
+    if (!groups.has(shape)) groups.set(shape, { rows: [], indexes: [] });
+    const group = groups.get(shape);
+    group.rows.push(row);
+    group.indexes.push(index);
+  });
+  return [...groups.values()];
+}
+
 function makeClient({ token, isService }) {
   if (!env.supabaseUrl || !env.supabaseAnonKey) {
     throw Errors.notConfigured("The database");
@@ -97,6 +124,19 @@ function makeClient({ token, isService }) {
       return rows && rows.length ? rows[0] : null;
     },
     async insert(table, rows, { returning = true } = {}) {
+      // Uneven rows go in as one request per shape (see groupByShape), and
+      // come back in the order they were given.
+      if (Array.isArray(rows) && rows.length > 1) {
+        const groups = groupByShape(rows);
+        if (groups.length > 1) {
+          const ordered = new Array(rows.length);
+          for (const group of groups) {
+            const saved = await this.insert(table, group.rows, { returning });
+            if (returning) group.indexes.forEach((original, i) => { ordered[original] = saved[i]; });
+          }
+          return returning ? ordered : null;
+        }
+      }
       const result = await request("POST", table, {
         body: rows,
         prefer: returning ? "return=representation" : "return=minimal",
