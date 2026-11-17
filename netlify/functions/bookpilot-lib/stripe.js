@@ -135,7 +135,10 @@ export function createPrice(params) {
  * refuses to run at all if the signing secret is not configured.
  */
 export async function verifyWebhook(rawBody, signatureHeader, toleranceSeconds = 300) {
-  if (!env.stripeWebhookSecret) throw Errors.notConfigured("The billing webhook");
+  // One endpoint per event source (your account, connected accounts) has its own
+  // signing secret, so STRIPE_WEBHOOK_SECRET may hold several, comma-separated.
+  const secrets = String(env.stripeWebhookSecret || "").split(",").map((x) => x.trim()).filter(Boolean);
+  if (!secrets.length) throw Errors.notConfigured("The billing webhook");
   const parts = Object.fromEntries(
     String(signatureHeader || "")
       .split(",")
@@ -148,18 +151,21 @@ export async function verifyWebhook(rawBody, signatureHeader, toleranceSeconds =
 
   if (Math.abs(Date.now() / 1000 - Number(timestamp)) > toleranceSeconds) return false;
 
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(env.stripeWebhookSecret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${timestamp}.${rawBody}`));
-  const expected = [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, "0")).join("");
-
-  if (expected.length !== signature.length) return false;
-  let diff = 0;
-  for (let i = 0; i < expected.length; i += 1) diff |= expected.charCodeAt(i) ^ signature.charCodeAt(i);
-  return diff === 0;
+  let ok = false;
+  for (const secret of secrets) {
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    const mac = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${timestamp}.${rawBody}`));
+    const expected = [...new Uint8Array(mac)].map((b) => b.toString(16).padStart(2, "0")).join("");
+    if (expected.length !== signature.length) continue;
+    let diff = 0;
+    for (let i = 0; i < expected.length; i += 1) diff |= expected.charCodeAt(i) ^ signature.charCodeAt(i);
+    if (diff === 0) ok = true;
+  }
+  return ok;
 }
