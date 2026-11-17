@@ -144,6 +144,19 @@ footer.site{margin-top:60px;padding:30px 20px;background:var(--navy);color:#cfcc
 footer.site a{color:#cfccf0}
 .limits{font-size:.82rem}
 .limits li{margin:3px 0}
+/* fix-after-audit card */
+.fixcard{margin:22px 0 0;padding:24px;border:1px solid var(--sky-border);background:linear-gradient(180deg,var(--sky-soft),#fff 70%)}
+.fixcard h2{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:1.5rem;margin-bottom:4px}
+.fixgrp{margin-top:16px}
+.fixgrp h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.fixit{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 12px;margin:6px 0;font-size:.88rem}
+.fixit input{margin-top:4px;width:17px;height:17px;accent-color:var(--sky);flex:none}
+.fixit .tt{font-weight:700;color:var(--ink);display:block}
+.fixit .bf,.fixit .af{display:block;border-radius:7px;padding:5px 9px;margin-top:5px;font-size:.84rem}
+.fixit .bf{background:var(--bad-soft);color:#7e1f2a;text-decoration:line-through;text-decoration-color:rgba(126,31,42,.4)}
+.fixit .af{background:var(--ok-soft);color:#165f46}
+.fixres{margin-top:16px;padding:14px 16px;border:1px solid #bfe0d4;background:var(--ok-soft);border-radius:12px;font-size:.9rem;color:#165f46}
+.delta{margin:0 0 16px;padding:14px 18px;border-radius:12px;background:var(--ok-soft);border:1px solid #bfe0d4;color:#165f46;font-size:.95rem}
 @media (max-width:860px){
   .layout{grid-template-columns:minmax(0,1fr)}.toc{display:none}
   .grid2,.grid3{grid-template-columns:1fr}
@@ -152,7 +165,7 @@ footer.site a{color:#cfccf0}
   .top-links a:not(.keep){display:none}
 }
 @media print{
-  nav.top,.hero,.intake,.prog,.toc,.tools,footer.site,.noprint{display:none!important}
+  nav.top,.hero,.intake,.prog,.toc,.tools,.fixcard,footer.site,.noprint{display:none!important}
   body{background:#fff}.card{box-shadow:none}.layout{display:block}.sec{break-inside:auto;page-break-inside:auto}
   .fnd{break-inside:avoid}.verdict{background:#2a2585!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   #results{display:block!important;margin-top:0}
@@ -597,11 +610,12 @@ function analyse(doc,meta){
 
 /* ═════════ fact engine ═════════ */
 function factCheck(doc,A){
+  let curT='';
   const S=doc.sections;const F=[];const sents=[];S.forEach(s=>s.sents.concat(s.bul).forEach(t=>sents.push({t,ch:s.title})));
-  const add=(o)=>{if(!F.some(f=>f.id===o.id&&f.claim===o.claim))F.push(o)};
+  const add=(o)=>{if(!o.orig)o.orig=curT;if(!F.some(f=>f.id===o.id&&f.claim===o.claim))F.push(o)};
   const GD='GDPR text (EUR-Lex)';
   sents.forEach(({t,ch})=>{
-    let m;
+    let m;curT=t;
     /* Article / recital references */
     const aRe=/\b(?:article|art\.?)\s*(\d{1,3})(?:\s*\(\s*(\d{1,2})\s*\))?/gi;
     while((m=aRe.exec(t))){
@@ -657,7 +671,7 @@ function factCheck(doc,A){
     }
     if(/privacy shield/i.test(ctx)){
       const hist=/(invalid|invalidated|struck down|schrems|replaced|former|formerly|no longer|previous|successor|was)/i.test(ctx);
-      add({id:'privacy-shield',status:hist?'Verified':'Incorrect',claim:q(t),ch,why:hist?'The EU–US Privacy Shield was invalidated by the CJEU in Schrems II (C-311/18, 16 July 2020).':'The EU–US Privacy Shield is not a valid transfer mechanism: the CJEU invalidated it in Schrems II (C-311/18, 16 July 2020). Presenting it as current would mislead readers.',src:'CJEU Case C-311/18 (curia.europa.eu); Commission Implementing Decision (EU) 2023/1795 on the EU–US Data Privacy Framework',fix:hist?'':'Describe it as historic and point to the Data Privacy Framework, SCCs or BCRs.',pri:hist?9:1});
+      add({id:'privacy-shield',status:hist?'Verified':'Incorrect',claim:q(t),ch,why:hist?'The EU–US Privacy Shield was invalidated by the CJEU in Schrems II (C-311/18, 16 July 2020).':'The EU–US Privacy Shield is not a valid transfer mechanism: the CJEU invalidated it in Schrems II (C-311/18, 16 July 2020). Presenting it as current would mislead readers.',src:'CJEU Case C-311/18 (curia.europa.eu); Commission Implementing Decision (EU) 2023/1795 on the EU–US Data Privacy Framework',fix:hist?'':'Describe it as historic and point to the Data Privacy Framework, SCCs or BCRs.',example:hist?'':'The EU–US Privacy Shield was invalidated by the Court of Justice in 2020 (Schrems II); transfers to the US now rely on the EU–US Data Privacy Framework, standard contractual clauses or binding corporate rules.',pri:hist?9:1});
     }
     if(/data privacy framework|\bDPF\b|adequacy decision/i.test(ctx)&&/(US|United States|valid|safe|secure|legal|certified|challenge)/i.test(ctx))
       add({id:'dpf',status:'Requires further research',claim:q(t),ch,why:'The EU–US Data Privacy Framework adequacy decision was adopted on 10 July 2023 (Implementing Decision (EU) 2023/1795). Its status can change through legal challenges and reviews, so confirm the current position on the European Commission and EDPB sites on the day you finalise the text.',src:'European Commission – Data Privacy Framework; EDPB',fix:'Add “as of [date]” and a source.',pri:3});
@@ -1147,6 +1161,66 @@ function buildPlan(doc,A,F,AI){
   return P;
 }
 
+
+/* ═════════ fix-after-audit engine ═════════
+   Safe, mechanical fixes only: the audit's own corrected wording for legal errors,
+   placeholders, duplicated sentences, doubled words, and missing disclaimer / references.
+   It never rewrites the author's prose. Every change is shown before/after and can be unticked. */
+function escRe(x){return x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+function locate(raw,sent){
+  if(!sent)return null;
+  let i=raw.indexOf(sent);if(i>=0)return {i,len:sent.length};
+  const toks=sent.trim().split(/\s+/).map(escRe);
+  for(const sep of ['\\s+','[\\s*_>`]+']){
+    const m=new RegExp(toks.join(sep)).exec(raw);if(m)return {i:m.index,len:m[0].length};
+  }
+  return null;
+}
+function buildFixes(raw,doc,A,F){
+  const fx=[];
+  const manual=[];
+  F.forEach(f=>{
+    if(f.status==='Verified')return;
+    const can=f.example&&f.orig&&!/[…\[]/.test(f.example)&&!/^art-mis/.test(f.id)&&(f.status==='Incorrect'||f.status==='Partially supported');
+    if(!can){if(f.status==='Incorrect')manual.push(f);return}
+    const loc=locate(raw,f.orig);
+    if(!loc){manual.push(f);return}
+    fx.push({g:'Legal and factual corrections',on:f.status==='Incorrect',title:(f.status==='Incorrect'?'Incorrect — ':'Imprecise — ')+(f.fix||f.why).slice(0,120),before:raw.substr(loc.i,loc.len),after:f.example,op:t=>{const l=locate(t,f.orig);return l?t.slice(0,l.i)+f.example+t.slice(l.i+l.len):t}});
+  });
+  const MK=/\b(TODO|TBD|FIXME|XXX+|lorem ipsum)\b|\[(insert|add|citation needed|link|tbc|to be (added|written)|placeholder)[^\]]*\]|\?\?\?|<<|>>|\[\.\.\.\]/gi;
+  doc.lines.forEach(l=>{
+    if(!l.trim())return;MK.lastIndex=0;if(!MK.test(l))return;
+    const rest=l.replace(MK,'').replace(/[\s:;,.\-–—*_>#]+/g,' ').trim();
+    const whole=rest.split(/\s+/).filter(Boolean).length<=4;
+    const after=whole?'':l.replace(MK,'').replace(/ {2,}/g,' ').replace(/\s+([.,;:])/g,'$1').trim();
+    fx.push({g:'Unfinished placeholders',on:true,title:whole?'Remove placeholder line':'Remove placeholder text',before:l.trim(),after:whole?'(line removed)':after,op:t=>t.includes(l)?t.replace(l,whole?'':after):t});
+  });
+  const seen=new Map();
+  doc.sections.forEach(s=>s.sents.forEach(t=>{const k=norm(t);if(k.split(' ').length<8)return;const e=seen.get(k);if(e)e.c++;else seen.set(k,{t,c:1})}));
+  [...seen.values()].filter(e=>e.c>=2).forEach(e=>{
+    fx.push({g:'Duplicated sentences',on:true,title:'Remove '+(e.c-1)+' repeat'+(e.c>2?'s':'')+' of a sentence (first copy kept)',before:q(e.t,160),after:'(repeat removed)',op:t=>{const a=t.indexOf(e.t);if(a<0)return t;const head=t.slice(0,a+e.t.length);let tail=t.slice(a+e.t.length);tail=tail.split(e.t).join('').replace(/ {2,}/g,' ');return head+tail}});
+  });
+  [...new Set(A.dblWords.map(x=>x.toLowerCase()))].forEach(x=>{
+    const w=x.split(/\s+/)[0];
+    fx.push({g:'Typos',on:true,title:'Fix doubled word',before:x,after:w,op:t=>t.replace(new RegExp('\\b('+escRe(w)+')\\s+\\1\\b','gi'),'$1')});
+  });
+  const legal=/data protection|gdpr|privacy|cyber|compliance|security|legal/i.test((doc.title||'')+' '+doc.sections.map(s=>s.title).join(' '));
+  if(!A.has.disclaimer&&legal)fx.push({g:'Missing back matter',on:true,title:'Add a “not legal advice” disclaimer',before:'(none)',after:'This book provides general information and is not legal advice.',op:t=>t.replace(/\s*$/,'\n\n## Disclaimer\n\nThis book provides general information and is not legal advice. Laws and regulatory guidance change; check the primary sources and, where it matters, consult a qualified lawyer before acting.\n')});
+  if(!A.has.refs&&/gdpr|general data protection|regulation \(eu\) 2016\/679/i.test(raw))fx.push({g:'Missing back matter',on:true,title:'Add a References section with the GDPR text',before:'(none)',after:'[1] Regulation (EU) 2016/679 (GDPR), OJ L 119, 4.5.2016 — eur-lex.europa.eu/eli/reg/2016/679/oj',op:t=>t.replace(/\s*$/,'\n\n## References\n\n[1] Regulation (EU) 2016/679 of the European Parliament and of the Council (General Data Protection Regulation), OJ L 119, 4.5.2016, pp. 1–88. https://eur-lex.europa.eu/eli/reg/2016/679/oj\n')});
+  return {fx,manual};
+}
+function fixCardHTML(FX,F,A){
+  const g={};FX.fx.forEach((f,i)=>{(g[f.g]=g[f.g]||[]).push([f,i])});
+  let h='<section class="card fixcard noprint" id="fixcard" aria-labelledby="fixH"><h2 id="fixH">Fix your manuscript</h2><p class="sub">BookPilot can apply the safe, mechanical fixes for you: the audit’s own corrected wording for legal errors, placeholders, duplicated sentences, doubled words and a missing disclaimer or references list. It never rewrites your voice. Review each change, untick what you don’t want, then download the corrected manuscript and re-audit it.</p>';
+  if(!FX.fx.length)h+='<div class="callout" style="margin-top:14px">No safe automatic fixes were found. The remaining findings need your own judgment — see the priority correction plan below.</div>';
+  Object.keys(g).forEach(k=>{h+='<div class="fixgrp"><h3>'+esc(k)+'</h3>'+g[k].map(([f,i])=>'<label class="fixit"><input type="checkbox" data-fx="'+i+'"'+(f.on?' checked':'')+'><span><span class="tt">'+esc(f.title)+'</span><span class="bf">'+esc(f.before)+'</span><span class="af">'+esc(f.after)+'</span></span></label>').join('')+'</div>'});
+  const nU=F.filter(f=>f.status==='Unsupported').length,nR=F.filter(f=>f.status==='Requires further research').length;
+  h+='<p class="sub" style="margin-top:14px"><b>Still needs you:</b> '+(FX.manual.length?FX.manual.length+' incorrect statement(s) BookPilot could not locate or reword safely, ':'')+nU+' unsourced figure(s) and '+nR+' time-sensitive claim(s) to verify. Voice, originality and structure also stay with the author — see the priority correction plan below.</p>';
+  if(FX.fx.length)h+='<div class="btnrow"><button class="btn" id="fxApply" type="button">Apply selected fixes</button><span class="sub" id="fxCount"></span></div>';
+  h+='<div id="fxOut"></div></section>';
+  return h;
+}
+
 /* ═════════ rendering ═════════ */
 function renderBlock(b){
   switch(b[0]){
@@ -1259,6 +1333,7 @@ $('#run').onclick=async()=>{
     let A=analyse(doc,meta);
     setStep(1,'done');setStep(2,'act');await tick();setStep(2,'done');setStep(3,'act');await tick();setStep(3,'done');setStep(4,'act');await tick();setStep(4,'done');setStep(5,'act');await tick();
     const F=factCheck(doc,A);
+    const FX=buildFixes(text,doc,A,F);
     setStep(5,'done');setStep(6,'act');await tick();setStep(6,'done');setStep(7,'act');await tick();setStep(7,'done');
     let AI=null;
     if(useAI){setStep(9,'act');try{AI=await aiDeepRead(doc,A,meta,F)}catch(e){AI={_errs:[e.message],_dropped:0}}
@@ -1269,6 +1344,24 @@ $('#run').onclick=async()=>{
     const R=buildReport(doc,A,F,SC,AI,meta);
     $('#report').innerHTML=renderHTML(R,SC,meta);
     $('#toc').innerHTML='<h4>Report</h4>'+R.sections.map(s=>'<a href="#s-'+s.id+'">'+s.n+'. '+esc(s.title)+'</a>').join('');
+    const tools=$('#report .tools');
+    if(tools){tools.insertAdjacentHTML('beforeend','<button class="btn sm" id="bFix" type="button">Fix my manuscript</button>');tools.insertAdjacentHTML('afterend',fixCardHTML(FX,F,A));
+      $('#bFix').onclick=()=>$('#fixcard').scrollIntoView({behavior:'smooth',block:'start'});
+      const upd=()=>{const n=document.querySelectorAll('#fixcard input[data-fx]:checked').length;const c=$('#fxCount');if(c)c.textContent=n+' of '+FX.fx.length+' selected'};
+      document.querySelectorAll('#fixcard input[data-fx]').forEach(i=>i.onchange=upd);upd();
+      const ap=$('#fxApply');
+      if(ap)ap.onclick=()=>{
+        let t=text,n=0;
+        document.querySelectorAll('#fixcard input[data-fx]:checked').forEach(i=>{const f=FX.fx[+i.dataset.fx];const t2=f.op(t);if(t2!==t){t=t2;n++}});
+        t=t.replace(/\n{3,}/g,'\n\n').replace(/[ \t]+\n/g,'\n');
+        const dw=wc(t)-wc(text);
+        $('#fxOut').innerHTML='<div class="fixres"><b>'+n+' fix'+(n===1?'':'es')+' applied</b> ('+(dw>0?'+':'')+dw+' words). Your original is untouched; this is a corrected copy.<div class="btnrow noprint"><button class="btn sm" id="fxDl" type="button">Download corrected manuscript (.md)</button><button class="btn sm ghost" id="fxCp" type="button">Copy text</button><button class="btn sm ghost" id="fxRe" type="button">Re-audit the corrected version</button></div></div>';
+        $('#fxDl').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/markdown'}));a.download=(R.title||'manuscript').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40)+'-corrected.md';document.body.appendChild(a);a.click();a.remove()};
+        $('#fxCp').onclick=async e=>{try{await navigator.clipboard.writeText(t);e.target.textContent='Copied ✓'}catch(_){e.target.textContent='Copy failed'}};
+        $('#fxRe').onclick=()=>{window.__prev=SC.total;$('#mText').value=t;$('#cnt').textContent=wc(t).toLocaleString()+' words';tabTo('paste');$('#run').click()};
+      };
+    }
+    if(window.__prev!=null){const d=SC.total-window.__prev;$('#report').insertAdjacentHTML('afterbegin','<div class="delta"><b>Re-audit of the corrected manuscript:</b> '+window.__prev+'/100 → <b>'+SC.total+'/100</b> ('+(d>=0?'+':'')+d+').'+(SC.total<80?' The remaining points need your own writing, sourcing and judgment.':'')+'</div>');window.__prev=null}
     lastMd=renderMD(R,SC,meta);
     lastSummary='BookPilot audit — '+R.title+'\nOverall: '+SC.total+'/100 ('+SC.cls[0]+')\n'+SC.cats.map(c=>'- '+c.n+': '+c.s+'/'+c.m).join('\n')+(SC.capNote?'\n'+SC.capNote:'');
     setStep(8,'done');
