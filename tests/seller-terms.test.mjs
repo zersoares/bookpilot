@@ -28,6 +28,7 @@ test("the page is a complete standalone legal page at the address the sell page 
   assert.match(terms, /<link rel="canonical" href="https:\/\/bookpilot\.org\/seller-terms\.html">/);
   assert.match(terms, /Effective 16 November 2026/);
   assert.ok(terms.includes('<script type="module" src="/js/cookie-notice.js"></script>'));
+  assert.match(read("sitemap-pages.xml"), /<loc>https:\/\/bookpilot\.org\/seller-terms\.html<\/loc>/);
 });
 
 test("it has the eighteen numbered sections in order, plus the summary", () => {
