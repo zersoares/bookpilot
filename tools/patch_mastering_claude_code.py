@@ -146,7 +146,7 @@ def body_block(description: str, parts: list[dict], faq: list[tuple[str, str]]) 
 <ul>
 <li><strong>Claude Code for Beginners</strong>: start from zero, from installing and signing in to your first website. <a href="{AMAZON_BEGINNERS}" rel="noopener sponsored">Buy on Amazon</a></li>
 <li><strong>Mastering Claude Code, 2026 Edition</strong>: the original 20-chapter edition (August 2026) with 100 prompt templates and CLAUDE.md, rules, skill and hook templates. Paperback, hardcover and Kindle. <a href="{AMAZON_2026}" rel="noopener sponsored">Buy on Amazon</a></li>
-<li><strong>Mastering Claude Code, 2nd Edition</strong>: 24 chapters and 423 pages, updated for the Claude 5.5 family and Claude Code 2.1, with a new Part VI on agent fleets, goals and routines, artifacts, and auto mode. Coming soon to Amazon.</li>
+<li><strong>Mastering Claude Code, 2nd Edition</strong>: 24 chapters and 423 pages, updated for the Claude 5.5 family and Claude Code 2.1, with a new Part VI on agent fleets, goals and routines, artifacts, and auto mode. Now on Amazon.</li>
 </ul>
 <h2>What is inside the book</h2>
 <p>Twenty-four chapters in six parts, from installing Claude Code to running a fleet of agents. Every chapter ends with exercises, a challenge project and a quiz. A bonus section holds 100 Claude Code prompts, and an appendix holds config templates and a cheat sheet.</p>
