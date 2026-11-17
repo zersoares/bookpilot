@@ -17,9 +17,13 @@ import { dbAsService } from "./bookpilot-lib/db.js";
 import * as stripe from "./bookpilot-lib/stripe.js";
 import { env } from "./bookpilot-lib/env.js";
 import { planPayout, periodOf } from "./bookpilot-lib/seller-rules.js";
+import { resolvePendingFees } from "./bookpilot-lib/seller-ledger.js";
 
 export async function runPayouts({ db, stripeApi, live, now = new Date() }) {
   const period = periodOf(now);
+  // Complete any sale saved before Stripe had attached its fee, so it is paid on the real figure.
+  const resolved = await resolvePendingFees({ db, stripe: stripeApi });
+  if (resolved.length) console.log("[bookpilot] seller fees resolved", JSON.stringify(resolved));
   const sellers = await db.select("seller_accounts", { select: "user_id,stripe_account_id,payouts_enabled", eq: { approved: true } });
   const report = [];
   for (const seller of sellers) {

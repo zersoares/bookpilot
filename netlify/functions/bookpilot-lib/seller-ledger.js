@@ -35,7 +35,7 @@ export async function recordSale(session, { db, stripe }) {
     const charge = pi?.latest_charge && typeof pi.latest_charge === "object" ? pi.latest_charge : null;
     chargeId = charge?.id || null;
     const bt = charge?.balance_transaction && typeof charge.balance_transaction === "object" ? charge.balance_transaction : null;
-    if (!bt) reviewReason = "Stripe fee not available yet";
+    if (!bt) reviewReason = FEE_PENDING;
     else if (String(bt.currency || "").toUpperCase() !== currency) reviewReason = `fee in ${bt.currency}, sale in ${currency}`;
     else feeCents = bt.fee || 0;
   }
@@ -66,6 +66,46 @@ export async function recordSale(session, { db, stripe }) {
     eligible_at: eligibleAt(soldAt).toISOString(),
   });
   return { recorded: row?.id, sale: row };
+}
+
+export const FEE_PENDING = "Stripe fee not available yet";
+
+/**
+ * Sales saved while Stripe had not yet attached the fee (review reason
+ * FEE_PENDING) are completed here: read the fee back, recompute the Net Amount
+ * and share, and release the sale to `pending`. Run before every payout, so a
+ * sale is never paid on a guessed fee and never stays stuck.
+ */
+export async function resolvePendingFees({ db, stripe }) {
+  const held = await db.select("seller_sales", { select: "*", eq: { status: "review", review_reason: FEE_PENDING } });
+  const out = [];
+  for (const sale of held) {
+    if (!sale.stripe_payment_intent) { out.push({ id: sale.id, skipped: "no payment intent" }); continue; }
+    let pi;
+    try { pi = await stripe.getPaymentIntent(sale.stripe_payment_intent); } catch { out.push({ id: sale.id, skipped: "stripe unreachable" }); continue; }
+    const charge = pi?.latest_charge && typeof pi.latest_charge === "object" ? pi.latest_charge : null;
+    const bt = charge?.balance_transaction && typeof charge.balance_transaction === "object" ? charge.balance_transaction : null;
+    if (!bt) { out.push({ id: sale.id, skipped: "fee still not available" }); continue; }
+    const now = new Date().toISOString();
+    if (String(bt.currency || "").toUpperCase() !== String(sale.currency).toUpperCase()) {
+      await db.update("seller_sales", { review_reason: `fee in ${bt.currency}, sale in ${sale.currency}`, updated_at: now }, { eq: { id: sale.id } });
+      out.push({ id: sale.id, skipped: "fee currency differs" });
+      continue;
+    }
+    const feeCents = bt.fee || 0;
+    const netCents = netAmount({ priceCents: sale.price_cents, vatCents: sale.vat_cents, feeCents });
+    const full = shareOf(netCents, sale.audience);
+    const shareCents = sale.refunded_cents > 0
+      ? shareAfterRefund({ shareCents: full, priceCents: sale.price_cents, refundedCents: sale.refunded_cents })
+      : full;
+    await db.update(
+      "seller_sales",
+      { fee_cents: feeCents, net_cents: netCents, share_cents: shareCents, stripe_charge_id: sale.stripe_charge_id || charge.id || null, status: "pending", review_reason: null, updated_at: now },
+      { eq: { id: sale.id } }
+    );
+    out.push({ id: sale.id, resolved: true, feeCents, shareCents });
+  }
+  return out;
 }
 
 /**

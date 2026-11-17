@@ -147,6 +147,7 @@ async function checkout(req, body) {
   const audience = classifyAudience({ ref, sellerRefCode: seller.ref_code });
   const session = await stripe.createCheckoutSession({
     mode: "payment",
+    ...(env.stripeDisableManagedPayments ? { managed_payments: { enabled: false } } : {}),
     line_items: [
       {
         quantity: 1,
