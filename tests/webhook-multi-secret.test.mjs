@@ -45,3 +45,11 @@ test("an empty or missing secret list throws instead of accepting anything", asy
   const h = await header("{}", "x");
   await assert.rejects(() => verifyWebhook("{}", h));
 });
+
+test("seller checkout opts out of Managed Payments only when STRIPE_DISABLE_MANAGED_PAYMENTS is set", async () => {
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../netlify/functions/bookpilot-seller.mjs", import.meta.url), "utf8");
+  assert.ok(src.includes("env.stripeDisableManagedPayments ? { managed_payments: { enabled: false } } : {}"));
+  const envSrc = readFileSync(new URL("../netlify/functions/bookpilot-lib/env.js", import.meta.url), "utf8");
+  assert.ok(envSrc.includes('read("STRIPE_DISABLE_MANAGED_PAYMENTS")'));
+});

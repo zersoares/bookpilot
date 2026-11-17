@@ -43,6 +43,8 @@ export const env = {
   stripeWebhookSecret: read("STRIPE_WEBHOOK_SECRET"),
   // Collect VAT at checkout with Stripe Tax. Off by default: Stripe refuses to
   // create a checkout session until Stripe Tax is set up in the account.
+  // Stripe's Managed Payments does not support Connect (transfer_group), so seller checkouts opt out of it where it is on by default.
+  stripeDisableManagedPayments: /^(1|true|yes|on)$/i.test(read("STRIPE_DISABLE_MANAGED_PAYMENTS") || ""),
   stripeAutomaticTax: /^(1|true|yes|on)$/i.test(read("STRIPE_AUTOMATIC_TAX") || ""),
 
   // Seller payouts move real money. They stay a dry run (logged, nothing sent)
