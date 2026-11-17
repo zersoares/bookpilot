@@ -16,6 +16,9 @@ import { json } from "./bookpilot-lib/http.js";
 import { dbAsService } from "./bookpilot-lib/db.js";
 import * as stripe from "./bookpilot-lib/stripe.js";
 import * as audit from "./bookpilot-lib/audit.js";
+import * as sellerLedger from "./bookpilot-lib/seller-ledger.js";
+import { sendReceipt, resendMailer } from "./bookpilot-lib/seller-delivery.js";
+import { env } from "./bookpilot-lib/env.js";
 import { planForSubscription, periodEnd, invoiceMetadata, customerId } from "./bookpilot-lib/billing-rules.js";
 
 async function applyPlan(userId, planId, subscription) {
@@ -114,6 +117,21 @@ export default async (req) => {
 
     switch (event.type) {
       case "checkout.session.completed": {
+        // A reader buying an author's book: a ledger entry, not a plan.
+        if (object.metadata?.kind === "seller_sale") {
+          const recorded = await sellerLedger.recordSale(object, { db: dbAsService(), stripe });
+          // The buyer's download link by email. A mail failure must not fail the
+          // webhook (Stripe would retry the whole sale); the thank-you page and
+          // the next webhook retry both still carry the link.
+          if (recorded.sale) {
+            try {
+              await sendReceipt({ db: dbAsService(), mail: resendMailer(), sale: recorded.sale, secret: env.downloadSecret, siteUrl: env.siteUrl });
+            } catch (err) {
+              console.error("[bookpilot] seller receipt email failed:", err?.message);
+            }
+          }
+          break;
+        }
         // Only subscriptions: a one-off payment made through the same Stripe
         // account is none of this product's business.
         if (object.mode && object.mode !== "subscription") break;
@@ -151,6 +169,17 @@ export default async (req) => {
         if (userId) await downgrade(userId, "cancelled");
         break;
       }
+      // Seller payments: refunds shrink the author's share, disputes freeze it,
+      // and account.updated keeps "can this author be paid" current.
+      case "charge.refunded":
+        await sellerLedger.applyRefund(object, { db: dbAsService() });
+        break;
+      case "charge.dispute.created":
+        await sellerLedger.holdForDispute(object, { db: dbAsService() });
+        break;
+      case "account.updated":
+        await sellerLedger.syncAccount(object, { db: dbAsService() });
+        break;
       case "invoice.payment_failed": {
         const userId = await userFor(object, invoiceMetadata(object));
         if (userId) await downgrade(userId, "past_due");

@@ -45,6 +45,15 @@ export const env = {
   // create a checkout session until Stripe Tax is set up in the account.
   stripeAutomaticTax: /^(1|true|yes|on)$/i.test(read("STRIPE_AUTOMATIC_TAX") || ""),
 
+  // Seller payouts move real money. They stay a dry run (logged, nothing sent)
+  // until this is set to "true" — see bookpilot-seller-payouts.mjs.
+  // Delivery of a seller's book: the secret that signs download links, and the
+  // Resend sender used for the buyer's receipt (same pair as books-receipt).
+  downloadSecret: read("BOOKPILOT_DOWNLOAD_SECRET"),
+  resendApiKey: read("RESEND_API_KEY"),
+  mailFrom: read("BOOKS_MAIL_FROM"),
+  sellerPayoutsLive: /^(1|true|yes|on)$/i.test(read("SELLER_PAYOUTS_LIVE") || ""),
+
   // --- Meta Marketing API ---------------------------------------------
   metaAppId: read("META_APP_ID"),
   metaAppSecret: read("META_APP_SECRET"),
@@ -97,6 +106,7 @@ export function capabilities() {
     database: Boolean(env.supabaseUrl && env.supabaseAnonKey),
     ai: Boolean(env.anthropicKey),
     billing: Boolean(env.stripeSecret),
+    sellerPayments: Boolean(env.stripeSecret && env.stripeWebhookSecret),
     meta: Boolean(env.metaAppId && env.metaAppSecret && env.metaRedirectUri),
     pinterest: Boolean(env.pinterestAppId && env.pinterestAppSecret && env.pinterestRedirectUri),
     tiktok: Boolean(env.tiktokAppId && env.tiktokAppSecret && env.tiktokAuthUrl),

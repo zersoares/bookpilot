@@ -578,3 +578,16 @@ Stated plainly, because the alternative is a feature list that lies:
 The database and the API are shaped for these: `platform` is a column rather than
 an assumption, `integrations` is provider-keyed, and attribution sources are
 separated at the row level.
+
+## Seller payments (the 70% / 35% shares)
+
+Implements `/seller-terms`. BookPilot is the seller to the reader: the sale is
+charged on BookPilot's own Stripe account, the author's share is written to a
+ledger, and a monthly job pays it out by Stripe transfer.
+
+- **Own-audience sale: 70%** of the Net Amount (reader came through a link with the author's `?ref=` code). **BookPilot-audience sale: 35%.** Net Amount = price - VAT - Stripe fee. Shares round down to the cent.
+- **Refund window 14 days.** Payouts are monthly (1st, 06:00 UTC) for sales older than that, when the balance is at least EUR 20. A refund after payout is deducted from the next one.
+- **Files:** `sql/024_seller_payments.sql`, `bookpilot-seller.mjs` (`/api/bp-seller/*`: status, onboard, dashboard, public checkout), `bookpilot-lib/seller-rules.js` (the money rules), `bookpilot-lib/seller-ledger.js` (webhook side), `bookpilot-seller-payouts.mjs` (scheduled). The existing Stripe webhook routes `checkout.session.completed` (metadata `kind=seller_sale`), `charge.refunded`, `charge.dispute.created` and `account.updated`.
+- **Before it works:** run `024_seller_payments.sql`; turn on **Stripe Connect** in the Stripe account (Express accounts, transfers); in the webhook endpoint add the events `charge.refunded`, `charge.dispute.created` and `account.updated` (with "listen to Connect accounts" for the last one).
+- **Invitation only:** nobody can sell until the operator inserts a `seller_accounts` row with `approved = true` and a `seller_books` row with `status = 'approved'` and a price. The browser sends only a book id and an optional referral code; the price and share are read on the server.
+- **Safe by default:** payouts are a dry run (logged, nothing sent) until `SELLER_PAYOUTS_LIVE=true`. Test it end to end with Stripe test keys first.
