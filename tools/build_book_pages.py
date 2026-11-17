@@ -51,6 +51,13 @@ LANG_CODES = {
     "Italian": "it",
 }
 RELATED_COUNT = 4
+
+# Books that also have a hand-built landing page. The generated page links
+# to it so visitors (and search engines) find the fuller page.
+LANDING_PAGES = {
+    "claude-code": "/books/mastering-claude-code/",
+    "claude-code-2": "/books/mastering-claude-code/",
+}
 DEFAULT_AUTHOR = "Zirlandia Milkovic"
 
 CARD_RE = re.compile(
@@ -179,6 +186,11 @@ def detail_markup(card: dict) -> str:
     d = re.sub(r'(src|href)="assets/', r'\1="/books/assets/', d)
     # The cover is the largest thing on the page: load it first, not lazily.
     d = d.replace(' loading="lazy" decoding="async"', ' fetchpriority="high" decoding="async"', 1)
+    landing = LANDING_PAGES.get(card["slug"])
+    if landing:
+        note = (f'<p class="detail__more">Want the chapter list and FAQ? '
+                f'<a href="{landing}">See the full Mastering Claude Code page</a>.</p>')
+        d = re.sub(r"(\s*</div>\s*</div>\s*)$", lambda m: "\n      " + note + m.group(1), d, count=1)
     return d
 
 
