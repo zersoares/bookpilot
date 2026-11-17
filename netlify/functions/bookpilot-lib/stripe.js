@@ -34,7 +34,7 @@ function encode(params, prefix = "", out = new URLSearchParams()) {
   return out;
 }
 
-async function call(path, { method = "POST", params, query } = {}) {
+async function call(path, { method = "POST", params, query, idempotencyKey } = {}) {
   if (!configured()) throw Errors.notConfigured("Billing");
   let res;
   try {
@@ -43,6 +43,8 @@ async function call(path, { method = "POST", params, query } = {}) {
       headers: {
         Authorization: `Bearer ${env.stripeSecret}`,
         "Content-Type": "application/x-www-form-urlencoded",
+        // A retried money-moving call (a payout transfer) must not run twice.
+        ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
       },
       body: params ? encode(params).toString() : undefined,
     });
@@ -61,6 +63,20 @@ async function call(path, { method = "POST", params, query } = {}) {
 export function createCheckoutSession(params) {
   return call("/checkout/sessions", { params });
 }
+
+// --- Seller payments (Connect Express + transfers) -----------------------
+// Used by bookpilot-seller.mjs and bookpilot-seller-payouts.mjs; see
+// bookpilot-lib/seller-rules.js for the money rules.
+export const createAccount = (params) => call("/accounts", { params });
+export const getAccount = (id) => call(`/accounts/${encodeURIComponent(id)}`, { method: "GET" });
+export const createAccountLink = (params) => call("/account_links", { params });
+export const createLoginLink = (id) => call(`/accounts/${encodeURIComponent(id)}/login_links`, { params: {} });
+export const createTransfer = (params, idempotencyKey) => call("/transfers", { params, idempotencyKey });
+export const getPaymentIntent = (id) =>
+  call(`/payment_intents/${encodeURIComponent(id)}`, {
+    method: "GET",
+    query: { expand: ["latest_charge.balance_transaction"] },
+  });
 
 export function createPortalSession(params) {
   return call("/billing_portal/sessions", { params });
