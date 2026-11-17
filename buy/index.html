@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buy a book — BookPilot AI</title>
+<meta name="description" content="Books by independent authors, sold through BookPilot. Pay securely by card and download straight away.">
+<link rel="canonical" href="https://bookpilot.org/buy/">
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/assets/css/design-system.css">
+<link rel="stylesheet" href="/assets/css/landing.css">
+<script>
+  try {
+    var t = localStorage.getItem('bookpilot.theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
+<style>
+  .bp-buy { max-width: 880px; margin: 0 auto; padding: var(--bp-12) var(--bp-6) var(--bp-20); }
+  .bp-buy h1 { font-family: var(--bp-font-serif); font-weight: 400; margin: 0 0 var(--bp-2); }
+  .bp-buy__lead { color: var(--bp-text-muted); margin: 0 0 var(--bp-8); }
+  .bp-buy__list { display: grid; gap: var(--bp-4); grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .bp-buy__card { display: flex; flex-direction: column; gap: var(--bp-2); padding: var(--bp-4); border: 1px solid var(--bp-border); border-radius: var(--bp-radius-lg); background: var(--bp-surface); box-shadow: var(--bp-shadow); color: inherit; text-decoration: none; }
+  .bp-buy__card:hover { border-color: var(--bp-primary-border); text-decoration: none; }
+  .bp-buy__card img { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: var(--bp-radius); background: var(--bp-sunken); }
+  .bp-buy__title { font-weight: 600; }
+  .bp-buy__by { color: var(--bp-text-muted); font-size: .9rem; }
+  .bp-buy__price { font-weight: 600; color: var(--bp-primary-text); }
+  .bp-buy__one { display: grid; gap: var(--bp-8); grid-template-columns: minmax(0, 220px) minmax(0, 1fr); align-items: start; }
+  .bp-buy__one img { width: 100%; border-radius: var(--bp-radius-lg); box-shadow: var(--bp-shadow-lg); background: var(--bp-sunken); }
+  .bp-buy__desc { white-space: pre-line; color: var(--bp-text-muted); }
+  .bp-buy__note { color: var(--bp-text-subtle); font-size: .85rem; margin-top: var(--bp-4); }
+  .bp-buy__err { color: var(--bp-danger); margin-top: var(--bp-3); min-height: 1.4em; }
+  @media (max-width: 640px) { .bp-buy__one { grid-template-columns: 1fr; } .bp-buy__one img { max-width: 220px; } }
+</style>
+<link rel="stylesheet" href="/assets/css/home-arrow.css">
+</head>
+<body>
+<a class="bp-skip-link" href="#main">Skip to content</a>
+<header class="bp-nav">
+  <div class="bp-nav__inner">
+    <a class="bp-logo" href="/"><span class="bp-logo__mark" aria-hidden="true"></span> BookPilot <span class="bp-logo__ai">AI</span></a>
+    <nav class="bp-nav__links" aria-label="Sections">
+      <a class="bp-nav__link" href="/books/">Books</a>
+      <a class="bp-nav__link" href="/book-auditor/">Book Quality Auditor</a>
+      <a class="bp-nav__link" href="/blog/">Blog</a>
+    </nav>
+    <div class="bp-nav__actions">
+      <a class="bp-btn bp-btn--primary bp-btn--sm" href="/app.html#/signup">Start free</a>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="bp-buy">
+  <div id="view" aria-live="polite"><p class="bp-buy__lead">Loading…</p></div>
+</main>
+
+<footer class="bp-footer">
+  <div class="bp-footer__legal">
+    <div class="bp-footer__legal-inner">
+      <span>© <span id="year">2026</span> BookPilot AI</span>
+      <span>
+        <a href="/sell-your-book/">Sell your book</a> ·
+        <a href="/privacy.html">Privacy</a> ·
+        <a href="/terms.html">Terms</a> ·
+        <a href="/cookies.html">Cookies</a> ·
+        <a href="/contact/">Contact</a>
+      </span>
+    </div>
+  </div>
+</footer>
+<script>
+(function () {
+  var view = document.getElementById('view');
+  var params = new URLSearchParams(location.search);
+  var bookId = params.get('book');
+
+  // Remember a referral code for this visit: a reader who arrives through an
+  // author's link and then clicks around is still that author's own audience.
+  var ref = params.get('ref') || '';
+  try {
+    if (ref) sessionStorage.setItem('bp.ref', ref);
+    else ref = sessionStorage.getItem('bp.ref') || '';
+  } catch (e) {}
+
+  function money(cents, cur) {
+    try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur || 'EUR' }).format(cents / 100); }
+    catch (e) { return (cents / 100).toFixed(2) + ' ' + (cur || 'EUR'); }
+  }
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function cover(book) {
+    var img = el('img');
+    img.alt = book.title ? 'Cover of ' + book.title : '';
+    if (/^https:\/\//i.test(book.cover_url || '')) img.src = book.cover_url;
+    img.loading = 'lazy';
+    return img;
+  }
+  function fail(msg) { view.replaceChildren(el('p', 'bp-buy__lead', msg)); }
+
+  function api(path) {
+    return fetch('/api/bp-seller/' + path, { headers: { Accept: 'application/json' } }).then(function (r) {
+      return r.json().then(function (j) { if (!r.ok) throw new Error((j && j.error && j.error.message) || 'Something went wrong.'); return j; });
+    });
+  }
+
+  function showList(books) {
+    document.title = 'Books by independent authors — BookPilot AI';
+    var wrap = el('div');
+    wrap.appendChild(el('h1', null, 'Books by independent authors'));
+    wrap.appendChild(el('p', 'bp-buy__lead', 'Pay securely by card and download straight away.'));
+    if (!books.length) { wrap.appendChild(el('p', 'bp-buy__lead', 'No books are on sale here yet. Check back soon.')); view.replaceChildren(wrap); return; }
+    var grid = el('div', 'bp-buy__list');
+    books.forEach(function (b) {
+      var a = el('a', 'bp-buy__card');
+      a.href = '/buy/?book=' + encodeURIComponent(b.id) + (ref ? '&ref=' + encodeURIComponent(ref) : '');
+      a.appendChild(cover(b));
+      a.appendChild(el('span', 'bp-buy__title', b.title));
+      if (b.author) a.appendChild(el('span', 'bp-buy__by', 'by ' + b.author));
+      a.appendChild(el('span', 'bp-buy__price', money(b.price_cents, b.currency)));
+      grid.appendChild(a);
+    });
+    wrap.appendChild(grid);
+    view.replaceChildren(wrap);
+  }
+
+  function showOne(b) {
+    document.title = b.title + ' — BookPilot AI';
+    var wrap = el('div', 'bp-buy__one');
+    wrap.appendChild(cover(b));
+    var side = el('div');
+    side.appendChild(el('h1', null, b.title));
+    if (b.subtitle) side.appendChild(el('p', 'bp-buy__lead', b.subtitle));
+    if (b.author) side.appendChild(el('p', 'bp-buy__by', 'by ' + b.author));
+    if (b.description) side.appendChild(el('p', 'bp-buy__desc', b.description));
+    side.appendChild(el('p', 'bp-buy__price', money(b.price_cents, b.currency) + ' · digital book (download)'));
+    var btn = el('button', 'bp-btn bp-btn--primary bp-btn--lg', 'Buy now · ' + money(b.price_cents, b.currency));
+    btn.type = 'button';
+    var err = el('p', 'bp-buy__err'); err.setAttribute('role', 'alert');
+    btn.addEventListener('click', function () {
+      btn.disabled = true; err.textContent = '';
+      fetch('/api/bp-seller/checkout', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ book_id: b.id, ref: ref || undefined })
+      }).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error((j && j.error && j.error.message) || 'Checkout is unavailable right now.'); return j; }); })
+        .then(function (j) { if (!j.url) throw new Error('Checkout is unavailable right now.'); location.href = j.url; })
+        .catch(function (e) { err.textContent = e.message; btn.disabled = false; });
+    });
+    side.appendChild(btn);
+    side.appendChild(err);
+    side.appendChild(el('p', 'bp-buy__note', 'Sold by BookPilot. Secure card payment by Stripe. You get a download link on the next page and by email. You can ask for a refund within 14 days at hello@bookpilot.org. By buying you agree to our Terms.'));
+    var more = el('p', 'bp-buy__note'); var a = el('a', null, '← All books'); a.href = '/buy/'; more.appendChild(a); side.appendChild(more);
+    wrap.appendChild(side);
+    view.replaceChildren(wrap);
+  }
+
+  document.getElementById('year').textContent = String(new Date().getFullYear());
+  if (bookId) api('book?id=' + encodeURIComponent(bookId)).then(function (j) { showOne(j.book); }).catch(function () { fail('That book is not available.'); });
+  else api('catalogue').then(function (j) { showList(j.books || []); }).catch(function () { fail('The catalogue is unavailable right now.'); });
+})();
+</script>
+<script type="module" src="/js/cookie-notice.js"></script>
+</body>
+</html>

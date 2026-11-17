@@ -20,7 +20,7 @@ export async function recordSale(session, { db, stripe }) {
   if (session.payment_status && session.payment_status !== "paid") return { skipped: "not paid yet" };
 
   const existing = await db.selectOne("seller_sales", { eq: { stripe_session_id: session.id } });
-  if (existing) return { skipped: "already recorded", id: existing.id };
+  if (existing) return { skipped: "already recorded", id: existing.id, sale: existing };
 
   const audience = meta.audience === "own" ? "own" : "bookpilot";
   const priceCents = session.amount_total ?? 0;
@@ -65,7 +65,7 @@ export async function recordSale(session, { db, stripe }) {
     sold_at: soldAt.toISOString(),
     eligible_at: eligibleAt(soldAt).toISOString(),
   });
-  return { recorded: row?.id };
+  return { recorded: row?.id, sale: row };
 }
 
 /**

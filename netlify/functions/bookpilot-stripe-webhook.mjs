@@ -17,6 +17,8 @@ import { dbAsService } from "./bookpilot-lib/db.js";
 import * as stripe from "./bookpilot-lib/stripe.js";
 import * as audit from "./bookpilot-lib/audit.js";
 import * as sellerLedger from "./bookpilot-lib/seller-ledger.js";
+import { sendReceipt, resendMailer } from "./bookpilot-lib/seller-delivery.js";
+import { env } from "./bookpilot-lib/env.js";
 import { planForSubscription, periodEnd, invoiceMetadata, customerId } from "./bookpilot-lib/billing-rules.js";
 
 async function applyPlan(userId, planId, subscription) {
@@ -117,7 +119,17 @@ export default async (req) => {
       case "checkout.session.completed": {
         // A reader buying an author's book: a ledger entry, not a plan.
         if (object.metadata?.kind === "seller_sale") {
-          await sellerLedger.recordSale(object, { db: dbAsService(), stripe });
+          const recorded = await sellerLedger.recordSale(object, { db: dbAsService(), stripe });
+          // The buyer's download link by email. A mail failure must not fail the
+          // webhook (Stripe would retry the whole sale); the thank-you page and
+          // the next webhook retry both still carry the link.
+          if (recorded.sale) {
+            try {
+              await sendReceipt({ db: dbAsService(), mail: resendMailer(), sale: recorded.sale, secret: env.downloadSecret, siteUrl: env.siteUrl });
+            } catch (err) {
+              console.error("[bookpilot] seller receipt email failed:", err?.message);
+            }
+          }
           break;
         }
         // Only subscriptions: a one-off payment made through the same Stripe

@@ -47,6 +47,11 @@ export const env = {
 
   // Seller payouts move real money. They stay a dry run (logged, nothing sent)
   // until this is set to "true" — see bookpilot-seller-payouts.mjs.
+  // Delivery of a seller's book: the secret that signs download links, and the
+  // Resend sender used for the buyer's receipt (same pair as books-receipt).
+  downloadSecret: read("BOOKPILOT_DOWNLOAD_SECRET"),
+  resendApiKey: read("RESEND_API_KEY"),
+  mailFrom: read("BOOKS_MAIL_FROM"),
   sellerPayoutsLive: /^(1|true|yes|on)$/i.test(read("SELLER_PAYOUTS_LIVE") || ""),
 
   // --- Meta Marketing API ---------------------------------------------

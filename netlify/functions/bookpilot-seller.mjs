@@ -30,6 +30,7 @@ import { memoryLimit } from "./bookpilot-lib/ratelimit.js";
 import * as stripe from "./bookpilot-lib/stripe.js";
 import * as v from "./bookpilot-lib/validate.js";
 import { taxParams } from "./bookpilot-lib/billing-rules.js";
+import { resolveDownload, orderFor, supabaseStorage, MAX_FILE_BYTES, ALLOWED_TYPES } from "./bookpilot-lib/seller-delivery.js";
 import { classifyAudience, SHARES, REFUND_WINDOW_DAYS, MIN_PAYOUT_CENTS } from "./bookpilot-lib/seller-rules.js";
 
 const PREFIX = "/api/bp-seller";
@@ -140,9 +141,10 @@ async function checkout(req, body) {
     service.selectOne("seller_accounts", { eq: { user_id: offer.user_id } }),
   ]);
   if (!book || !seller?.approved) throw Errors.notFound("book");
+  // Never take money for a book that cannot be delivered.
+  if (!offer.file_path) throw new AppError("not_ready", "This book is not ready to buy yet.", 409);
 
   const audience = classifyAudience({ ref, sellerRefCode: seller.ref_code });
-  const appBase = `${siteUrl()}/books/`;
   const session = await stripe.createCheckoutSession({
     mode: "payment",
     line_items: [
@@ -155,8 +157,9 @@ async function checkout(req, body) {
         },
       },
     ],
-    success_url: `${appBase}?purchase=success`,
-    cancel_url: `${appBase}?purchase=cancelled`,
+    // Stripe fills {CHECKOUT_SESSION_ID}; the thank-you page uses it to find the sale.
+    success_url: `${siteUrl()}/purchase/?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${siteUrl()}/buy/?book=${book.id}`,
     customer_creation: "if_required",
     // The webhook reads these back. They are set here, on the server, from the
     // database — never from the request body.
@@ -175,8 +178,102 @@ async function checkout(req, body) {
   return json({ url: session.url });
 }
 
+// --- public reads and delivery ---------------------------------------------
+
+/** What a buyer may see about an approved book. No file path, no seller ids. */
+const publicBook = (book, offer) => ({
+  id: book.id,
+  title: book.title,
+  subtitle: book.subtitle,
+  author: book.author_name,
+  description: book.description,
+  cover_url: book.cover_url,
+  price_cents: offer.price_cents,
+  currency: offer.currency,
+});
+
+async function readyOffers(ids) {
+  const service = dbAsService();
+  const offers = await service.select("seller_books", { select: "book_id,price_cents,currency,file_path,user_id", eq: { status: "approved" } });
+  const ready = offers.filter((o) => o.file_path && (!ids || ids.includes(o.book_id)));
+  if (!ready.length) return [];
+  const accounts = await service.select("seller_accounts", { select: "user_id", eq: { approved: true } });
+  const okUsers = new Set(accounts.map((a) => a.user_id));
+  const books = await service.select("books", { select: "id,title,subtitle,author_name,description,cover_url", in: { id: ready.map((o) => o.book_id) } });
+  return ready
+    .filter((o) => okUsers.has(o.user_id))
+    .map((o) => {
+      const b = books.find((x) => x.id === o.book_id);
+      return b ? publicBook(b, o) : null;
+    })
+    .filter(Boolean);
+}
+
+async function publicCatalogue() {
+  return json({ books: await readyOffers() });
+}
+
+async function publicBookRead(url) {
+  const id = v.uuid(url.searchParams.get("id"), "Book");
+  const [one] = await readyOffers([id]);
+  if (!one) throw Errors.notFound("book");
+  return json({ book: one });
+}
+
+async function order(url) {
+  const sessionId = v.str(url.searchParams.get("session_id"), "Session", { max: 200, required: true });
+  if (!/^cs_[A-Za-z0-9_]+$/.test(sessionId)) throw Errors.invalid("That order link isn't valid.");
+  if (!env.downloadSecret) throw Errors.notConfigured("Downloads");
+  return json(await orderFor({ db: dbAsService(), sessionId, secret: env.downloadSecret, siteUrl: siteUrl() }));
+}
+
+const DOWNLOAD_MESSAGES = {
+  not_found: "That download link isn't valid.",
+  refunded: "This order was refunded, so the download is no longer available.",
+  disputed: "This order is under review, so the download is paused. Contact hello@bookpilot.org.",
+  limit: "This link has reached its download limit. Contact hello@bookpilot.org and we will send a new one.",
+  no_file: "We couldn't find the file for this book. Contact hello@bookpilot.org.",
+};
+
+async function download(url) {
+  if (!env.downloadSecret) throw Errors.notConfigured("Downloads");
+  const result = await resolveDownload({ db: dbAsService(), storage: supabaseStorage(), token: url.searchParams.get("t") || "", secret: env.downloadSecret });
+  if (!result.ok) {
+    throw new AppError(`download_${result.reason}`, DOWNLOAD_MESSAGES[result.reason] || DOWNLOAD_MESSAGES.not_found, result.reason === "not_found" ? 404 : 410);
+  }
+  return new Response(null, { status: 302, headers: { Location: result.url, "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" } });
+}
+
+/**
+ * A short-lived URL an approved seller uploads their book file to. The path is
+ * fixed on the server (`<user>/<book>/book.<type>`), so a seller can write only
+ * to their own book's slot, and only pdf or epub.
+ */
+async function uploadUrl(ctx, body) {
+  await approvedSeller(ctx.user.id);
+  const bookId = v.uuid(body.book_id, "Book");
+  const type = v.oneOf(body.type, "File type", Object.keys(ALLOWED_TYPES), { required: true });
+  const service = dbAsService();
+  const offer = await service.selectOne("seller_books", { eq: { book_id: bookId, user_id: ctx.user.id } });
+  if (!offer) throw Errors.notFound("book");
+  const path = `${ctx.user.id}/${bookId}/book.${type}`;
+  const signed = await supabaseStorage().signUpload(path);
+  await service.update(
+    "seller_books",
+    { file_path: path, file_name: `book.${type}`, file_type: ALLOWED_TYPES[type], updated_at: new Date().toISOString() },
+    { eq: { book_id: bookId } }
+  );
+  return json({ upload_url: signed.url, token: signed.token, max_bytes: MAX_FILE_BYTES, content_type: ALLOWED_TYPES[type] });
+}
+
 export default withGuards(async (req) => {
   const [action] = pathSegments(req, PREFIX);
+  const url = new URL(req.url);
+
+  if (req.method === "GET" && action === "catalogue") return publicCatalogue();
+  if (req.method === "GET" && action === "book") return publicBookRead(url);
+  if (req.method === "GET" && action === "order") return order(url);
+  if (req.method === "GET" && action === "download") return download(url);
 
   if (req.method === "POST" && action === "checkout") {
     // Public: bound by IP so it cannot be used to spam Stripe.
@@ -190,6 +287,7 @@ export default withGuards(async (req) => {
   if (req.method === "GET" && (action === "status" || !action)) return status(ctx);
   if (req.method === "POST" && action === "onboard") return onboard(ctx, await readJson(req));
   if (req.method === "POST" && action === "dashboard") return dashboard(ctx);
+  if (req.method === "POST" && action === "upload-url") return uploadUrl(ctx, await readJson(req));
 
   throw Errors.notFound("endpoint");
 });
