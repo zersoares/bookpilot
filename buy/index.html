@@ -30,6 +30,7 @@
   .bp-buy__by { color: var(--bp-text-muted); font-size: .9rem; }
   .bp-buy__price { font-weight: 600; color: var(--bp-primary-text); }
   .bp-buy__one { display: grid; gap: var(--bp-8); grid-template-columns: minmax(0, 220px) minmax(0, 1fr); align-items: start; }
+  .bp-buy__nocover { aspect-ratio: 2 / 3; display: grid; place-items: center; padding: var(--bp-3); text-align: center; font-family: var(--bp-font-serif); color: var(--bp-primary-text); background: var(--bp-primary-soft); border: 1px solid var(--bp-primary-border); border-radius: var(--bp-radius); }
   .bp-buy__one img { width: 100%; border-radius: var(--bp-radius-lg); box-shadow: var(--bp-shadow-lg); background: var(--bp-sunken); }
   .bp-buy__desc { white-space: pre-line; color: var(--bp-text-muted); }
   .bp-buy__note { color: var(--bp-text-subtle); font-size: .85rem; margin-top: var(--bp-4); }
@@ -97,9 +98,15 @@
     return n;
   }
   function cover(book) {
+    // No cover, or not an https one: a plain tile instead of a broken image.
+    if (!/^https:\/\//i.test(book.cover_url || '')) {
+      var tile = el('div', 'bp-buy__nocover', book.title || '');
+      tile.setAttribute('aria-hidden', 'true');
+      return tile;
+    }
     var img = el('img');
     img.alt = book.title ? 'Cover of ' + book.title : '';
-    if (/^https:\/\//i.test(book.cover_url || '')) img.src = book.cover_url;
+    img.src = book.cover_url;
     img.loading = 'lazy';
     return img;
   }
