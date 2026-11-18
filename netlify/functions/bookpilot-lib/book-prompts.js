@@ -762,8 +762,8 @@ Sections requested: {{sections}}`,
   // =================================================================
   editorial_review: {
     label: "Book Builder · editorial review",
-    effort: "high",
-    max_tokens: 6000,
+    effort: "medium",
+    max_tokens: 12000,
     system: `${BOOK_RULES}
 
 You are the Editorial Director. You read a chapter as a commissioning

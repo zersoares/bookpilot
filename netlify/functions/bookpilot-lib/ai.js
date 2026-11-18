@@ -394,7 +394,7 @@ export async function generate(key, variables = {}) {
 
   const data = extractJson(message);
   if (!data) {
-    console.error(`[bookpilot] AI ${key} returned unparseable content`);
+    console.error(`[bookpilot] AI ${key} returned unparseable content (stop_reason=${message.stop_reason}, output_tokens=${message.usage?.output_tokens})`);
     throw withDiagnostic(Errors.aiUnavailable(), "no_json_in_content");
   }
 
