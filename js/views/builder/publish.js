@@ -224,7 +224,8 @@ export async function renderPublish(container, params) {
     ${raw(projectHeader(project, {
       active: "publish",
       actions: `${demoBadge()}<a class="bp-btn bp-btn--secondary bp-btn--sm"
-        href="#/studio/${project.id}/preview">Preview</a>`,
+        href="#/studio/${project.id}/preview">Preview</a>
+        <a class="bp-btn bp-btn--secondary bp-btn--sm" href="/book-auditor/" target="_blank" rel="noopener">Book Quality Auditor</a>`,
     }))}
 
     <div class="bb-stage">

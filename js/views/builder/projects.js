@@ -174,6 +174,7 @@ function projectCard(project) {
             <summary class="bp-btn bp-btn--ghost bp-btn--sm">More</summary>
             <div class="bb-menu__list">
               <a class="bb-menu__item" href="#/studio/${project.id}/preview">Preview</a>
+              <a class="bb-menu__item" href="/book-auditor/" target="_blank" rel="noopener">Book Quality Auditor</a>
               <button type="button" class="bb-menu__item" data-action="export"
                       data-id="${project.id}" data-format="pdf_digital">Export PDF</button>
               <button type="button" class="bb-menu__item" data-action="export"

@@ -180,7 +180,7 @@ image or a phrase, and none should promise a result.`,
   // =================================================================
   book_architecture: {
     label: "Book Builder · architecture",
-    effort: "high",
+    effort: "medium",
     max_tokens: 12000,
     system: `${BOOK_RULES}
 

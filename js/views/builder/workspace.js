@@ -96,6 +96,7 @@ export async function render(container, params) {
       active: "overview",
       actions: `${demoBadge()}
         <a class="bp-btn bp-btn--secondary bp-btn--sm" href="#/studio/${project.id}/preview">Preview</a>
+        <a class="bp-btn bp-btn--secondary bp-btn--sm" href="/book-auditor/" target="_blank" rel="noopener">Book Quality Auditor</a>
         <a class="bp-btn bp-btn--primary bp-btn--sm" href="${step.href}">${step.label}</a>`,
     }))}
 
