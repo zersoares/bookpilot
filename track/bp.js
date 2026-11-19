@@ -134,26 +134,33 @@
     };
     var body = JSON.stringify(payload);
 
-    // sendBeacon survives the page unload that follows a checkout click;
-    // fetch is the fallback where it isn't available.
+    // fetch with keepalive survives the page unload that follows a checkout
+    // click, like sendBeacon, but it can be sent without credentials.
+    // sendBeacon cannot: it is always a credentialed request, so on the
+    // customer's own site (a different origin) the browser rejects it unless
+    // the collector answers Access-Control-Allow-Credentials, and the event
+    // is lost. sendBeacon is only the fallback for browsers without fetch.
     try {
-      if (navigator.sendBeacon) {
-        var blob = new Blob([body], { type: "application/json" });
-        if (navigator.sendBeacon(endpoint, blob)) return;
+      if (window.fetch) {
+        fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: body,
+          keepalive: true,
+          mode: "cors",
+          credentials: "omit",
+        }).catch(function () {
+          /* a lost analytics event must never surface to a visitor */
+        });
+        return;
       }
     } catch (err) {
-      /* fall through to fetch */
+      /* fall through to sendBeacon */
     }
     try {
-      fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: body,
-        keepalive: true,
-        mode: "cors",
-      }).catch(function () {
-        /* a lost analytics event must never surface to a visitor */
-      });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(endpoint, new Blob([body], { type: "application/json" }));
+      }
     } catch (err) {
       /* nothing more to try */
     }
