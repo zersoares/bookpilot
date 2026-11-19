@@ -22,6 +22,24 @@
 
   const state = { cat: 'all', text: '' };
 
+  // Show the catalogue in pages so 118 cards are not all laid out at once.
+  // Every card stays in the HTML (search engines, no-JS visitors, deep links);
+  // this only hides the overflow, and only once this script is running.
+  const PAGE = 24;
+  let limit = PAGE;
+  const more = document.createElement('button');
+  more.type = 'button';
+  more.className = 'btn btn--ghost more';
+  more.hidden = true;
+  grid.after(more);
+  more.addEventListener('click', () => {
+    const first = cards.filter((c) => !c.hidden).length;
+    limit += PAGE;
+    render();
+    const next = cards.filter((c) => !c.hidden)[first];
+    if (next) next.querySelector('a, button')?.focus({ preventScroll: false });
+  });
+
   function matches(card) {
     if (state.cat === 'free' && card.dataset.free !== '1') return false;
     if (state.cat !== 'all' && state.cat !== 'free' && card.dataset.cat !== state.cat && card.dataset.set !== state.cat) return false;
@@ -32,19 +50,25 @@
 
   function render() {
     let shown = 0;
+    let visible = 0;
     for (const card of cards) {
       const ok = matches(card);
-      card.hidden = !ok;
       if (ok) shown++;
+      card.hidden = !ok || shown > limit;
+      if (!card.hidden) visible++;
     }
+    const left = shown - visible;
+    more.hidden = left <= 0;
+    more.textContent = `Show ${Math.min(PAGE, left)} more (${left} left)`;
     for (const chip of chips) chip.setAttribute('aria-pressed', String(chip.dataset.cat === state.cat));
     empty.hidden = shown !== 0;
     const filtered = state.cat !== 'all' || state.text;
     count.textContent = !filtered
-      ? `Showing all ${total} titles`
-      : `Showing ${shown} of ${total} titles` +
+      ? (left > 0 ? `Showing ${visible} of ${total} titles` : `Showing all ${total} titles`)
+      : `Showing ${visible} of ${shown} titles` +
         (state.cat !== 'all' ? ` in ${labelFor(state.cat)}` : '') +
-        (state.text ? ` matching “${q.value.trim()}”` : '');
+        (state.text ? ` matching “${q.value.trim()}”` : '') +
+        ` (${total} in all)`;
     syncUrl();
   }
 
@@ -60,6 +84,7 @@
   chips.forEach((chip) =>
     chip.addEventListener('click', () => {
       state.cat = chip.dataset.cat;
+      limit = PAGE;
       render();
     }),
   );
@@ -69,6 +94,7 @@
     clearTimeout(timer);
     timer = setTimeout(() => {
       state.text = q.value.trim().toLowerCase();
+      limit = PAGE;
       render();
     }, 120);
   });
@@ -77,6 +103,7 @@
     state.cat = 'all';
     state.text = '';
     q.value = '';
+    limit = PAGE;
     render();
     q.focus();
   });

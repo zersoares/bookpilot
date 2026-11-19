@@ -222,6 +222,8 @@ h2 { font-size: clamp(1.9rem, 4vw, 2.7rem); }
 .card:hover { box-shadow: var(--shadow-lg); border-color: var(--border-strong); transform: translateY(-2px); }
 .card:hover .book { transform: translateY(-3px) rotate(-0.6deg); }
 .card[hidden] { display: none; }
+.more { display: block; margin: 28px auto 0; }
+.more[hidden] { display: none; }
 .card__stage { display: flex; align-items: center; justify-content: center; height: 344px; padding: 22px 16px; border: 0; cursor: pointer; background: radial-gradient(90% 70% at 50% 35%, #fff, var(--sunken)); border-bottom: 1px solid var(--border); }
 .card__stage:focus-visible { outline-offset: -4px; }
 .card__body { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px 6px; flex: 1; align-items: flex-start; }
