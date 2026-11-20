@@ -1159,3 +1159,48 @@
   for = "/books/thanks-ai-at-work-without-breaking-gdpr-bk-bfa819cc1b.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Cloud-Exit-Drill-bk-f10baaca97.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Cloud-Exit-Drill-bk-f10baaca97.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-cloud-exit-drill-bk-f10baaca97.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Who-Gets-Remote-Access-bk-7b19c0ff54.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/Who-Gets-Remote-Access-bk-7b19c0ff54.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-who-gets-remote-access-bk-7b19c0ff54.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Product-Support-Clock-bk-b0fa379f91.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Product-Support-Clock-bk-b0fa379f91.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-the-product-support-clock-bk-b0fa379f91.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

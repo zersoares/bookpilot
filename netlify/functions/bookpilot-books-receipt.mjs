@@ -644,6 +644,33 @@ export const BOOKS = {
       ["EPUB", "AI-at-Work-Without-Breaking-GDPR-bk-bfa819cc1b.epub"],
     ],
   },
+  plink_1UdwQzLfqCbvloYwDwkMsGdZ: {
+    lang: "en",
+    name: "The Cloud Exit Drill",
+    page: "thanks-cloud-exit-drill-bk-f10baaca97.html",
+    files: [
+      ["PDF", "The-Cloud-Exit-Drill-bk-f10baaca97.pdf"],
+      ["EPUB", "The-Cloud-Exit-Drill-bk-f10baaca97.epub"],
+    ],
+  },
+  plink_1UdwSCLfqCbvloYweg59z7DI: {
+    lang: "en",
+    name: "Who Gets Remote Access?",
+    page: "thanks-who-gets-remote-access-bk-7b19c0ff54.html",
+    files: [
+      ["PDF", "Who-Gets-Remote-Access-bk-7b19c0ff54.pdf"],
+      ["EPUB", "Who-Gets-Remote-Access-bk-7b19c0ff54.epub"],
+    ],
+  },
+  plink_1UdwTDLfqCbvloYw87T00cXK: {
+    lang: "en",
+    name: "The Product Support Clock",
+    page: "thanks-the-product-support-clock-bk-b0fa379f91.html",
+    files: [
+      ["PDF", "The-Product-Support-Clock-bk-b0fa379f91.pdf"],
+      ["EPUB", "The-Product-Support-Clock-bk-b0fa379f91.epub"],
+    ],
+  },
 };
 
 const TEXT = {
