@@ -223,6 +223,22 @@ def related_markup(card: dict, cards: list[dict]) -> str:
 </section>"""
 
 
+BF_SLUGS = {"cloud-exit-drill", "who-gets-remote-access", "the-product-support-clock"}
+BF_START, BF_END = "2026-11-24", "2026-12-01"  # visitor-local dates; end exclusive (sale runs 24-30 Nov)
+
+
+def bf_banner(slug: str) -> str:
+    """Black Friday banner: hidden in the markup, revealed by a tiny inline script only inside the sale window."""
+    if slug not in BF_SLUGS:
+        return ""
+    return f"""<aside class="bf" id="bf" hidden aria-label="Black Friday offer">
+      <strong>Black Friday: 30% off this book</strong>
+      <span>Enter code <code>BLACKFRIDAY30</code> at checkout. Valid until 30 November.</span>
+    </aside>
+    <script>(function(){{var d=new Date(),t=d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);if(t>="{BF_START}"&&t<"{BF_END}"){{var e=document.getElementById("bf");if(e)e.hidden=false;}}}})();</script>
+    """
+
+
 def build_page(card: dict, cards: list[dict]) -> str:
     slug = card["slug"]
     url = f"{SITE}/books/{slug}/"
@@ -281,7 +297,7 @@ def build_page(card: dict, cards: list[dict]) -> str:
 <main id="book">
   <div class="wrap">
     <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> <span aria-hidden="true">›</span> <a href="/books/">Books</a> <span aria-hidden="true">›</span> <span aria-current="page">{html.escape(card["title"])}</span></nav>
-    <article class="bookpage__card" lang="{lang}">
+    {bf_banner(slug)}<article class="bookpage__card" lang="{lang}">
   {detail_markup(card)}
     </article>
   </div>
