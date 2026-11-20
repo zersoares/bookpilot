@@ -11,11 +11,19 @@
   525,
   840
  ],
+ "accessible-store-audit": [
+  525,
+  840
+ ],
  "after-hours": [
   588,
   840
  ],
  "agentes-ia": [
+  525,
+  840
+ ],
+ "ai-at-work-without-breaking-gdpr": [
   525,
   840
  ],
@@ -67,6 +75,14 @@
   525,
   840
  ],
+ "chatgpt-claude-or-gemini": [
+  525,
+  840
+ ],
+ "chatgpt-for-the-job-hunt": [
+  525,
+  840
+ ],
  "chatgpt-web": [
   560,
   840
@@ -105,6 +121,10 @@
  ],
  "comfyui": [
   627,
+  840
+ ],
+ "cyber-insurance-evidence-file": [
+  525,
   840
  ],
  "data-retention-mistake": [
@@ -319,6 +339,10 @@
   525,
   840
  ],
+ "software-ingredient-list": [
+  525,
+  840
+ ],
  "space-for-yourself": [
   538,
   840
@@ -331,7 +355,15 @@
   512,
   800
  ],
+ "the-honest-checkout": [
+  525,
+  840
+ ],
  "third-party-risk": [
+  525,
+  840
+ ],
+ "update-trust-chain": [
   525,
   840
  ],
