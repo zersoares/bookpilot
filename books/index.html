@@ -4448,7 +4448,7 @@
   <div id="dlg-body"></div>
 </dialog>
 
-<script>(function(){var d=new Date(),t=d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);if(t>="2026-11-24"&&t<"2026-12-01"){document.querySelectorAll("[data-sale]").forEach(function(e){e.hidden=false;});}})();</script>
+<script>(function(){var d=new Date(),t=d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);if(t>="2026-11-24"&&t<"2026-12-01"){var g=document.getElementById("grid"),f=g&&g.firstChild;document.querySelectorAll("[data-sale]").forEach(function(e){e.hidden=false;});if(g){var c=[].slice.call(g.querySelectorAll(".card")).filter(function(x){return x.querySelector("[data-sale]");});for(var i=c.length-1;i>=0;i--){g.insertBefore(c[i],g.firstChild);}}}})();</script>
 <script src="app.js" defer></script>
 <script src="/assets/chat/book-chat.js" defer></script>
 </body>
