@@ -571,6 +571,79 @@ export const BOOKS = {
       ["PDF", "Wellness-Workbook-bk-5a73322969.pdf"],
     ],
   },
+  plink_1UdtwjLfqCbvloYwMUC1K6ud: {
+    lang: "en",
+    name: "The Cyber Insurance Evidence File",
+    page: "thanks-cyber-insurance-evidence-file-bk-4481e8a938.html",
+    files: [
+      ["PDF", "The-Cyber-Insurance-Evidence-File-bk-4481e8a938.pdf"],
+      ["EPUB", "The-Cyber-Insurance-Evidence-File-bk-4481e8a938.epub"],
+    ],
+  },
+  plink_1UdtzDLfqCbvloYwOjT7rNIO: {
+    lang: "en",
+    name: "The Accessible Store Audit",
+    page: "thanks-accessible-store-audit-bk-81bf049312.html",
+    files: [
+      ["PDF", "The-Accessible-Store-Audit-bk-81bf049312.pdf"],
+      ["EPUB", "The-Accessible-Store-Audit-bk-81bf049312.epub"],
+      ["XLSX", "The-Accessible-Store-Audit-Workbook-bk-81bf049312.xlsx"],
+    ],
+  },
+  plink_1Udu1ALfqCbvloYw649nb620: {
+    lang: "en",
+    name: "The Software Ingredient List",
+    page: "thanks-software-ingredient-list-bk-0461a12948.html",
+    files: [
+      ["PDF", "The-Software-Ingredient-List-bk-0461a12948.pdf"],
+      ["EPUB", "The-Software-Ingredient-List-bk-0461a12948.epub"],
+    ],
+  },
+  plink_1Udu21LfqCbvloYwpN8ixMJW: {
+    lang: "en",
+    name: "The Honest Checkout",
+    page: "thanks-the-honest-checkout-bk-1aaf96183e.html",
+    files: [
+      ["PDF", "The-Honest-Checkout-bk-1aaf96183e.pdf"],
+      ["EPUB", "The-Honest-Checkout-bk-1aaf96183e.epub"],
+    ],
+  },
+  plink_1Udu2sLfqCbvloYw7FAddkbW: {
+    lang: "en",
+    name: "The Update Trust Chain",
+    page: "thanks-update-trust-chain-bk-3a5b82b839.html",
+    files: [
+      ["PDF", "The-Update-Trust-Chain-bk-3a5b82b839.pdf"],
+      ["EPUB", "The-Update-Trust-Chain-bk-3a5b82b839.epub"],
+    ],
+  },
+  plink_1Udu3iLfqCbvloYwiK7INSxq: {
+    lang: "en",
+    name: "ChatGPT for the Job Hunt",
+    page: "thanks-chatgpt-for-the-job-hunt-bk-650eae26b5.html",
+    files: [
+      ["PDF", "ChatGPT-for-the-Job-Hunt-bk-650eae26b5.pdf"],
+      ["EPUB", "ChatGPT-for-the-Job-Hunt-bk-650eae26b5.epub"],
+    ],
+  },
+  plink_1Udu4eLfqCbvloYwJVklRzCZ: {
+    lang: "en",
+    name: "ChatGPT, Claude or Gemini?",
+    page: "thanks-chatgpt-claude-or-gemini-bk-4c8918b249.html",
+    files: [
+      ["PDF", "ChatGPT-Claude-or-Gemini-bk-4c8918b249.pdf"],
+      ["EPUB", "ChatGPT-Claude-or-Gemini-bk-4c8918b249.epub"],
+    ],
+  },
+  plink_1Udu5fLfqCbvloYwswrvGTHW: {
+    lang: "en",
+    name: "AI at Work Without Breaking GDPR",
+    page: "thanks-ai-at-work-without-breaking-gdpr-bk-bfa819cc1b.html",
+    files: [
+      ["PDF", "AI-at-Work-Without-Breaking-GDPR-bk-bfa819cc1b.pdf"],
+      ["EPUB", "AI-at-Work-Without-Breaking-GDPR-bk-bfa819cc1b.epub"],
+    ],
+  },
 };
 
 const TEXT = {

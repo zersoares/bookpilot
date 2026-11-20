@@ -1034,3 +1034,128 @@
   for = "/books/thanks-wellness-workbook-bk-5a73322969.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Cyber-Insurance-Evidence-File-bk-4481e8a938.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Cyber-Insurance-Evidence-File-bk-4481e8a938.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-cyber-insurance-evidence-file-bk-4481e8a938.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Accessible-Store-Audit-bk-81bf049312.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Accessible-Store-Audit-bk-81bf049312.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Accessible-Store-Audit-Workbook-bk-81bf049312.xlsx"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-accessible-store-audit-bk-81bf049312.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Software-Ingredient-List-bk-0461a12948.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Software-Ingredient-List-bk-0461a12948.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-software-ingredient-list-bk-0461a12948.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Honest-Checkout-bk-1aaf96183e.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Honest-Checkout-bk-1aaf96183e.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-the-honest-checkout-bk-1aaf96183e.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Update-Trust-Chain-bk-3a5b82b839.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Update-Trust-Chain-bk-3a5b82b839.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-update-trust-chain-bk-3a5b82b839.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/ChatGPT-for-the-Job-Hunt-bk-650eae26b5.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/ChatGPT-for-the-Job-Hunt-bk-650eae26b5.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-chatgpt-for-the-job-hunt-bk-650eae26b5.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/ChatGPT-Claude-or-Gemini-bk-4c8918b249.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/ChatGPT-Claude-or-Gemini-bk-4c8918b249.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-chatgpt-claude-or-gemini-bk-4c8918b249.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/AI-at-Work-Without-Breaking-GDPR-bk-bfa819cc1b.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/AI-at-Work-Without-Breaking-GDPR-bk-bfa819cc1b.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-ai-at-work-without-breaking-gdpr-bk-bfa819cc1b.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
