@@ -1204,3 +1204,78 @@
   for = "/books/thanks-the-product-support-clock-bk-b0fa379f91.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Age-Check-Without-the-ID-bk-e4b034fa03.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Age-Check-Without-the-ID-bk-e4b034fa03.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-the-age-check-without-the-id-bk-e4b034fa03.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-QR-Code-Checkpoint-bk-6cef95175f.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-QR-Code-Checkpoint-bk-6cef95175f.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-the-qr-code-checkpoint-bk-6cef95175f.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Wallet-Ready-Business-bk-40786fb3e4.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Wallet-Ready-Business-bk-40786fb3e4.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-the-wallet-ready-business-bk-40786fb3e4.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Software-Ingredient-Label-bk-d9c3d5a528.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Software-Ingredient-Label-bk-d9c3d5a528.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-the-software-ingredient-label-bk-d9c3d5a528.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Cold-Chain-Cyber-Plan-bk-84eeb37614.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Cold-Chain-Cyber-Plan-bk-84eeb37614.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-the-cold-chain-cyber-plan-bk-84eeb37614.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

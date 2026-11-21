@@ -55,11 +55,11 @@
   525,
   840
  ],
- "being-well-abridged": [
+ "being-well": [
   525,
   840
  ],
- "being-well": [
+ "being-well-abridged": [
   525,
   840
  ],
@@ -87,15 +87,15 @@
   560,
   840
  ],
+ "claude-code": [
+  525,
+  840
+ ],
  "claude-code-2": [
   525,
   840
  ],
  "claude-code-beginners": [
-  525,
-  840
- ],
- "claude-code": [
   525,
   840
  ],
@@ -299,15 +299,11 @@
   502,
   840
  ],
- "series-ecommerce-hr": [
-  649,
-  840
- ],
  "series-ecommerce": [
   649,
   840
  ],
- "series-healthcare-hr": [
+ "series-ecommerce-hr": [
   649,
   840
  ],
@@ -315,7 +311,7 @@
   649,
   840
  ],
- "series-hr-hr": [
+ "series-healthcare-hr": [
   649,
   840
  ],
@@ -323,7 +319,7 @@
   649,
   840
  ],
- "series-marketing-hr": [
+ "series-hr-hr": [
   649,
   840
  ],
@@ -331,11 +327,15 @@
   649,
   840
  ],
- "series-saas-hr": [
+ "series-marketing-hr": [
   649,
   840
  ],
  "series-saas": [
+  649,
+  840
+ ],
+ "series-saas-hr": [
   649,
   840
  ],
@@ -359,11 +359,31 @@
   512,
   800
  ],
+ "the-age-check-without-the-id": [
+  525,
+  840
+ ],
+ "the-cold-chain-cyber-plan": [
+  525,
+  840
+ ],
  "the-honest-checkout": [
   525,
   840
  ],
  "the-product-support-clock": [
+  525,
+  840
+ ],
+ "the-qr-code-checkpoint": [
+  525,
+  840
+ ],
+ "the-software-ingredient-label": [
+  525,
+  840
+ ],
+ "the-wallet-ready-business": [
   525,
   840
  ],

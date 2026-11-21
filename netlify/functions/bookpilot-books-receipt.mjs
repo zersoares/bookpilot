@@ -671,6 +671,51 @@ export const BOOKS = {
       ["EPUB", "The-Product-Support-Clock-bk-b0fa379f91.epub"],
     ],
   },
+  plink_1UeJFcLfqCbvloYwbBOlillr: {
+    lang: "en",
+    name: "The Age Check Without the ID",
+    page: "thanks-the-age-check-without-the-id-bk-e4b034fa03.html",
+    files: [
+      ["PDF", "The-Age-Check-Without-the-ID-bk-e4b034fa03.pdf"],
+      ["EPUB", "The-Age-Check-Without-the-ID-bk-e4b034fa03.epub"],
+    ],
+  },
+  plink_1UeJHOLfqCbvloYwXQcS9wBD: {
+    lang: "en",
+    name: "The QR Code Checkpoint",
+    page: "thanks-the-qr-code-checkpoint-bk-6cef95175f.html",
+    files: [
+      ["PDF", "The-QR-Code-Checkpoint-bk-6cef95175f.pdf"],
+      ["EPUB", "The-QR-Code-Checkpoint-bk-6cef95175f.epub"],
+    ],
+  },
+  plink_1UeJJ8LfqCbvloYwt1rOI75q: {
+    lang: "en",
+    name: "The Wallet-Ready Business",
+    page: "thanks-the-wallet-ready-business-bk-40786fb3e4.html",
+    files: [
+      ["PDF", "The-Wallet-Ready-Business-bk-40786fb3e4.pdf"],
+      ["EPUB", "The-Wallet-Ready-Business-bk-40786fb3e4.epub"],
+    ],
+  },
+  plink_1UeJKGLfqCbvloYwqKD1pDA7: {
+    lang: "en",
+    name: "The Software Ingredient Label",
+    page: "thanks-the-software-ingredient-label-bk-d9c3d5a528.html",
+    files: [
+      ["PDF", "The-Software-Ingredient-Label-bk-d9c3d5a528.pdf"],
+      ["EPUB", "The-Software-Ingredient-Label-bk-d9c3d5a528.epub"],
+    ],
+  },
+  plink_1UeJN3LfqCbvloYw81PY6vbF: {
+    lang: "en",
+    name: "The Cold Chain Cyber Plan",
+    page: "thanks-the-cold-chain-cyber-plan-bk-84eeb37614.html",
+    files: [
+      ["PDF", "The-Cold-Chain-Cyber-Plan-bk-84eeb37614.pdf"],
+      ["EPUB", "The-Cold-Chain-Cyber-Plan-bk-84eeb37614.epub"],
+    ],
+  },
 };
 
 const TEXT = {
