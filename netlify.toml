@@ -1294,3 +1294,18 @@
   for = "/books/thanks-the-product-passport-playbook-bk-fdb7b23a54.html"
   [headers.values]
     X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Quantum-Question-bk-d9355a5ca8.pdf"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/The-Quantum-Question-bk-d9355a5ca8.epub"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/books/thanks-the-quantum-question-bk-d9355a5ca8.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

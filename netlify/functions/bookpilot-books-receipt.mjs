@@ -725,6 +725,15 @@ export const BOOKS = {
       ["EPUB", "The-Product-Passport-Playbook-bk-fdb7b23a54.epub"],
     ],
   },
+  plink_1Ufh51LfqCbvloYw89Ti1KhY: {
+    lang: "en",
+    name: "The Quantum Question",
+    page: "thanks-the-quantum-question-bk-d9355a5ca8.html",
+    files: [
+      ["PDF", "The-Quantum-Question-bk-d9355a5ca8.pdf"],
+      ["EPUB", "The-Quantum-Question-bk-d9355a5ca8.epub"],
+    ],
+  },
 };
 
 const TEXT = {
