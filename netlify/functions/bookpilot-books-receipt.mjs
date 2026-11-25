@@ -716,6 +716,15 @@ export const BOOKS = {
       ["EPUB", "The-Cold-Chain-Cyber-Plan-bk-84eeb37614.epub"],
     ],
   },
+  plink_1UfgnqLfqCbvloYwFUINpjMl: {
+    lang: "en",
+    name: "The Product Passport Playbook",
+    page: "thanks-the-product-passport-playbook-bk-fdb7b23a54.html",
+    files: [
+      ["PDF", "The-Product-Passport-Playbook-bk-fdb7b23a54.pdf"],
+      ["EPUB", "The-Product-Passport-Playbook-bk-fdb7b23a54.epub"],
+    ],
+  },
 };
 
 const TEXT = {
